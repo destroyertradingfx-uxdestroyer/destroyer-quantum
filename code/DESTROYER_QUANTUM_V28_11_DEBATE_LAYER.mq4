@@ -4615,7 +4615,7 @@ int v24_lastSignalType[10];        // Last signal type per strategy (1=buy, -1=s
 #define MAX_MAGIC 17
 
 //--- Minimum weighted conviction for a trade to pass debate
-#define MIN_CONVICTION_THRESHOLD 0.30
+#define MIN_CONVICTION_THRESHOLD 0.10
 
 //--- Divergence threshold (both sides above this = conflict)
 #define DIVERGENCE_THRESHOLD 0.50
@@ -6032,28 +6032,8 @@ int ExecuteDebateTrade()
 
    if(bestSignal.direction == -1) return -1;
 
-   // Step 4: Risk Panel (3 personas)
-   string aggressiveReason, conservativeReason, neutralReason;
-   bool aggressiveOK = AggressiveRiskCheck(bestSignal, aggressiveReason);
-   bool conservativeOK = ConservativeRiskCheck(bestSignal, conservativeReason);
-   bool neutralOK = NeutralRiskCheck(bestSignal, neutralReason);
-   int approvals = (aggressiveOK ? 1 : 0) + (conservativeOK ? 1 : 0) + (neutralOK ? 1 : 0);
-
-   LogError(ERROR_INFO, "RISK PANEL: " + IntegerToString(approvals) + "/3 approved" +
-            " (Agg=" + (aggressiveOK ? "OK" : "REJECT") +
-            " Cons=" + (conservativeOK ? "OK" : "REJECT") +
-            " Neu=" + (neutralOK ? "OK" : "REJECT") + ")", "ExecuteDebateTrade");
-
-   if(approvals < RISK_PANEL_MIN_APPROVALS)
-   {
-      if(!conservativeOK)
-         LogError(ERROR_WARNING, "RISK PANEL REJECT (conservative): " + conservativeReason, "ExecuteDebateTrade");
-      if(!neutralOK)
-         LogError(ERROR_WARNING, "RISK PANEL REJECT (neutral): " + neutralReason, "ExecuteDebateTrade");
-      return -1;
-   }
-
-   // Step 5: Calculate size multiplier
+   // Step 4: Size multiplier (no risk panel — debate voting decides)
+   int approvals = 3; // Always approved — debate is the gatekeeper
    double sizeMult = GetDebateSizeMultiplier(winningConviction, approvals, isDivergent);
    if(sizeMult <= 0) return -1;
 
