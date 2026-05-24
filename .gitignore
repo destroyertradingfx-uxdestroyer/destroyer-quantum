@@ -1,0 +1,16 @@
+# MetaTrader
+*.ex4
+*.ex5
+*.htm
+*.tmp
+ tester/
+ logs/
+
+# OS
+.DS_Store
+Thumbs.db
+*.swp
+
+# Hermes
+.hermes/
+*.log
