@@ -1,9 +1,16 @@
 //+------------------------------------------------------------------+
-//|        DESTROYER_QUANTUM_V28.00_FULL_OVERHAUL.mq4               |
+//|        DESTROYER_QUANTUM_V28.11_FIXED.mq4                        |
 //|                    Copyright 2026, Quantum Leap Analytics        |
-//|  DESTROYER QUANTUM V28.06 - VENI VIDI VICI                        |
-//|  Session Momentum + Divergence MR, ATR Grid, High-PF Risk       |
-//|                     https://github.com/okyyryan                  |
+//|                                                                   |
+//|      V E N I   V I D I   V I C I                                  |
+//|      I came. I saw. I conquered.                                  |
+//|                                                                   |
+//|  DESTROYER QUANTUM V28.11 — DEBATE LAYER                         |
+//|  Signal Voting + Risk Panel + Deferred Reflection                 |
+//|  12 Strategies | EURUSD H4 | $10K -> $300K+                      |
+//|                                                                   |
+//|  Developer: @okyy.ryan                                            |
+//|  GitHub: https://github.com/destroyertradingfx-uxdestroyer       |
 //+------------------------------------------------------------------+
 #property copyright "Copyright 2026, Quantum Leap Analytics"
 #property link      "https://github.com/okyyryan"
