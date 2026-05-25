@@ -1,0 +1,39 @@
+//=== DESTROYER QUANTUM V28.06 — SILICON-X OPTIMIZATION SWEEP ===
+// VENI VIDI VICI
+// Silicon-X was PF 10.98 on 53 trades in V17.8
+// Now using ATR-based grid spacing (V28.00 upgrade)
+// Sweep to find optimal parameters
+//
+//=== SILICON-X CORE ===
+InpSiliconX_Enabled=true
+InpSX_InitialLot=0.01||0.01||0.01||0.05||
+InpSX_LotExponent=1.3||1.1||0.1||1.8||
+InpSX_MaxLevels=8||4||1||12||
+InpSX_PipStep=180||100||20||300||
+InpSX_TakeProfit_Points=2400||1200||400||4000||
+InpSX_StopLoss_Points=1200||600||200||2400||
+//
+//=== BASKET MANAGEMENT ===
+InpSX_EnableBasketTP=true
+InpSX_BasketProfitTargetUSD=25.0||15.0||5.0||60.0||
+//
+//=== ATR TRAILING ===
+InpSX_EnableATRtrail=true
+InpSX_ATR_Multiplier=3.0||2.0||0.5||5.0||
+InpSX_ATR_Period=14||10||2||25||
+InpSX_ATR_MAPeriod=100||50||10||200||
+//
+//=== RISK ENGINE ===
+InpSX_RiskOn=true
+InpSX_Risk=15.0||10.0||5.0||30.0||
+InpSX_FixLot=0.01||0.01||0.01||0.05||
+//
+//=== AEGIS BASKET TRAIL ===
+InpSX_EnableAegisTrail=true
+InpSX_BasketTrailStartUSD=50.0||25.0||10.0||100.0||
+InpSX_BasketTrailStopPips=100||50||25||200||
+//
+//=== ORDER TRAILING ===
+InpSX_TrailingOrderStart=500||300||100||800||
+InpSX_TrailingOrderStop=100||50||25||200||
+InpSX_PendingTrailStartPips=50||30||10||100||

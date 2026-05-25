@@ -1,0 +1,33 @@
+//=== DESTROYER QUANTUM V28.06 — AGGRESSIVE OPT_RISK ===
+// VENI VIDI VICI
+// Based on Aggressive config ($68K, PF 1.89, DD 26.35%)
+// Sweep risk parameters to find the MAXIMUM tolerable risk
+// Expected: hundreds of combinations via MT4 optimizer
+//
+//=== CORE RISK ===
+InpBase_Risk_Percent=1.5||1.0||0.25||3.0||
+InpBase_Risk_Percent_H1=0.4||0.20||0.10||0.80||
+InpDefensiveDD_Percent=20.0||15.0||2.5||30.0||
+InpDrawdown_Risk_Mult=0.4||0.25||0.05||0.60||
+InpMaxOpenTrades=16||10||2||24||
+InpMaxLotSize=8.0||4.0||2.0||15.0||
+InpMaxTotalRisk_Percent=12.0||8.0||2.0||20.0||
+InpMaxRiskPerTrade=0.8||0.5||0.1||1.5||
+//
+//=== LEVIATHAN (Kelly) ===
+InpLeviathan_KellyFraction=0.35||0.20||0.05||0.60||
+InpLeviathan_MaxRisk=7.0||4.0||1.0||10.0||
+InpLeviathan_MinRisk=0.75||0.50||0.25||1.50||
+//
+//=== QUEEN SAFETY ===
+InpQueen_MaxDrawdownPct=7.0||5.0||1.0||12.0||
+InpQueen_MaxExposureLots=2.0||1.0||0.5||4.0||
+InpQueen_ReaperDDKillPct=4.0||2.0||1.0||7.0||
+InpQueen_MaxConcurrentBaskets=3||2||1||5||
+InpHades_BasketStopLoss_Percent=3.5||2.0||0.5||6.0||
+//
+//=== EVENT RISK ===
+InpATR_SpikeMultiplier=2.0||1.5||0.1||3.0||
+InpATR_SpikeLockoutHours=8||4||4||24||
+InpMaxConsecutiveLoss=4||2||1||6||
+InpLossLockoutHours=18||12||6||48||

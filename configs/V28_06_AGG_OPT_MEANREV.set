@@ -1,0 +1,13 @@
+//=== DESTROYER QUANTUM V28.06 — AGGRESSIVE OPT_MEANREV ===
+// VENI VIDI VICI
+// Based on Aggressive config — sweep Mean Reversion parameters
+//
+InpMR_BB_Period=15||10||5||30||
+InpMR_BB_Dev=1.7||1.3||0.1||2.5||
+InpMR_RSI_Period=10||7||2||20||
+InpMR_RSI_OB=58.0||50.0||2.0||70.0||
+InpMR_RSI_OS=42.0||30.0||2.0||50.0||
+InpMR_CCI_Period=20||14||2||30||
+InpMR_ADX_Threshold=18.0||12.0||2.0||30.0||
+InpMinTQSForEntry=0.25||0.15||0.05||0.50||
+InpShortBiasThreshold=0.35||0.20||0.05||0.60||

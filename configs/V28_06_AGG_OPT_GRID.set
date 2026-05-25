@@ -1,0 +1,23 @@
+//=== DESTROYER QUANTUM V28.06 — AGGRESSIVE OPT_GRID ===
+// VENI VIDI VICI
+// Based on Aggressive config — sweep Reaper grid parameters
+//
+//=== REAPER GRID ===
+InpReaper_InitialLot=0.12||0.06||0.02||0.25||
+InpReaper_LotMultiplier=1.4||1.1||0.1||2.0||
+InpReaper_MaxLevels=10||5||1||14||
+InpReaper_PipStep=20||10||5||40||
+InpReaper_BasketTP=75.0||40.0||10.0||120.0||
+InpReaper_BasketTP_Money=600.0||300.0||100.0||1000.0||
+InpReaper_ATR_GridMult=0.5||0.3||0.1||1.0||
+InpReaper_CooldownBars=2||1||1||5||
+InpReaper_RegimeADX=50.0||35.0||5.0||70.0||
+//
+//=== REAPER TRAILING ===
+InpReaper_TrailStart_Money=200.0||100.0||50.0||400.0||
+InpReaper_TrailStop_Pips=400||200||50||600||
+//
+//=== SENTINEL FILTER ===
+InpSentinel_MaxADX=30.0||20.0||5.0||40.0||
+InpSentinel_MTF_MAPeriod=21||14||7||50||
+InpSentinel_MaxATR_Mult=1.3||1.0||0.1||2.0||

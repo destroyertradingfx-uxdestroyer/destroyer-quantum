@@ -1,0 +1,50 @@
+//=== DESTROYER QUANTUM V28.06 — AGGRESSIVE OPT_TRAILS ===
+// VENI VIDI VICI
+// Based on Aggressive config — sweep all trailing/SL/TP parameters
+//
+//=== PSAR ===
+InpPSAR_Step=0.02||0.01||0.005||0.04||
+InpPSAR_Max=0.2||0.1||0.05||0.3||
+//
+//=== CHANDELIER ===
+InpChandelier_Period=22||14||2||30||
+InpChandelier_Multiplier=3.0||2.0||0.5||4.5||
+//
+//=== EMA TRAIL ===
+InpEMA_Trail_Period=10||5||2||20||
+//
+//=== ATR ===
+InpATR_Multiplier=2.5||1.5||0.5||4.0||
+//
+//=== CHRONOS ===
+InpChronos_ScalpSL_Pips=30.0||15.0||5.0||45.0||
+InpChronos_ScalpTP_Pips=45.0||25.0||5.0||70.0||
+InpChronos_LotSizeMultiplier=0.7||0.3||0.1||1.2||
+//
+//=== SESSION MOMENTUM ===
+InpSessionMomentum_ATR_SL_Mult=1.5||1.0||0.5||3.0||
+InpSessionMomentum_ATR_TP_Mult=3.0||2.0||0.5||5.0||
+InpSessionMomentum_ADX_Threshold=20.0||15.0||5.0||35.0||
+//
+//=== DIVERGENCE MR ===
+InpDivergenceMR_ATR_SL_Mult=2.0||1.0||0.5||3.5||
+InpDivergenceMR_ATR_TP_Mult=3.0||2.0||0.5||5.0||
+InpDivergenceMR_ADX_Max=30.0||20.0||5.0||45.0||
+InpDivergenceMR_Hurst_Threshold=0.55||0.45||0.05||0.70||
+//
+//=== APEX ===
+InpApex_ATR_Multiplier_SL=1.5||1.0||0.25||3.0||
+InpApex_ATR_Multiplier_TP=1.2||0.8||0.2||2.5||
+InpApex_ATR_Trigger=1.5||1.0||0.25||2.5||
+//
+//=== PHANTOM ===
+InpPhantom_MaxGap_Pips=30.0||15.0||5.0||50.0||
+InpPhantom_MinGap_Pips=5.0||3.0||1.0||15.0||
+InpPhantom_SL_GapMult=2.0||1.5||0.5||3.5||
+InpPhantom_TP_GapMult=0.9||0.5||0.1||1.5||
+//
+//=== STRUCTURAL RETEST ===
+InpStructuralRetest_ATR_SL_Mult=1.5||1.0||0.5||3.0||
+InpStructuralRetest_ATR_TP_Mult=3.0||2.0||0.5||5.0||
+InpStructuralRetest_MinRR=2.0||1.5||0.5||3.5||
+InpStructuralRetest_RetraceBars=20||10||5||40||

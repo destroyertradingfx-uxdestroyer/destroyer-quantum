@@ -1,0 +1,11 @@
+//=== DESTROYER QUANTUM V28.06 — AGGRESSIVE OPT_NOISE ===
+// VENI VIDI VICI
+// Based on Aggressive config — sweep Noise Breakout parameters
+//
+InpNoiseBB_Period=20||14||2||30||
+InpNoiseBB_Dev=2.0||1.5||0.25||3.0||
+InpNoiseKC_Period=20||14||2||30||
+InpNoiseKC_ATR_Mult=1.5||1.0||0.25||2.5||
+InpNoiseMomentum_MA=50||30||10||100||
+InpNoiseMinVolMult=0.5||0.3||0.1||1.0||
+InpNoiseBreakoutATRMult=0.15||0.05||0.05||0.40||

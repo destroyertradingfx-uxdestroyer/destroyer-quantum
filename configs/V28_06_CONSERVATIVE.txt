@@ -1,0 +1,63 @@
+//=== DESTROYER QUANTUM V28.06 — CONSERVATIVE PROFILE ===
+// VENI VIDI VICI
+// Maximum protection. Low risk, tight filters, strict safety.
+// Target: <10% DD, reliable growth, institutional-level safety
+// Good for: Funded accounts, prop firm challenges, capital preservation
+//
+//=== CORE RISK ===
+InpBase_Risk_Percent=0.5
+InpBase_Risk_Percent_H1=0.15
+InpDefensiveDD_Percent=10.0
+InpDrawdown_Risk_Mult=0.2
+InpMaxOpenTrades=8
+InpMaxLotSize=3.0
+InpMaxTotalRisk_Percent=5.0
+InpMaxRiskPerTrade=0.3
+//
+//=== LEVIATHAN ===
+InpLeviathan_KellyFraction=0.15
+InpLeviathan_MaxRisk=3.0
+InpLeviathan_MinRisk=0.25
+//
+//=== QUEEN SAFETY ===
+InpQueen_MaxDrawdownPct=4.0
+InpQueen_MaxExposureLots=0.5
+InpQueen_ReaperDDKillPct=2.0
+InpQueen_MaxConcurrentBaskets=1
+InpHades_BasketStopLoss_Percent=2.0
+//
+//=== MEAN REVERSION (Tighter filters) ===
+InpMR_BB_Dev=2.1
+InpMR_RSI_OB=65.0
+InpMR_RSI_OS=35.0
+InpMR_ADX_Threshold=25.0
+InpMinTQSForEntry=0.45
+//
+//=== REAPER GRID (Conservative) ===
+InpReaper_InitialLot=0.04
+InpReaper_LotMultiplier=1.2
+InpReaper_MaxLevels=6
+InpReaper_PipStep=30
+InpReaper_BasketTP=35.0
+InpReaper_BasketTP_Money=250.0
+InpReaper_TrailStart_Money=100.0
+InpReaper_TrailStop_Pips=250
+InpSentinel_MaxADX=20.0
+//
+//=== CHRONOS (Tight) ===
+InpChronos_ScalpSL_Pips=20.0
+InpChronos_ScalpTP_Pips=30.0
+InpChronos_LotSizeMultiplier=0.3
+//
+//=== EVENT RISK (Strict) ===
+InpATR_SpikeMultiplier=1.5
+InpATR_SpikeLockoutHours=18
+InpMaxConsecutiveLoss=2
+InpLossLockoutHours=36
+//
+//=== TIME FILTER ===
+InpEnableTimeFilter=true
+InpTradingStartHour=8
+InpTradingEndHour=17
+InpTradeWednesday=false
+InpTradeFriday=true

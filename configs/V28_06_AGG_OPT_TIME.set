@@ -1,0 +1,15 @@
+//=== DESTROYER QUANTUM V28.06 — AGGRESSIVE OPT_TIME ===
+// VENI VIDI VICI
+// Based on Aggressive config — sweep trading hours
+//
+InpEnableTimeFilter=true
+InpTradingStartHour=7||5||1||14||
+InpTradingEndHour=19||14||1||23||
+InpServerUTCOffset=2
+InpTradeMonday=true
+InpTradeTuesday=true
+InpTradeWednesday=false
+InpTradeThursday=true
+InpTradeFriday=true
+InpTradeSaturday=false
+InpTradeSunday=false

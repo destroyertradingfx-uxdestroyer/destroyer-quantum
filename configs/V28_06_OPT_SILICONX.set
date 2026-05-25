@@ -1,0 +1,26 @@
+//=== DESTROYER QUANTUM V28.06 — SILICON-X OPTIMIZATION ===
+// VENI VIDI VICI
+// Silicon-X was PF 10.98 in V17.8 — bring it back online
+// Based on Aggressive config with Silicon-X enabled
+// Sweep Silicon-X parameters to find optimal grid settings
+//
+InpSiliconX_Enabled=true
+InpSX_InitialLot=0.01||0.01||0.01||0.10||
+InpSX_LotExponent=1.3||1.0||0.1||1.8||
+InpSX_MaxLevels=8||4||1||12||
+InpSX_PipStep=180||100||20||300||
+InpSX_Hubble_LengthA=242||100||50||400||
+InpSX_Hubble_DeviationA=5.2||3.0||0.5||8.0||
+InpSX_Hubble_LengthB=354||200||50||500||
+InpSX_Hubble_DeviationB=22.74||15.0||2.0||30.0||
+InpSX_TakeProfit_Points=2400||1000||200||4000||
+InpSX_StopLoss_Points=1200||600||200||2000||
+InpSX_BasketProfitTargetUSD=25.0||15.0||5.0||60.0||
+InpSX_ATR_Multiplier=3.0||2.0||0.5||5.0||
+InpSX_ATR_Period=14||10||2||25||
+InpSX_Risk=15.0||10.0||5.0||25.0||
+InpSX_BasketTrailStartUSD=50.0||25.0||10.0||100.0||
+InpSX_BasketTrailStopPips=100||50||20||200||
+InpSX_TrailingOrderStart=500||300||100||800||
+InpSX_TrailingOrderStop=100||50||25||200||
+InpSX_PendingTrailStartPips=50||30||10||100||
