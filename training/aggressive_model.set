@@ -1,0 +1,39 @@
+; ================================================================
+; DESTROYER QUANTUM — TRAINED MODEL
+; Generated: 2026-05-25 18:44:29
+; ================================================================
+
+; === PHANTOM ===
+InpPhantom_Enabled=true
+InpPhantom_MinGap_Pips=5.0
+InpPhantom_MaxGap_Pips=30.0
+InpPhantom_SL_GapMult=2.0
+InpPhantom_TP_GapMult=0.9
+
+; === NOISE_BREAKOUT ===
+InpNoiseBreakout_Enabled=true
+
+; === MEAN_REVERSION ===
+InpMeanReversion_Enabled=true
+InpMR_BB_Period=15
+InpMR_BB_Dev=1.7
+InpMR_RSI_Period=10
+InpMR_RSI_OB=58.0
+InpMR_RSI_OS=42.0
+InpMR_ADX_Threshold=18.0
+
+; === REAPER ===
+InpReaper_Enabled=true
+InpReaper_InitialLot=0.12
+InpReaper_LotMultiplier=1.4
+InpReaper_MaxLevels=10
+InpReaper_PipStep=20
+InpReaper_BasketTP=75
+InpReaper_BasketTP_Money=600
+InpReaper_TrailStart_Money=200
+InpReaper_TrailStop_Pips=400
+
+; === SESSION_MOMENTUM ===
+InpSessionMomentum_Enabled=true
+InpSM_Lookback=10
+InpSM_MomentumThreshold=0.002

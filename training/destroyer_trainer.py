@@ -426,6 +426,7 @@ class MeanReversionStrategy(BaseStrategy):
         super().__init__("MeanReversion", merged)
     
     def _calc_rsi(self, closes: pd.Series, period: int) -> float:
+        period = max(2, int(round(period)))
         if len(closes) < period + 1:
             return 50.0
         delta = closes.diff()
@@ -436,6 +437,7 @@ class MeanReversionStrategy(BaseStrategy):
         return rsi.iloc[-1] if not np.isnan(rsi.iloc[-1]) else 50.0
     
     def _calc_bb(self, closes: pd.Series, period: int, dev: float):
+        period = max(2, int(round(period)))
         if len(closes) < period:
             return None, None, None
         sma = closes.rolling(window=period).mean()
@@ -606,6 +608,9 @@ class ReaperGridStrategy(BaseStrategy):
         
         else:
             # Add grid level when price moves against us
+            if len(self.open_trades) == 0:
+                return None
+            
             last_trade = self.open_trades[-1]
             
             if self.grid_direction == 'BUY':
@@ -982,10 +987,10 @@ class Backtester:
 # PARAMETER OPTIMIZER (ML-based)
 # ============================================================
 
-from scipy.optimize import differential_evolution
+from scipy.optimize import minimize
 
 class ParameterOptimizer:
-    """Optimizes strategy parameters using genetic algorithms."""
+    """Optimizes strategy parameters using random search + local refinement."""
     
     def __init__(self, backtester_factory, data: pd.DataFrame):
         """
@@ -998,55 +1003,95 @@ class ParameterOptimizer:
         self.best_score = -float('inf')
         self.history = []
     
+    def _evaluate(self, params: dict) -> float:
+        """Evaluate a single parameter set."""
+        bt = self.backtester_factory(params)
+        result = bt.run(self.data)
+        
+        # Score: maximize profit while penalizing drawdown
+        score = result.net_profit - (result.max_drawdown_pct * 100)
+        
+        # Track history
+        self.history.append({
+            'params': params.copy(),
+            'profit': result.net_profit,
+            'pf': result.profit_factor,
+            'dd': result.max_drawdown_pct,
+            'score': score,
+        })
+        
+        if score > self.best_score:
+            self.best_score = score
+            self.best_params = params.copy()
+            print(f"  New best: Profit=${result.net_profit:,.0f} PF={result.profit_factor:.2f} DD={result.max_drawdown_pct:.1f}% Score={score:.0f}")
+        
+        return -score  # Minimize negative score
+    
     def optimize(self, param_space: dict, max_iter: int = 50, popsize: int = 15) -> dict:
         """
-        Run optimization using differential evolution.
+        Run optimization using random search with local refinement.
         
         param_space: dict of {param_name: (min, max)} bounds
         """
         param_names = list(param_space.keys())
         bounds = [param_space[name] for name in param_names]
         
-        def objective(x):
-            params = dict(zip(param_names, x))
-            
-            # Run backtest
-            bt = self.backtester_factory(params)
-            result = bt.run(self.data)
-            
-            # Score: maximize profit while penalizing drawdown
-            score = result.net_profit - (result.max_drawdown_pct * 100)
-            
-            # Track history
-            self.history.append({
-                'params': params.copy(),
-                'profit': result.net_profit,
-                'pf': result.profit_factor,
-                'dd': result.max_drawdown_pct,
-                'score': score,
-            })
-            
-            if score > self.best_score:
-                self.best_score = score
-                self.best_params = params.copy()
-                print(f"  New best: Profit=${result.net_profit:,.0f} PF={result.profit_factor:.2f} DD={result.max_drawdown_pct:.1f}% Score={score:.0f}")
-            
-            return -score  # Minimize negative score
-        
         print(f"Starting optimization with {len(param_names)} parameters...")
-        print(f"Population size: {popsize}, Max iterations: {max_iter}")
+        print(f"Running {max_iter} iterations with population size {popsize}")
         
-        result = differential_evolution(
-            objective,
-            bounds,
-            maxiter=max_iter,
-            popsize=popsize,
-            tol=0.01,
-            seed=42,
-            disp=True,
+        # Phase 1: Random search
+        print("\n=== Phase 1: Random Search ===")
+        import random
+        random.seed(42)
+        
+        best_random_score = -float('inf')
+        best_random_params = None
+        
+        for i in range(max_iter):
+            # Generate random parameters
+            params = {}
+            for name, (low, high) in param_space.items():
+                if isinstance(low, int) and isinstance(high, int):
+                    params[name] = random.randint(low, high)
+                else:
+                    params[name] = random.uniform(low, high)
+            
+            score = self._evaluate(params)
+            
+            if -score > best_random_score:
+                best_random_score = -score
+                best_random_params = params.copy()
+            
+            if (i + 1) % 10 == 0:
+                print(f"  Iteration {i+1}/{max_iter} | Best score so far: {best_random_score:.0f}")
+        
+        # Phase 2: Local refinement around best found
+        print("\n=== Phase 2: Local Refinement ===")
+        
+        def local_objective(x):
+            params = dict(zip(param_names, x))
+            return self._evaluate(params)
+        
+        # Convert best params to array
+        x0 = [best_random_params[name] for name in param_names]
+        
+        # Run local optimization
+        result = minimize(
+            local_objective,
+            x0,
+            method='Nelder-Mead',
+            options={'maxiter': 100, 'xatol': 0.01, 'fatol': 100}
         )
         
-        return self.best_params
+        # Convert back to dict
+        optimized_params = dict(zip(param_names, result.x))
+        
+        # Ensure integer params are integers
+        for name, (low, high) in param_space.items():
+            if isinstance(low, int) and isinstance(high, int):
+                optimized_params[name] = int(round(optimized_params[name]))
+        
+        return optimized_params
 
 
 # ============================================================
@@ -1088,16 +1133,25 @@ def load_generic_csv(filepath: str) -> pd.DataFrame:
     """Load generic OHLCV CSV (any format)."""
     df = pd.read_csv(filepath)
     
-    # Try to detect time column
-    time_cols = [c for c in df.columns if 'time' in c.lower() or 'date' in c.lower()]
-    if time_cols:
-        df = df.rename(columns={time_cols[0]: 'time'})
-        df['time'] = pd.to_datetime(df['time'])
+    # Lowercase all column names for matching
+    original_cols = df.columns.tolist()
+    df.columns = [c.lower().strip() for c in df.columns]
+    
+    # Detect time column
+    time_col = None
+    for c in df.columns:
+        if 'datetime' in c or 'time' in c or 'date' in c:
+            time_col = c
+            break
+    
+    if time_col:
+        df = df.rename(columns={time_col: 'time'})
+        df['time'] = pd.to_datetime(df['time'], utc=True)
         df['hour'] = df['time'].dt.hour
         df['dayofweek'] = df['time'].dt.dayofweek
         df.set_index('time', inplace=True)
     
-    # Try to detect OHLCV columns
+    # Map OHLCV columns
     for target, patterns in {
         'open': ['open', 'o'],
         'high': ['high', 'h'],
@@ -1106,7 +1160,7 @@ def load_generic_csv(filepath: str) -> pd.DataFrame:
         'volume': ['volume', 'vol', 'v'],
     }.items():
         for pattern in patterns:
-            matches = [c for c in df.columns if pattern in c.lower()]
+            matches = [c for c in df.columns if c == pattern]
             if matches:
                 df = df.rename(columns={matches[0]: target})
                 break

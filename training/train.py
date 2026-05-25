@@ -373,10 +373,7 @@ def main():
     
     # Load data
     print(f"Loading data from {args.data}...")
-    try:
-        data = load_mt4_csv(args.data)
-    except:
-        data = load_generic_csv(args.data)
+    data = load_generic_csv(args.data)
     
     print(f"Loaded {len(data)} bars")
     print(f"Date range: {data.index[0]} to {data.index[-1]}")
