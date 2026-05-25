@@ -1088,11 +1088,11 @@ extern string  InpTradeComment         = "DQ_V17.10_PH4"; // V17.10 Phase 4 High
 //--- Cerberus Model A: Mean-Reversion (Simplified)
 sinput string Inp_Header_MeanReversion= "====== CERBERUS MODEL A: MEAN-REVERSION (ADAPTIVE) ======";
 extern bool    InpMeanReversion_Enabled= true;        // ENABLED: OPERATION LEVIATHAN - All strategies active
-extern int     InpMR_BB_Period         = 15;          // Bollinger Bands Period
-extern double  InpMR_BB_Dev            = 1.7;         // AGGRESSIVE: Tighter for more signals         // Tighter bands for more signals
-extern int     InpMR_RSI_Period        = 10;          // RSI Period
-extern double  InpMR_RSI_OB            = 58.0;        // AGGRESSIVE: More entries        // V27.18: Tightened from 65.0 — fewer but higher quality Mean Rev entries
-extern double  InpMR_RSI_OS            = 42.0;        // AGGRESSIVE: More entries        // V27.18: Tightened from 35.0 — fewer but higher quality Mean Rev entries
+extern int     InpMR_BB_Period         = 20;          // DATA-OPTIMIZED: BB(20) from EURUSD H4 analysis
+extern double  InpMR_BB_Dev            = 2.0;         // DATA-OPTIMIZED: BB(2.0) standard for mean reversion
+extern int     InpMR_RSI_Period        = 14;          // DATA-OPTIMIZED: RSI(14) standard period
+extern double  InpMR_RSI_OB            = 70.0;        // DATA-OPTIMIZED: RSI(70) overbought from data analysis
+extern double  InpMR_RSI_OS            = 30.0;        // DATA-OPTIMIZED: RSI(30) oversold from data analysis
 extern int     InpMR_CCI_Period        = 20;          // CCI Period for confirmation
 extern double  InpMR_ADX_Threshold     = 18.0;        // AGGRESSIVE: Looser filter        // NEW: ADX filter for trend strength
 
@@ -1186,7 +1186,7 @@ extern int     InpMinStopDistancePoints = 30;         // Minimum stop distance i
 
 //--- Cerberus Model T: The Titan (Multi-Timeframe Momentum) ---
 sinput string Inp_Header_Titan = "====== CERBERUS MODEL T: THE TITAN (MTF MOMENTUM) ======";
-extern bool   InpTitan_Enabled         = true;
+extern bool   InpTitan_Enabled         = false;       // DISABLED: 0 trades in backtest, no contribution
 extern int    InpTitan_MagicNumber     = 777008;
 extern int    InpTitan_D1_EMA          = 50;  // Strategic EMA on Daily chart
 extern int    InpTitan_H4_EMA          = 34;  // Strategic EMA on H4 chart
@@ -1199,7 +1199,7 @@ extern double InpHuntsman_Risk_Scale  = 0.5;         // Risk scaling factor duri
 
 //--- Cerberus Model W: The Warden (Volatility Squeeze) ---
 sinput string Inp_Header_Warden = "====== CERBERUS MODEL W: THE WARDEN (VOLATILITY SQUEEZE) ======";
-extern bool   InpWarden_Enabled        = true;       // ENABLED: OPERATION LEVIATHAN - All strategies active
+extern bool   InpWarden_Enabled        = false;       // DISABLED: 0 trades in backtest, squeeze detection too rare
 extern int    InpWarden_MagicNumber    = 777009;
 extern int    InpWarden_BB_Period      = 20;
 extern double InpWarden_BB_Dev         = 1.8;   // V27.10: Looser bands for more squeeze detections
@@ -1251,7 +1251,7 @@ extern bool   InpReaper_EnableEliteFilter = true; // MASTER SWITCH for the new f
 //--- Cerberus Model S: The Silicon-X Protocol (Grid/Martingale Hybrid) ---
 sinput string Inp_Header_SiliconX      = "====== CERBERUS MODEL S: SILICON-X (TRUE NORTH) ======";
 //--- Main Parameters
-extern bool   InpSiliconX_Enabled           = true;        // AGGRESSIVE: Silicon-X BACK ONLINE (fixed pips/points bugs)
+extern bool   InpSiliconX_Enabled           = false;       // DISABLED: Only $7.60 profit on 16 trades, dead weight
 extern double InpSX_InitialLot              = 0.01;         // Base lot size for the first trade in a series.
 extern double InpSX_LotExponent             = 1.3;          // V27.10: Reduced from 1.6 for gentler grid growth
 //--- Grid Mechanics
@@ -1342,7 +1342,7 @@ extern int     InpPhantom_MagicNumber     = 777013;
 // ============================================================
 // V26 BEEHIVE — NEXUS STRATEGY (Volatility Compression Breakout)
 // ============================================================
-extern bool    InpNexus_Enabled           = true;
+extern bool    InpNexus_Enabled           = false;       // DISABLED: Only 4 trades, minimal contribution
 extern int     InpNexus_ATR_Period        = 14;
 extern int     InpNexus_MedianLookback    = 50;
 extern int     InpNexus_CompressionBars   = 3;     // Bars below threshold to qualify
@@ -4528,7 +4528,7 @@ sinput string Inp_Header_SessionMomentum = "====== V28.00: SESSION MOMENTUM (LON
 input bool    InpSessionMomentum_Enabled        = true;       // Enable Session Momentum Strategy
 input int     InpSessionMomentum_MagicNumber    = 9003;       // Magic number for Session Momentum
 input int     InpSessionMomentum_ADX_Period     = 14;         // ADX period for trend confirmation
-input double  InpSessionMomentum_ADX_Threshold  = 20.0;       // ADX threshold for momentum filter
+input double  InpSessionMomentum_ADX_Threshold  = 20.0;       // DATA-OPTIMIZED: Lower ADX for more momentum signals
 input double  InpSessionMomentum_ATR_SL_Mult    = 1.5;        // ATR multiplier for stop loss
 input double  InpSessionMomentum_ATR_TP_Mult    = 3.0;        // ATR multiplier for take profit
 
