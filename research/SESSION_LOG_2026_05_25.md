@@ -35,7 +35,19 @@ Research for bridging the gap from TITAN's projected $138K to the $170K target.
 - DD projection: 27-33%
 
 ## Files Created
-- `/home/ubuntu/destroyer-quantum/research/TITAN_GAP_ANALYSIS_170K.md`
+**Projected: $140K-$190K profit**
+
+#### SIGMA (Critical Bug Fixes)
+Built on OMEGA + 8 critical fixes:
+1. DD Level Ordering — Level 3 was dead code (Level 4 at 12% caught everything)
+2. CountOpenTrades missing 6 strategies (invisible to portfolio cap)
+3. sxRoomAvailable gate blocked Apex/Phantom/Nexus
+4. Phantom: 2 concurrent, MinGap 3.0 pips
+5. NoiseBreakout: 4 concurrent
+6. Nexus Reaper gate REMOVED
+7. Base risk 2.5%, max loss $1200
+
+**Projected: $155K-$210K profit**
 
 ## Next Steps
 1. Ryan needs to backtest TITAN first

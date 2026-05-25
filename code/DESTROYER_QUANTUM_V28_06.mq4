@@ -1235,7 +1235,7 @@ extern double InpReaper_BasketTP_Money  = 600.0;      // AGGRESSIVE: Raised from
 sinput string InpReaper_Header_Chimera   = "====== REAPER: CHIMERA TRAILING DEFENSE ======";
 extern bool   InpReaper_EnableTrail       = true;       // Enable Reaper's defensive trailing stop.
 extern double InpReaper_TrailStart_Money  = 200.0;     // AGGRESSIVE: Raised from 150      // Profit in USD to activate trail & move to BE.
-extern int    InpReaper_TrailStop_Pips    = 400;       // AGGRESSIVE: Raised from 300        // Trailing distance in Pips after BE is activated (30 pips).
+extern int    InpReaper_TrailStop_Pips    = 40;        // AGGRESSIVE: 40 pips (corrected: was 400x _Point = 4 pips accidental scalper)
 
 //--- Cerberus Model R: THE REAPER - ALPHA SENTINEL FILTER ---
 sinput string Inp_Header_Reaper_Sentinel = "====== REAPER: ALPHA SENTINEL ENTRY FILTER ======";
@@ -1294,11 +1294,11 @@ extern double InpSX_Risk                   = 15.0;         // Risk multiplier (R
 sinput string InpSX_Header_Aegis        = "====== SILICON-X: AEGIS SHIELD BASKET TRAIL ======";
 extern bool   InpSX_EnableAegisTrail      = true;       // MASTER SWITCH: Enable/Disable Basket Trailing Stop.
 extern double InpSX_BasketTrailStartUSD   = 50.0;       // Profit in USD to activate the trail (move to Break-Even).
-extern int    InpSX_BasketTrailStopPips   = 100;        // Trailing distance in Pips after BE is activated.
+extern int    InpSX_BasketTrailStopPips      = 10;            // AGGRESSIVE: 10 pips (corrected: was 100x _Point = 1 pip accidental scalper)
 //--- V17.2: HUBBLE TELESCOPE - Pending Order Trailing System ---
 sinput string InpSX_Header_Hubble        = "====== SILICON-X: HUBBLE TELESCOPE ENTRY PRECISION ======";
 extern bool   InpSX_EnablePendingTrail    = true;       // MASTER SWITCH: Enable/Disable Pending Order Trailing.
-extern int    InpSX_PendingTrailStartPips = 50;         // Pips from market price to start trailing traps.
+extern int    InpSX_PendingTrailStartPips = 5;           // AGGRESSIVE: 5 pips (corrected: was 50x _Point = 0.5 pips)
 
 //+------------------------------------------------------------------+
 //|       HADES PROTOCOL: JUDGMENT DAY FAILSAFE                     |

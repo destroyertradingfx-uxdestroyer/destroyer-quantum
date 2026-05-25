@@ -1,0 +1,68 @@
+//=== DESTROYER QUANTUM V28.06 — TEST: Leviathan Kelly Fraction Boost ===
+// VENI VIDI VICI
+// Tests: Leviathan_KellyFraction 0.35 → 0.50 (+43%)
+// Starting from AGGRESSIVE baseline — ONLY this parameter changed.
+// Rationale: HIGH impact — Kelly fraction controls how aggressively
+// Leviathan allocates capital to high-confidence setups. At 0.35 it
+// already allocates 40% more than Moderate (0.25). Pushing to 0.50
+// means Leviathan goes "half-Kelly" — the theoretical optimal for
+// maximizing long-term growth in favorable setups.
+// Target: Push from $68K toward $75K+
+//
+//=== CORE RISK ===
+InpBase_Risk_Percent=1.5
+InpBase_Risk_Percent_H1=0.4
+InpDefensiveDD_Percent=20.0
+InpDrawdown_Risk_Mult=0.4
+InpMaxOpenTrades=16
+InpMaxLotSize=8.0
+InpMaxTotalRisk_Percent=12.0
+InpMaxRiskPerTrade=0.8
+//
+//=== LEVIATHAN ===
+InpLeviathan_KellyFraction=0.50
+InpLeviathan_MaxRisk=7.0
+InpLeviathan_MinRisk=0.75
+//
+//=== QUEEN SAFETY ===
+InpQueen_MaxDrawdownPct=7.0
+InpQueen_MaxExposureLots=2.0
+InpQueen_ReaperDDKillPct=4.0
+InpQueen_MaxConcurrentBaskets=3
+InpHades_BasketStopLoss_Percent=3.5
+//
+//=== MEAN REVERSION (Looser for more signals) ===
+InpMR_BB_Dev=1.7
+InpMR_RSI_OB=58.0
+InpMR_RSI_OS=42.0
+InpMR_ADX_Threshold=18.0
+InpMinTQSForEntry=0.25
+//
+//=== REAPER GRID (Aggressive) ===
+InpReaper_InitialLot=0.12
+InpReaper_LotMultiplier=1.4
+InpReaper_MaxLevels=10
+InpReaper_PipStep=20
+InpReaper_BasketTP=75.0
+InpReaper_BasketTP_Money=600.0
+InpReaper_TrailStart_Money=200.0
+InpReaper_TrailStop_Pips=400
+InpSentinel_MaxADX=30.0
+//
+//=== CHRONOS (Wider) ===
+InpChronos_ScalpSL_Pips=30.0
+InpChronos_ScalpTP_Pips=45.0
+InpChronos_LotSizeMultiplier=0.7
+//
+//=== EVENT RISK (Relaxed) ===
+InpATR_SpikeMultiplier=2.0
+InpATR_SpikeLockoutHours=8
+InpMaxConsecutiveLoss=4
+InpLossLockoutHours=18
+//
+//=== TIME FILTER ===
+InpEnableTimeFilter=true
+InpTradingStartHour=7
+InpTradingEndHour=19
+InpTradeWednesday=false
+InpTradeFriday=true
