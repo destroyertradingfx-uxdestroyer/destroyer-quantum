@@ -259,18 +259,40 @@ void UpdateEquityCurveMultiplier()
 
 ---
 
+## WHAT OMEGA ALREADY ADDRESSED (vs Gap Analysis)
+
+OMEGA (built after TITAN) already implemented:
+1. ✅ Vortex ENABLED
+2. ✅ RegimeShift ENABLED
+3. ✅ MaxOpenTrades 16→24 (was a bottleneck I missed — Reaper alone uses 16 slots)
+4. ✅ Phantom SL/TP improved (R:R from 0.45:1 to 0.8:1 — HUGE improvement)
+5. ✅ Phantom MaxGap 30→40 pips
+6. ✅ Chronos moved outside H4 block (was structurally dead — M15 scalper only ran 6x/day)
+7. ✅ Chronos Kalman filter relaxed
+8. ✅ Chronos RSI relaxed (30/70 → 40/60)
+9. ✅ DD protection adjusted
+
+## REMAINING GAPS (Still actionable beyond OMEGA)
+
+### Gap 1: Asian Range Breakout (+$10K-$20K) — NOT IN OMEGA
+SessionMomentum covers 6-20 UTC but the Asian session itself (00:00-06:00) creates a consolidation range that breaks at London open. This is a DISTINCT edge from the existing session strategy.
+
+### Gap 2: Equity Curve Anti-Martingale (+$15K-$25K) — NOT IN OMEGA
+Portfolio-level sizing multiplier that increases position size during winning streaks and decreases during losing streaks. Orthogonal to Kelly (which is per-strategy).
+
+### Gap 3: DivergenceMR OR gate — UNCERTAIN
+OMEGA header mentions "OR gate (RSI or BB, not both)" but need to verify implementation. If not done, this is another easy win.
+
 ## COMBINED IMPACT ESTIMATE
 
 | Strategy | Expected Profit | Expected Trades | DD Impact |
 |----------|----------------|-----------------|-----------|
-| TITAN base (projected) | $109K-$138K | 750-850 | 27-32% |
-| + Vortex/RegimeShift | +$8K-$15K | +35-70 | +1-2% |
+| OMEGA base (projected) | $140K-$190K | 800-950 | 27-33% |
 | + Asian Breakout | +$10K-$20K | +20-40 | +1-2% |
 | + Equity Curve Mult | +$15K-$25K | 0 (sizing only) | -2-4% |
-| + Strategy Optimization | +$5K-$10K | +10-30 | +0-1% |
-| **TOTAL PROJECTED** | **$147K-$208K** | **815-990** | **27-33%** |
+| **TOTAL PROJECTED** | **$165K-$235K** | **820-990** | **26-33%** |
 
-**Midpoint: ~$177K** — crosses the $170K target.
+**Midpoint: ~$200K** — well above the $170K target.
 
 ---
 
