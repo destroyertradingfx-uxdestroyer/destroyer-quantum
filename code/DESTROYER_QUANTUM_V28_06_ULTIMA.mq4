@@ -1,13 +1,13 @@
 //+------------------------------------------------------------------+
-//|        DESTROYER_QUANTUM_V28_06_SIGMA.mq4                       |
+//|        DESTROYER_QUANTUM_V28_06_ULTIMA.mq4                      |
 //|                    Copyright 2026, Quantum Leap Analytics        |
-//|  DESTROYER QUANTUM V28.06 SIGMA - VENI VIDI VICI                   |
+//|  DESTROYER QUANTUM V28.06 ULTIMA - VENI VIDI VICI                   |
 //|  Session Momentum + Divergence MR, ATR Grid, High-PF Risk       |
 //|                     https://github.com/okyyryan                  |
 //+------------------------------------------------------------------+
 #property copyright "Copyright 2026, Quantum Leap Analytics"
 #property link      "https://github.com/okyyryan"
-#property version   "28.06"  // V28.06 SIGMA: Critical bug fixes + final optimizations
+#property version   "28.06"  // V28.06 ULTIMA: Daily gaps + squeeze fix + Kelly amplified
 #property strict
 
 /*
@@ -1350,7 +1350,7 @@ extern int    InpQueen_MaxConcurrentBaskets = 5;     // IMPERATOR: Raised from 3
 // ============================================================
 extern bool    InpApex_Enabled            = true;
 extern double  InpApex_ATR_Multiplier_SL  = 1.5;   // SL = ATR × this value
-extern double  InpApex_ATR_Multiplier_TP  = 1.2;   // TP = ATR × this value
+extern double InpApex_ATR_Multiplier_TP = 2.0;  // ULTIMA: R:R from 0.8 to 1.33// TP = ATR × this value
 extern double  InpApex_ATR_Trigger        = 1.5;   // Bar range must exceed ATR × this to trigger
 extern int     InpApex_ATR_Period         = 20;
 extern int     InpApex_MagicNumber        = 777011;
@@ -1360,9 +1360,9 @@ extern int     InpApex_MagicNumber        = 777011;
 // ============================================================
 extern bool    InpPhantom_Enabled         = true;
 extern double InpPhantom_MaxGap_Pips = 40.0;  // OMEGA: More gap trades qualify// Only trade gaps ≤ this size
-extern double InpPhantom_MinGap_Pips = 3.0;  // SIGMA: More micro-gap trades// V27.10: Increased from 3.0 to avoid micro-gap noise
+extern double InpPhantom_MinGap_Pips = 2.0;  // ULTIMA: Capture smaller gaps  // SIGMA: More micro-gap trades// V27.10: Increased from 3.0 to avoid micro-gap noise
 extern double InpPhantom_SL_GapMult = 1.5;  // OMEGA: Tighter SL for better R:R// V27.10: Increased from 1.5 for wider SL
-extern double InpPhantom_TP_GapMult = 1.2;  // OMEGA: Wider TP — gap fills often overshoot
+extern double InpPhantom_TP_GapMult = 1.8;  // ULTIMA: Gap fills overshoot — wider TP  // OMEGA: Wider TP — gap fills often overshoot
 extern int     InpPhantom_MagicNumber     = 777013;
 
 // ============================================================
@@ -4388,7 +4388,7 @@ void ManageDrawdownExposure_V2()
       // Set global flag to block new entries
       g_ddProtectionActive = true;
    }
-   else if(ddPercent < 10.0)  // OMEGA: Reset at 10% (was 7%) // V28.00: Hysteresis - require DD < 7% to reset (was < 10%)
+   else if(ddPercent < 12.0)  // ULTIMA: Tighter hysteresis — resume sooner  // OMEGA: Reset at 10% (was 7%) // V28.00: Hysteresis - require DD < 7% to reset (was < 10%)
    {
       g_ddProtectionActive = false;
    }
@@ -6642,7 +6642,7 @@ void ExecuteNoiseBreakout()
     if(Period() != PERIOD_H4) return;
     
     // 2. SAFETY CHECKS
-    if(CountOpenTrades(InpNoiseBreakout_Magic) >= 4) return;  // SIGMA: Allow 4 concurrent  // OMEGA: Allow 3 concurrent
+    if(CountOpenTrades(InpNoiseBreakout_Magic) >= 6) return;  // ULTIMA: PF 1.79 deserves more  // SIGMA: Allow 4 concurrent  // OMEGA: Allow 3 concurrent
     if(!IsStrategyHealthy(InpNoiseBreakout_Magic)) return;
     if(!CheckMarketConditions()) return;
     if(!CheckTimeFilter()) return;
@@ -6667,7 +6667,7 @@ void ExecuteNoiseBreakout()
     // 5. BREAKOUT CONFIRMATION
     double breakout_bar_range = High[1] - Low[1];
     double avg_bar_range = iATR(Symbol(), Period(), 10, 1);
-    bool breakout_confirmed = (breakout_bar_range > avg_bar_range * 0.6);  // OMEGA: Lower threshold
+    bool breakout_confirmed = (breakout_bar_range > avg_bar_range * 0.4);  // ULTIMA: Lower threshold  // OMEGA: Lower threshold
     
     // 6. VOLUME CONFIRMATION (body size proxy)
     double body_curr = MathAbs(Close[1] - Open[1]);
@@ -6758,12 +6758,12 @@ void ExecuteApexStrategy()
 {
    if(!InpApex_Enabled) return;
    if(!IsStrategyHealthy(InpApex_MagicNumber)) return;
-   if(CountOpenTrades(InpApex_MagicNumber) > 0) return;
+   if(CountOpenTrades(InpApex_MagicNumber) >= 2) return;  // ULTIMA: 2 concurrent
    if(Period() != PERIOD_H4) return;
 
    // Session gate: Only trade the bar AFTER London open (07:00) or NY open (13:00) GMT
    int barHour = TimeHour(Time[1]); // Check the completed bar's open hour
-   bool inSessionWindow = (barHour == 7 || barHour == 13);
+   bool inSessionWindow = (barHour == 3 || barHour == 7 || barHour == 11 || barHour == 13 || barHour == 15);  // ULTIMA: 5 session windows
    if(!inSessionWindow) return;
 
    double atr = iATR(NULL, PERIOD_H4, InpApex_ATR_Period, 1);
@@ -6823,11 +6823,13 @@ void ExecutePhantomStrategy()
 {
    if(!InpPhantom_Enabled) return;
    if(!IsStrategyHealthy(InpPhantom_MagicNumber)) return;
-   if(CountOpenTrades(InpPhantom_MagicNumber) >= 2) return;  // SIGMA: Allow 2 concurrent
+   if(CountOpenTrades(InpPhantom_MagicNumber) >= 3) return;  // ULTIMA: 3 concurrent gap fades  // SIGMA: Allow 2 concurrent
    if(Period() != PERIOD_H4) return;
 
    // Only fire on Monday's first H4 bar (DayOfWeek == 1, hour 0–3)
-   if(DayOfWeek() != 1) return;
+   // ULTIMA: Trade ANY day's opening gap, not just Monday
+   int barHour = TimeHour(Time[0]);
+   if(barHour > 4) return;  // Only first H4 bar of each day
    if(TimeHour(TimeCurrent()) > 4) return; // Only first bar of Monday
 
    // Gap detection: Compare Monday open to Friday's last close
@@ -12902,10 +12904,10 @@ double MoneyManagement_Quantum(int magicNumber, double baseRiskPercent, double s
       double kellyFrac = g_stratKellyFraction[idx];
       // Use Kelly fraction as risk %, blend with base (60% Kelly, 40% base)
       // kellyFrac is in decimal (e.g., 0.03 = 3%), convert to % scale
-      effectiveRiskPercent = (kellyFrac * 100.0 * 0.8) + (baseRiskPercent * 0.2);  // TITAN: More Kelly weight
+      effectiveRiskPercent = (kellyFrac * 100.0 * 0.9) + (baseRiskPercent * 0.1);  // ULTIMA: Trust Kelly more  // TITAN: More Kelly weight
       // Clamp to reasonable bounds
       effectiveRiskPercent = MathMax(effectiveRiskPercent, 0.1);  // Min 0.1%
-      effectiveRiskPercent = MathMin(effectiveRiskPercent, 3.0);  // TITAN: Max 3.0% for $170K push  // Max 2.0% (safety)
+      effectiveRiskPercent = MathMin(effectiveRiskPercent, 4.0);  // ULTIMA: Kelly-governed  // TITAN: Max 3.0% for $170K push  // Max 2.0% (safety)
    }
    
    // ═══════════════════════════════════════════════════════════════
@@ -12915,7 +12917,7 @@ double MoneyManagement_Quantum(int magicNumber, double baseRiskPercent, double s
    double accountEquity = AccountEquity();
    // V27.21 FIX: Cap combined multiplier at 2.0x (was 3.0x in V27.20)
    // Lower cap reduces lot concentration and drawdown
-   double combinedMultiplier = MathMin(adaptiveMultiplier * heatMultiplier, 3.0);  // TITAN: Unlock heat amplification
+   double combinedMultiplier = MathMin(adaptiveMultiplier * heatMultiplier, 4.0);  // ULTIMA: Let heat amplify  // TITAN: Unlock heat amplification
    
    // V28.00: DD-based lot sizing reduction (tightened from 8%/10% to 5%/8%)
    double ddPercent = (AccountBalance() - accountEquity) / AccountBalance() * 100.0;
@@ -12941,7 +12943,7 @@ double MoneyManagement_Quantum(int magicNumber, double baseRiskPercent, double s
    
    // V27.21: Max loss per trade limit ($500)
    // Cap lots so that max loss doesn't exceed $500
-   double maxLossPerTrade = 1200.0;  // SIGMA: $1200 max loss — proportional to equity growth  // TITAN: $800 max loss — proportional to equity growth // $500 max loss per trade
+   double maxLossPerTrade = 1500.0;  // ULTIMA: Proportional to equity growth  // SIGMA: $1200 max loss — proportional to equity growth  // TITAN: $800 max loss — proportional to equity growth // $500 max loss per trade
    double maxLotsForMaxLoss = maxLossPerTrade / (stopPips * tickValue);
    if(finalLots > maxLotsForMaxLoss) finalLots = MathFloor(maxLotsForMaxLoss / lotStep) * lotStep;
    
@@ -14404,7 +14406,7 @@ void CalculateRollingKelly(int idx)
    // Where W = win rate, R = avgWin / avgLoss (payoff ratio)
    // We use HALF-KELLY for safety (standard institutional practice)
    // ═══════════════════════════════════════════════════════
-   double payoffRatio = (avgLoss > 0) ? MathMax(avgWin / avgLoss, 0.1) : 2.0;  // SIGMA FIX: floor at 0.1 to prevent zero divide
+   double payoffRatio = (avgLoss > 0) ? MathMax(avgWin / avgLoss, 0.1) : 2.0;  // SIGMA FIX: floor at 0.1
    double rawKelly = winRate - ((1.0 - winRate) / payoffRatio);
    
    // Half-Kelly for safety, clamped to reasonable bounds
