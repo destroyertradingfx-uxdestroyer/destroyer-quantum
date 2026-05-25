@@ -1,0 +1,66 @@
+//=== DESTROYER QUANTUM V28.06 — MODERATE PROFILE ===
+// VENI VIDI VICI
+// Balanced risk-reward. The proven V28.06 baseline with slight tuning.
+// Target: PF 2.0+, DD 15-20%, 500-700 trades
+// Good for: Live accounts, steady growth, the everyday config
+//
+//=== CORE RISK ===
+InpBase_Risk_Percent=1.0
+InpBase_Risk_Percent_H1=0.25
+InpDefensiveDD_Percent=15.0
+InpDrawdown_Risk_Mult=0.3
+InpMaxOpenTrades=12
+InpMaxLotSize=5.0
+InpMaxTotalRisk_Percent=8.0
+InpMaxRiskPerTrade=0.5
+//
+//=== LEVIATHAN ===
+InpLeviathan_KellyFraction=0.25
+InpLeviathan_MaxRisk=5.0
+InpLeviathan_MinRisk=0.5
+//
+//=== QUEEN SAFETY ===
+InpQueen_MaxDrawdownPct=5.0
+InpQueen_MaxExposureLots=1.0
+InpQueen_ReaperDDKillPct=3.0
+InpQueen_MaxConcurrentBaskets=2
+InpHades_BasketStopLoss_Percent=2.5
+//
+//=== MEAN REVERSION ===
+InpMR_BB_Period=15
+InpMR_BB_Dev=1.9
+InpMR_RSI_Period=10
+InpMR_RSI_OB=62.0
+InpMR_RSI_OS=38.0
+InpMR_CCI_Period=20
+InpMR_ADX_Threshold=20.0
+InpMinTQSForEntry=0.35
+//
+//=== REAPER GRID ===
+InpReaper_InitialLot=0.08
+InpReaper_LotMultiplier=1.3
+InpReaper_MaxLevels=8
+InpReaper_PipStep=25
+InpReaper_BasketTP=50.0
+InpReaper_BasketTP_Money=400.0
+InpReaper_TrailStart_Money=150.0
+InpReaper_TrailStop_Pips=300
+InpSentinel_MaxADX=25.0
+//
+//=== CHRONOS ===
+InpChronos_ScalpSL_Pips=25.0
+InpChronos_ScalpTP_Pips=35.0
+InpChronos_LotSizeMultiplier=0.5
+//
+//=== EVENT RISK ===
+InpATR_SpikeMultiplier=1.8
+InpATR_SpikeLockoutHours=12
+InpMaxConsecutiveLoss=3
+InpLossLockoutHours=24
+//
+//=== TIME FILTER ===
+InpEnableTimeFilter=true
+InpTradingStartHour=8
+InpTradingEndHour=18
+InpTradeWednesday=false
+InpTradeFriday=true

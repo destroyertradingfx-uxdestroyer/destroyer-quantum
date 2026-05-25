@@ -1,0 +1,19 @@
+//=== DESTROYER QUANTUM V28.06 — TIME FILTER SWEEP ===
+// VENI VIDI VICI
+// Test which days and hours are profitable vs toxic
+// Run each day independently to find the killer windows
+//
+//=== TIME FILTER ===
+InpEnableTimeFilter=true
+InpTradingStartHour=8||6||1||14||
+InpTradingEndHour=18||14||1||22||
+InpServerUTCOffset=2
+//
+//=== DAY FILTERS (Test each independently — change one at a time) ===
+InpTradeMonday=true
+InpTradeTuesday=true
+InpTradeWednesday=false
+InpTradeThursday=true
+InpTradeFriday=true
+InpTradeSaturday=false
+InpTradeSunday=false

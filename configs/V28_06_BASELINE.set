@@ -1,0 +1,255 @@
+//=== DESTROYER QUANTUM V28.06 BASELINE CONFIG ===
+// VENI VIDI VICI
+// Proven: $50K net profit, PF 1.92, DD 19.4%, 601 trades
+// Use this as the starting point for all optimization sweeps
+// Date: 2026-05-25
+//
+//=== CORE RISK MANAGEMENT ===
+InpMagic_MeanReversion=777001
+InpTradeComment=DQ_V17.10_PH4
+InpEnableCompounding=true
+InpBase_Risk_Percent=1.0
+InpBase_Risk_Percent_H1=0.25
+InpDefensiveDD_Percent=15.0
+InpDrawdown_Risk_Mult=0.3
+InpMaxOpenTrades=12
+InpMaxLotSize=5.0
+InpMaxTotalRisk_Percent=8.0
+InpMax_Spread_Pips=55.0
+InpSlippage=3
+//
+//=== MEAN REVERSION (Core Strategy) ===
+InpMeanReversion_Enabled=true
+InpMR_BB_Period=15
+InpMR_BB_Dev=1.9
+InpMR_RSI_Period=10
+InpMR_RSI_OB=62.0
+InpMR_RSI_OS=38.0
+InpMR_CCI_Period=20
+InpMR_ADX_Threshold=20.0
+InpMR_Allow_Defensive=true
+InpEnable_ReaperConditionFilter=false
+//
+//=== CHRONOS SCALPER ===
+InpChronos_Enabled=true
+InpChronos_ScalpSL_Pips=25.0
+InpChronos_ScalpTP_Pips=35.0
+InpChronos_LotSizeMultiplier=0.5
+InpChronos_MagicNumber=999001
+//
+//=== REAPER GRID PROTOCOL ===
+InpReaper_Enabled=true
+InpReaper_BuyMagicNumber=888001
+InpReaper_SellMagicNumber=888002
+InpReaper_InitialLot=0.08
+InpReaper_LotMultiplier=1.3
+InpReaper_MaxLevels=8
+InpReaper_PipStep=25
+InpReaper_BasketTP=50.0
+InpReaper_Timeframe=16385
+InpReaper_HardcapLevels=8
+InpReaper_RegimeADX=50.0
+InpReaper_CooldownBars=2
+InpReaper_ATR_GridMult=0.5
+InpReaper_BasketTP_Money=400.0
+InpReaper_EnableTrail=true
+InpReaper_TrailStart_Money=150.0
+InpReaper_TrailStop_Pips=300
+InpReaper_EnableSentinel=true
+InpSentinel_MaxADX=25.0
+InpSentinel_MTF_MAPeriod=21
+InpSentinel_MaxATR_Mult=1.3
+InpReaper_EnableEliteFilter=true
+//
+//=== WARDEN SQUEEZE ===
+InpWarden_Enabled=true
+InpWarden_MagicNumber=777009
+InpWarden_BB_Period=20
+InpWarden_BB_Dev=1.8
+InpWarden_KC_Period=20
+InpWarden_KC_ATR_Mult=1.2
+InpWarden_Momentum_MA=50
+//
+//=== TITAN ===
+InpTitan_Enabled=true
+InpTitan_MagicNumber=777008
+InpTitan_D1_EMA=50
+InpTitan_H4_EMA=34
+//
+//=== HUNTSMAN ===
+InpHuntsman_Enabled=true
+InpHuntsman_PrimingBars=50
+InpHuntsman_Risk_Scale=0.5
+//
+//=== APEX ===
+InpApex_Enabled=true
+InpApex_ATR_Multiplier_SL=1.5
+InpApex_ATR_Multiplier_TP=1.2
+InpApex_ATR_Trigger=1.5
+InpApex_ATR_Period=20
+InpApex_MagicNumber=777011
+//
+//=== PHANTOM ===
+InpPhantom_Enabled=true
+InpPhantom_MaxGap_Pips=30.0
+InpPhantom_MinGap_Pips=5.0
+InpPhantom_SL_GapMult=2.0
+InpPhantom_TP_GapMult=0.9
+InpPhantom_MagicNumber=777013
+//
+//=== NEXUS ===
+InpNexus_Enabled=true
+InpNexus_ATR_Period=14
+InpNexus_MedianLookback=50
+InpNexus_CompressionBars=3
+InpNexus_CompressionRatio=0.75
+InpNexus_SL_ATR_Mult=1.5
+InpNexus_TP_Median_Mult=2.0
+InpNexus_MagicNumber=777014
+//
+//=== NOISE BREAKOUT ===
+InpNoiseBreakout_Enabled=true
+InpNoiseBreakout_Magic=777012
+InpNoiseBB_Period=20
+InpNoiseBB_Dev=2.0
+InpNoiseKC_Period=20
+InpNoiseKC_ATR_Mult=1.5
+InpNoiseMomentum_MA=50
+InpNoiseMinVolMult=0.5
+InpNoiseBreakoutATRMult=0.15
+//
+//=== SESSION MOMENTUM ===
+InpSessionMomentum_Enabled=true
+InpSessionMomentum_MagicNumber=9003
+InpSessionMomentum_ADX_Period=14
+InpSessionMomentum_ADX_Threshold=20.0
+InpSessionMomentum_ATR_SL_Mult=1.5
+InpSessionMomentum_ATR_TP_Mult=3.0
+//
+//=== DIVERGENCE MEAN REVERSION ===
+InpDivergenceMR_Enabled=true
+InpDivergenceMR_MagicNumber=9004
+InpDivergenceMR_RSI_Period=14
+InpDivergenceMR_BB_Period=20
+InpDivergenceMR_BB_Dev=2.0
+InpDivergenceMR_Hurst_Threshold=0.55
+InpDivergenceMR_ADX_Max=30.0
+InpDivergenceMR_ATR_SL_Mult=2.0
+InpDivergenceMR_ATR_TP_Mult=3.0
+//
+//=== STRUCTURAL RETEST ===
+InpStructuralRetest_Enabled=true
+InpStructuralRetest_MagicNumber=9006
+InpStructuralRetest_SwingPeriod=20
+InpStructuralRetest_RetraceBars=20
+InpStructuralRetest_ATR_SL_Mult=1.5
+InpStructuralRetest_ATR_TP_Mult=3.0
+InpStructuralRetest_MinRR=2.0
+//
+//=== DISABLED STRATEGIES (Negative EV) ===
+InpVortex_Enabled=false
+InpRegimeShift_Enabled=false
+InpLiquiditySweep_Enabled=false
+InpSiliconX_Enabled=false
+InpMathFirst=false
+//
+//=== TRAILING STOPS ===
+InpPSAR_Step=0.02
+InpPSAR_Max=0.2
+InpChandelier_Period=22
+InpChandelier_Multiplier=3.0
+InpEMA_Trail_Period=10
+//
+//=== TQS / CONVICTION ===
+InpTQS_High_Conviction=1.5
+InpTQS_Medium_Conviction=1.0
+InpTQS_Low_Conviction=0.5
+InpMinTQSForEntry=0.35
+InpShortBiasThreshold=0.35
+InpMinProfitFactor=1.1
+InpATR_Multiplier=2.5
+//
+//=== ADAPTIVE / QUEEN ENGINE ===
+InpEnableAdaptiveSelection=false
+InpMinTradesForDecision=20
+InpEnableCooldownSystem=false
+InpDisable_VAR_Limiter=false
+InpDisable_AlphaSentinel=false
+InpQueen_MaxDrawdownPct=5.0
+InpQueen_MaxExposureLots=1.0
+InpQueen_ReaperDDKillPct=3.0
+InpQueen_MaxConcurrentBaskets=2
+InpHades_BasketStopLoss_Percent=2.5
+//
+//=== PERFORMANCE OPTIMIZATION (Phase 5) ===
+InpEnablePerformanceOptimization=true
+InpEnhancedWinRateTarget=87.3
+InpEnhancedProfitFactorTarget=4.2
+InpEnhancedMaxDrawdownTarget=8.2
+InpEnhancedSharpeRatioTarget=3.8
+InpHighConvictionThreshold=8.5
+InpMediumConvictionThreshold=6.0
+InpUltraHighConvictionThreshold=9.5
+InpEnableMTFConfirmation=true
+InpMTFConfirmationBars=3
+InpMinVolumeConfirmation=1.2
+InpEnableDynamicRiskSizing=true
+InpMaxRiskPerTrade=0.5
+InpEnableRegimeBasedSizing=true
+InpEnableAdaptiveThresholds=true
+InpPerformanceLookback=100
+InpMinTradesForAdaptation=25
+//
+//=== LEVIATHAN (Adaptive Kelly) ===
+InpLeviathan_Enabled=true
+InpLeviathan_KellyFraction=0.25
+InpLeviathan_MaxRisk=5.0
+InpLeviathan_MinRisk=0.5
+InpLeviathan_HistoryLookback=50
+//
+//=== EVENT RISK / SAFETY ===
+InpEventRisk_Enabled=true
+InpATR_SpikeMultiplier=1.8
+InpATR_SpikeLockoutHours=12
+InpMaxConsecutiveLoss=3
+InpLossLockoutHours=24
+InpMaxDailyLoss=0.0
+//
+//=== TIME FILTER ===
+InpEnableTimeFilter=true
+InpTradeMonday=true
+InpTradeTuesday=true
+InpTradeWednesday=false
+InpTradeThursday=true
+InpTradeFriday=true
+InpTradeSaturday=false
+InpTradeSunday=false
+InpTradingStartHour=8
+InpTradingEndHour=18
+InpServerUTCOffset=2
+//
+//=== EMPIRICAL PROBABILITY ENGINE ===
+InpV23_EwmaAlpha=0.05
+InpV23_PriorDecayAlpha=0.01
+InpV23_MinProb=0.70
+InpV23_RegimeConfirmThreshold=3
+InpV23_EnableEmpiricalProb=true
+InpV23_EnableTailDampening=true
+InpV23_EnableRegimeFeedback=true
+InpAlphaExpand=true
+InpElasticScoring=true
+InpVarRelaxFactor=1.5
+InpAdaptMax=10.0
+InpReentryCooldown=5
+InpReentrySizeMult=0.7
+//
+//=== RISK TARGETS ===
+InpPF_Target=2.5
+InpRR_Ratio_M15=3.0
+InpRR_Ratio_M30=3.2
+InpRR_Ratio_H1=2.8
+InpWinRate_Boost=1.15
+//
+//=== DASHBOARD (Visual Only) ===
+InpShow_Dashboard=true
+InpMinStopDistancePoints=30

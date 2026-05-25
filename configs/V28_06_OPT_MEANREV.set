@@ -1,0 +1,15 @@
+//=== DESTROYER QUANTUM V28.06 — MEAN REVERSION SWEEP ===
+// VENI VIDI VICI
+// Sweep Mean Reversion core parameters — the bread and butter strategy
+// Focus: BB bands, RSI thresholds, ADX filter
+//
+//=== MEAN REVERSION ===
+InpMR_BB_Period=15||10||5||30||
+InpMR_BB_Dev=1.9||1.5||0.1||3.0||
+InpMR_RSI_Period=10||7||2||20||
+InpMR_RSI_OB=62.0||55.0||2.0||75.0||
+InpMR_RSI_OS=38.0||25.0||2.0||45.0||
+InpMR_CCI_Period=20||14||2||30||
+InpMR_ADX_Threshold=20.0||15.0||2.5||35.0||
+InpMinTQSForEntry=0.35||0.20||0.05||0.60||
+InpShortBiasThreshold=0.35||0.25||0.05||0.60||
