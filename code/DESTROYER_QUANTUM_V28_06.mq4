@@ -1089,38 +1089,38 @@ extern string  InpTradeComment         = "DQ_V17.10_PH4"; // V17.10 Phase 4 High
 sinput string Inp_Header_MeanReversion= "====== CERBERUS MODEL A: MEAN-REVERSION (ADAPTIVE) ======";
 extern bool    InpMeanReversion_Enabled= true;        // ENABLED: OPERATION LEVIATHAN - All strategies active
 extern int     InpMR_BB_Period         = 15;          // Bollinger Bands Period
-extern double  InpMR_BB_Dev            = 1.9;         // Tighter bands for more signals
+extern double  InpMR_BB_Dev            = 1.7;         // AGGRESSIVE: Tighter for more signals         // Tighter bands for more signals
 extern int     InpMR_RSI_Period        = 10;          // RSI Period
-extern double  InpMR_RSI_OB            = 62.0;        // V27.18: Tightened from 65.0 — fewer but higher quality Mean Rev entries
-extern double  InpMR_RSI_OS            = 38.0;        // V27.18: Tightened from 35.0 — fewer but higher quality Mean Rev entries
+extern double  InpMR_RSI_OB            = 58.0;        // AGGRESSIVE: More entries        // V27.18: Tightened from 65.0 — fewer but higher quality Mean Rev entries
+extern double  InpMR_RSI_OS            = 42.0;        // AGGRESSIVE: More entries        // V27.18: Tightened from 35.0 — fewer but higher quality Mean Rev entries
 extern int     InpMR_CCI_Period        = 20;          // CCI Period for confirmation
-extern double  InpMR_ADX_Threshold     = 20.0;        // NEW: ADX filter for trend strength
+extern double  InpMR_ADX_Threshold     = 18.0;        // AGGRESSIVE: Looser filter        // NEW: ADX filter for trend strength
 
 //+------------------------------------------------------------------+
 //| V18.3 CHRONOS UPGRADE: MARKET MICROSTRUCTURE M15 SCALPER         |
 //+------------------------------------------------------------------+
 sinput string Inp_Header_Chronos = "====== CHRONOS MODEL M: MARKET MICROSTRUCTURE (M15 HFT) ======";
 extern bool    InpChronos_Enabled = true;              // Enable Chronos M15 High-Frequency Scalper
-extern double  InpChronos_ScalpSL_Pips = 25.0;         // Scalp Stop Loss in pips (tight)
-extern double  InpChronos_ScalpTP_Pips = 35.0;         // Scalp Take Profit in pips (fast exit)
-extern double  InpChronos_LotSizeMultiplier = 0.5;     // Lot size multiplier (0.5 = half of base risk)
+extern double  InpChronos_ScalpSL_Pips = 30.0;        // AGGRESSIVE: Raised from 25         // Scalp Stop Loss in pips (tight)
+extern double  InpChronos_ScalpTP_Pips = 45.0;        // AGGRESSIVE: Raised from 35         // Scalp Take Profit in pips (fast exit)
+extern double  InpChronos_LotSizeMultiplier = 0.7;     // AGGRESSIVE: Raised from 0.5     // Lot size multiplier (0.5 = half of base risk)
 extern int     InpChronos_MagicNumber = 999001;        // Unique Magic Number for tracking
 
 //+------------------------------------------------------------------+
 //--- Beehive Queen Protocol
 sinput string Inp_Header_Queen       = "====== BEEHIVE QUEEN PROTOCOL ======";
 extern bool    InpEnableCompounding   = true;        // Enable compounding
-extern double  InpBase_Risk_Percent    = 1.0;         // V27.27: Raised from 0.5% for $100K target
-extern double  InpBase_Risk_Percent_H1 = 0.25;        // Lower base risk for H1 strategies
-extern double  InpDefensiveDD_Percent  = 15.0;        // Drawdown threshold to trigger defensive mode
-extern double  InpDrawdown_Risk_Mult   = 0.3;         // Risk multiplier in defensive mode (0.3 = 30% of normal risk)
-extern int     InpMaxOpenTrades      = 12;          // V27.1 FIX: Lowered from 20 — accommodates 8 strategies + grid levels without runaway
-extern double  InpMaxLotSize         = 5.0;         // V27.20: Maximum lot size per trade (configurable, was hardcoded 5.0)
+extern double  InpBase_Risk_Percent    = 1.5;         // AGGRESSIVE: Raised from 1.0% for maximum growth         // V27.27: Raised from 0.5% for $100K target
+extern double  InpBase_Risk_Percent_H1 = 0.4;         // AGGRESSIVE: Raised from 0.25%        // Lower base risk for H1 strategies
+extern double  InpDefensiveDD_Percent  = 20.0;        // AGGRESSIVE: Raised from 15% — more tolerance        // Drawdown threshold to trigger defensive mode
+extern double  InpDrawdown_Risk_Mult   = 0.4;         // AGGRESSIVE: Raised from 0.3         // Risk multiplier in defensive mode (0.3 = 30% of normal risk)
+extern int     InpMaxOpenTrades      = 16;          // AGGRESSIVE: Raised from 12 for more concurrent trades          // V27.1 FIX: Lowered from 20 — accommodates 8 strategies + grid levels without runaway
+extern double  InpMaxLotSize         = 8.0;         // AGGRESSIVE: Raised from 5.0         // V27.20: Maximum lot size per trade (configurable, was hardcoded 5.0)
 extern bool    InpEnable_ReaperConditionFilter = false; // V26 FIX: Set true to require BB+RSI extreme before MR/Warden fire
 //--- Queen: State-Based Strategy Permissions
 extern bool    InpMR_Allow_Defensive  = true;  // Mean-reversion is often safe in drawdowns
 //--- Queen: Portfolio Risk Budget
-extern double  InpMaxTotalRisk_Percent = 8.0; // V27.19: Raised from 5.0 — Kelly-governed strategies need more headroom for dynamic sizing
+extern double  InpMaxTotalRisk_Percent = 12.0;       // AGGRESSIVE: Raised from 8.0% // V27.19: Raised from 5.0 — Kelly-governed strategies need more headroom for dynamic sizing
 extern double  InpShortBiasThreshold  = 0.35; // V28.00: Short-side conviction threshold lowered from 0.6 to 0.35 for more short opportunities
 //--- Queen: Adaptive Strategy Selection
 extern bool   InpEnableAdaptiveSelection = false;     // <<< TEMPORARILY SET TO false
@@ -1142,7 +1142,7 @@ extern int     InpSlippage             = 3;           // Maximum allowed slippag
 extern double  InpTQS_High_Conviction  = 1.5;         // TQS multiplier for high conviction setups
 extern double  InpTQS_Medium_Conviction= 1.0;         // TQS multiplier for medium conviction setups
 extern double  InpTQS_Low_Conviction   = 0.5;         // TQS multiplier for low conviction setups
-extern double  InpMinTQSForEntry       = 0.35;        // V27.7: Raised from 0.2 for higher quality setups
+extern double  InpMinTQSForEntry       = 0.25;        // AGGRESSIVE: Lower for more entries        // V27.7: Raised from 0.2 for higher quality setups
 //--- Volatility-Adjusted Stop-Loss
 extern double  InpATR_Multiplier       = 2.5;         // Multiplier for volatility forecast
 //--- Multi-Stage Trailing Stop
@@ -1164,8 +1164,8 @@ extern bool    InpTradeThursday        = true;        // Allow trading on Thursd
 extern bool    InpTradeFriday          = true;        // Allow trading on Friday
 extern bool    InpTradeSaturday        = false;       // Allow trading on Saturday
 extern bool    InpTradeSunday          = false;       // Allow trading on Sunday
-extern int     InpTradingStartHour     = 8;           // Start trading hour (server time)
-extern int     InpTradingEndHour       = 18;          // End trading hour (server time)
+extern int     InpTradingStartHour     = 7;            // AGGRESSIVE: Earlier start           // Start trading hour (server time)
+extern int     InpTradingEndHour       = 19;           // AGGRESSIVE: Later end          // End trading hour (server time)
 extern int     InpServerUTCOffset      = 2;           // V27.20: Server-to-UTC offset (hours). Used by IsBadTradingHour()
 //--- Visuals & Dashboard
 sinput string Inp_Header_Visuals      = "====== VISUALS & DASHBOARD ======";
@@ -1212,11 +1212,11 @@ sinput string Inp_Header_Reaper = "====== CERBERUS MODEL R: THE REAPER (GRID/MAR
 extern bool   InpReaper_Enabled         = true;       // Enable Reaper Grid Protocol
 extern int    InpReaper_BuyMagicNumber  = 888001;     // Magic number for buy basket
 extern int    InpReaper_SellMagicNumber = 888002;     // Magic number for sell basket
-extern double InpReaper_InitialLot      = 0.08;       // V28.00: Raised from 0.05 — tighter trailing + per-level TP justifies more capital
-extern double InpReaper_LotMultiplier   = 1.3;        // Geometric lot multiplier (1.3 from Sengkuni)
-extern int    InpReaper_MaxLevels       = 8;          // V27.1 FIX: Tightened from 10 to 8 — structural hardcap
-extern int    InpReaper_PipStep         = 25;         // Grid step in pips (base multiplier for ATR dynamic grid)
-extern double InpReaper_BasketTP        = 50.0;       // Basket take profit in USD ($50 target)
+extern double InpReaper_InitialLot      = 0.12;       // AGGRESSIVE: Raised from 0.08       // V28.00: Raised from 0.05 — tighter trailing + per-level TP justifies more capital
+extern double InpReaper_LotMultiplier   = 1.4;        // AGGRESSIVE: Raised from 1.3        // Geometric lot multiplier (1.3 from Sengkuni)
+extern int    InpReaper_MaxLevels       = 10;         // AGGRESSIVE: Raised from 8          // V27.1 FIX: Tightened from 10 to 8 — structural hardcap
+extern int    InpReaper_PipStep         = 20;         // AGGRESSIVE: Tighter grid         // Grid step in pips (base multiplier for ATR dynamic grid)
+extern double InpReaper_BasketTP        = 75.0;       // AGGRESSIVE: Raised from 50       // Basket take profit in USD ($50 target)
 extern int    InpReaper_Timeframe       = PERIOD_H4;  // Execution timeframe (H4 for mean reversion)
 
 //--- V27.1: REAPER INTELLIGENT GRID PARAMETERS ---
@@ -1229,18 +1229,18 @@ extern double InpReaper_ATR_GridMult    = 0.5;        // V27.1: ATR multiplier f
 
 //--- V17.4: PHOENIX PROTOCOL - Reaper's True Exit System ---
 sinput string InpReaper_Header_Phoenix = "====== REAPER: PHOENIX BASKET TP ======";
-extern double InpReaper_BasketTP_Money  = 400.0;     // Basket Take Profit in deposit currency.
+extern double InpReaper_BasketTP_Money  = 600.0;      // AGGRESSIVE: Raised from 400     // Basket Take Profit in deposit currency.
 
 //--- V17.5: CHIMERA PROTOCOL - Reaper's Dual-Exit System ---
 sinput string InpReaper_Header_Chimera   = "====== REAPER: CHIMERA TRAILING DEFENSE ======";
 extern bool   InpReaper_EnableTrail       = true;       // Enable Reaper's defensive trailing stop.
-extern double InpReaper_TrailStart_Money  = 150.0;      // Profit in USD to activate trail & move to BE.
-extern int    InpReaper_TrailStop_Pips    = 300;        // Trailing distance in Pips after BE is activated (30 pips).
+extern double InpReaper_TrailStart_Money  = 200.0;     // AGGRESSIVE: Raised from 150      // Profit in USD to activate trail & move to BE.
+extern int    InpReaper_TrailStop_Pips    = 400;       // AGGRESSIVE: Raised from 300        // Trailing distance in Pips after BE is activated (30 pips).
 
 //--- Cerberus Model R: THE REAPER - ALPHA SENTINEL FILTER ---
 sinput string Inp_Header_Reaper_Sentinel = "====== REAPER: ALPHA SENTINEL ENTRY FILTER ======";
 extern bool   InpReaper_EnableSentinel   = true;     // Enable high-conviction filter for FIRST grid trade
-extern double InpSentinel_MaxADX         = 25.0;     // Max ADX allowed for entry (avoids strong trends)
+extern double InpSentinel_MaxADX         = 30.0;       // AGGRESSIVE: Raised from 25     // Max ADX allowed for entry (avoids strong trends)
 extern int    InpSentinel_MTF_MAPeriod   = 21;       // EMA Period for higher timeframe (Daily) trend check
 extern double InpSentinel_MaxATR_Mult    = 1.3;      // Max ATR multiplier (blocks entry if volatility is >30% above average)
 
@@ -1251,11 +1251,11 @@ extern bool   InpReaper_EnableEliteFilter = true; // MASTER SWITCH for the new f
 //--- Cerberus Model S: The Silicon-X Protocol (Grid/Martingale Hybrid) ---
 sinput string Inp_Header_SiliconX      = "====== CERBERUS MODEL S: SILICON-X (TRUE NORTH) ======";
 //--- Main Parameters
-extern bool   InpSiliconX_Enabled           = false;       // MASTER SWITCH: Enable/Disable Silicon-X Protocol (disabled V27.11-R)
+extern bool   InpSiliconX_Enabled           = true;        // AGGRESSIVE: Silicon-X BACK ONLINE (fixed pips/points bugs)
 extern double InpSX_InitialLot              = 0.01;         // Base lot size for the first trade in a series.
 extern double InpSX_LotExponent             = 1.3;          // V27.10: Reduced from 1.6 for gentler grid growth
 //--- Grid Mechanics
-extern int    InpSX_MaxLevels               = 12;           // V27.10: Reduced from 18 to limit loss exposure
+extern int    InpSX_MaxLevels               = 8;            // AGGRESSIVE: Reduced from 12 for tighter risk control
 extern int    InpSX_PipStep                 = 180;          // V27.10: Increased from 150 for wider grid spacing
 //--- "Hubble" Intelligence (Signal Filter)
 extern int    InpSX_Hubble_LengthA          = 242;          // Lookback period for the inner Bollinger Band (Filter A).
@@ -1304,16 +1304,16 @@ extern int    InpSX_PendingTrailStartPips = 50;         // Pips from market pric
 //|       HADES PROTOCOL: JUDGMENT DAY FAILSAFE                     |
 //+------------------------------------------------------------------+
 sinput string Inp_Header_Hades_JDay  = "====== HADES: JUDGMENT DAY PROTOCOL ======";
-extern double  InpHades_BasketStopLoss_Percent = 2.5; // TIGHTENED: Max basket loss is now 2.5% of equity.
+extern double  InpHades_BasketStopLoss_Percent = 3.5; // AGGRESSIVE: Raised from 2.5% // TIGHTENED: Max basket loss is now 2.5% of equity.
 
 //+------------------------------------------------------------------+
 //|       V27.1: QUEEN BEE GLOBAL CIRCUIT BREAKER                   |
 //+------------------------------------------------------------------+
 sinput string Inp_Header_QueenHedge = "====== QUEEN BEE GLOBAL CIRCUIT BREAKER ======";
-extern double InpQueen_MaxDrawdownPct     = 5.0;   // Max drawdown % before strategy shutdown
-extern double InpQueen_MaxExposureLots    = 1.0;   // Max total open lots across all strategies
-extern double InpQueen_ReaperDDKillPct    = 3.0;   // Drawdown % to kill Reaper specifically
-extern int    InpQueen_MaxConcurrentBaskets = 2;    // Max simultaneous grid baskets (Reaper + SX)
+extern double InpQueen_MaxDrawdownPct     = 7.0;      // AGGRESSIVE: Raised from 5%   // Max drawdown % before strategy shutdown
+extern double InpQueen_MaxExposureLots    = 2.0;      // AGGRESSIVE: Raised from 1.0   // Max total open lots across all strategies
+extern double InpQueen_ReaperDDKillPct    = 4.0;      // AGGRESSIVE: Raised from 3%   // Drawdown % to kill Reaper specifically
+extern int    InpQueen_MaxConcurrentBaskets = 3;      // AGGRESSIVE: Raised from 2 for Reaper + SX    // Max simultaneous grid baskets (Reaper + SX)
 
 //+------------------------------------------------------------------+
 //|                      NEW ENHANCED STRATEGIES                     |
@@ -1387,7 +1387,7 @@ extern int     InpMTFConfirmationBars = 3;                // Bars required for c
 extern double  InpMinVolumeConfirmation = 1.2;            // Minimum volume multiplier
 // Enhanced Risk Management
 extern bool    InpEnableDynamicRiskSizing = true;         // Dynamic position sizing
-extern double  InpMaxRiskPerTrade = 0.5;                  // Max risk per trade (0.5%)
+extern double  InpMaxRiskPerTrade = 0.8;                // AGGRESSIVE: Raised from 0.5%                  // Max risk per trade (0.5%)
 extern bool    InpEnableRegimeBasedSizing = true;         // Adjust size based on market regime
 // Performance-Based Adaptation
 extern bool    InpEnableAdaptiveThresholds = true;        // Adapt thresholds based on performance
@@ -1441,18 +1441,18 @@ bool     g_queen_kill_all = false;              // Emergency flag: full system h
 //+------------------------------------------------------------------+
 sinput string Inp_Header_Leviathan = "====== LEVIATHAN: ADAPTIVE KELLY ENGINE ======";
 sinput bool   InpLeviathan_Enabled = true;             // MASTER SWITCH: Enable/Disable Adaptive Kelly Engine
-sinput double InpLeviathan_KellyFraction = 0.25;       // Kelly fraction multiplier (0.25 = 25% of calculated Kelly)
-sinput double InpLeviathan_MaxRisk = 5.0;              // Maximum risk per trade percentage (5.0%)
-sinput double InpLeviathan_MinRisk = 0.5;              // Minimum risk per trade percentage (0.5%)
+sinput double InpLeviathan_KellyFraction = 0.35;       // AGGRESSIVE: Raised from 0.25       // Kelly fraction multiplier (0.25 = 25% of calculated Kelly)
+sinput double InpLeviathan_MaxRisk = 7.0;               // AGGRESSIVE: Raised from 5%              // Maximum risk per trade percentage (5.0%)
+sinput double InpLeviathan_MinRisk = 0.75;              // AGGRESSIVE: Raised from 0.5%              // Minimum risk per trade percentage (0.5%)
 sinput int    InpLeviathan_HistoryLookback = 50;       // Number of trades to analyze for Kelly calculation
 
 //=== V27.7: EVENT SHIELD + ATR CIRCUIT BREAKER ===
 sinput string InpV276_Header_EventRisk = "====== V27.7: EVENT SHIELD + ATR CIRCUIT BREAKER ======";
 sinput bool   InpEventRisk_Enabled       = true;       // Block trading during FOMC/ECB/NFP windows
-sinput double InpATR_SpikeMultiplier      = 1.8;        // Block trades if ATR(14) > this × MA(ATR,20) — V27.7
-sinput int    InpATR_SpikeLockoutHours    = 12;         // Hours to suspend trading after ATR spike — V27.7
-sinput int    InpMaxConsecutiveLoss       = 3;          // Max consecutive losses before strategy suspension — V27.7
-sinput int    InpLossLockoutHours         = 24;         // Hours to suspend strategy after consec loss limit — V27.7
+sinput double InpATR_SpikeMultiplier      = 2.0;       // AGGRESSIVE: Raised from 1.8        // Block trades if ATR(14) > this × MA(ATR,20) — V27.7
+sinput int    InpATR_SpikeLockoutHours    = 8;          // AGGRESSIVE: Reduced from 12         // Hours to suspend trading after ATR spike — V27.7
+sinput int    InpMaxConsecutiveLoss       = 4;           // AGGRESSIVE: Raised from 3          // Max consecutive losses before strategy suspension — V27.7
+sinput int    InpLossLockoutHours         = 18;          // AGGRESSIVE: Reduced from 24         // Hours to suspend strategy after consec loss limit — V27.7
 sinput double InpMaxDailyLoss             = 0.0;         // V27.18: REMOVED — was killing Phantom's gap-fill sequence. Per-strategy risk is sufficient.
 
 //--- Leviathan Engine State
@@ -9824,7 +9824,7 @@ void ManageUnified_AegisTrail()
         // If Break-Even is set, proceed with trailing
         else if (sx_buy_basket_breakeven_set)
         {
-            double newStopLevel = Bid - (InpSX_BasketTrailStopPips * _Point);
+            double newStopLevel = Bid - (InpSX_BasketTrailStopPips * 10 * _Point); // FIX: pips to points conversion
             // Ratchet: New SL must be higher than the current SL (which is the breakeven price)
             if (newStopLevel > sx_buy_w_avg)
             {
@@ -9856,7 +9856,7 @@ void ManageUnified_AegisTrail()
         }
         else if (sx_sell_basket_breakeven_set)
         {
-            double newStopLevel = Ask + (InpSX_BasketTrailStopPips * _Point);
+            double newStopLevel = Ask + (InpSX_BasketTrailStopPips * 10 * _Point); // FIX: pips to points conversion
             if (newStopLevel < sx_sell_w_avg)
             {
                  for (int i = 0; i < OrdersTotal(); i++) {
@@ -9887,7 +9887,7 @@ void ManageUnified_AegisTrail()
         }
         else if (InpReaper_EnableTrail && reaper_buy_basket_breakeven_set)
         {
-            double newStopLevel = Bid - (InpReaper_TrailStop_Pips * _Point);
+            double newStopLevel = Bid - (InpReaper_TrailStop_Pips * 10 * _Point); // FIX: pips to points
             if (newStopLevel > r_buy_w_avg)
             {
                 for (int i = 0; i < OrdersTotal(); i++) {
@@ -9917,7 +9917,7 @@ void ManageUnified_AegisTrail()
         }
         else if (InpReaper_EnableTrail && reaper_sell_basket_breakeven_set)
         {
-            double newStopLevel = Ask + (InpReaper_TrailStop_Pips * _Point);
+            double newStopLevel = Ask + (InpReaper_TrailStop_Pips * 10 * _Point); // FIX: pips to points
             if (newStopLevel < r_sell_w_avg)
             {
                  for (int i = 0; i < OrdersTotal(); i++) {
@@ -9994,7 +9994,7 @@ void ManageSiliconX_HubbleTrail()
     // Only trail if we have exactly 1 of each (initial trap pair)
     if (buyStopCount == 1 && sellStopCount == 1) {
         // --- Trail BUY STOP: Move down when price moves down ---
-        double newBuyStopLevel = Bid - (InpSX_PendingTrailStartPips * _Point);
+        double newBuyStopLevel = Bid - (InpSX_PendingTrailStartPips * 10 * _Point); // FIX: pips to points
         
         // Only move BUY STOP lower (closer to market) if current price moved down
         if (newBuyStopLevel < buyStopPrice) {
@@ -10008,7 +10008,7 @@ void ManageSiliconX_HubbleTrail()
         }
         
         // --- Trail SELL STOP: Move up when price moves up ---
-        double newSellStopLevel = Ask + (InpSX_PendingTrailStartPips * _Point);
+        double newSellStopLevel = Ask + (InpSX_PendingTrailStartPips * 10 * _Point); // FIX: pips to points
         
         // Only move SELL STOP higher (closer to market) if current price moved up
         if (newSellStopLevel > sellStopPrice) {
