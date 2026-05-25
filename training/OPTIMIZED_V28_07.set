@@ -1,0 +1,57 @@
+; ================================================================
+; DESTROYER QUANTUM — OPTIMIZED PARAMETERS
+; Generated: 2026-05-25 19:31:56
+; Based on EURUSD H4 data analysis + ML optimization
+; VENI VIDI VICI
+; ================================================================
+
+; === RISK MANAGEMENT ===
+InpBase_Risk=1.5
+InpMaxLevels=10
+
+; === REAPER (Grid Strategy) ===
+InpReaper_Enabled=true
+InpReaper_InitialLot=0.12
+InpReaper_LotMultiplier=1.4
+InpReaper_MaxLevels=10
+InpReaper_PipStep=20
+
+; === SESSION MOMENTUM ===
+InpSessionMomentum_Enabled=true
+InpSM_RSI_Period=14
+InpSM_RSI_Buy=55
+InpSM_RSI_Sell=45
+InpSM_SMA_Period=20
+InpSM_SL_ATR_Mult=1.5
+InpSM_TP_ATR_Mult=2.0
+
+; === MEAN REVERSION ===
+InpMeanReversion_Enabled=true
+InpMR_BB_Period=20
+InpMR_BB_Dev=2.0
+InpMR_RSI_Period=14
+InpMR_RSI_OS=30
+InpMR_RSI_OB=70
+InpMR_SL_ATR_Mult=1.5
+InpMR_TP_ATR_Mult=1.5
+
+; === NOISE BREAKOUT ===
+InpNoiseBreakout_Enabled=true
+InpNB_ATR_Ratio=1.5
+InpNB_SL_ATR_Mult=1.5
+InpNB_TP_ATR_Mult=2.5
+
+; === PHANTOM (GAP FILL) ===
+InpPhantom_Enabled=true
+InpPhantom_MinGap_Pips=5.0
+InpPhantom_MaxGap_Pips=30.0
+InpPhantom_SL_GapMult=2.0
+InpPhantom_TP_GapMult=0.9
+
+; === DISABLED STRATEGIES ===
+InpSiliconX_Enabled=false
+InpNexus_Enabled=false
+InpSessionMomentum2_Enabled=false
+InpWarden_Enabled=false
+InpTitan_Enabled=false
+InpQuantumOscillator_Enabled=false
