@@ -1,0 +1,35 @@
+{
+  "no_ml": {
+    "initial_deposit": 10000.0,
+    "final_equity": 0.004185302511882723,
+    "net_profit": -9999.995814697488,
+    "gross_profit": 7250.638906086469,
+    "gross_loss": 17250.634720783946,
+    "profit_factor": 0.420311427576096,
+    "max_drawdown": 10744.9853256263,
+    "max_drawdown_pct": 99.99996035057448,
+    "total_trades": 1006,
+    "winning_trades": 387,
+    "losing_trades": 619,
+    "win_rate": 0.38469184890656066
+  },
+  "with_ml": {
+    "initial_deposit": 10000.0,
+    "final_equity": 2435.7540384304934,
+    "net_profit": -7564.245961569506,
+    "gross_profit": 15557.109371184675,
+    "gross_loss": 23121.355332754185,
+    "profit_factor": 0.6728459100814975,
+    "max_drawdown": 7593.377456351659,
+    "max_drawdown_pct": 75.9337745635166,
+    "total_trades": 374,
+    "winning_trades": 212,
+    "losing_trades": 162,
+    "win_rate": 0.5668449197860963
+  },
+  "improvement": {
+    "profit_change": 2435.7498531279816,
+    "pf_change": 0.2525344825054015,
+    "dd_change": -24.06618578705789
+  }
+}
