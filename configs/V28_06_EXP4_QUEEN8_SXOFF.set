@@ -1,0 +1,148 @@
+; ================================================================
+; EXPERIMENT 4: Aggressive + Queen 8.0 + SX DISABLED
+; Tests: Does disabling Silicon-X improve profit?
+; ================================================================
+; (Same as QUEEN8.set but Silicon-X=false)
+
+; === MEAN REVERSION ===
+InpMeanReversion_Enabled=true
+InpMR_BB_Period=15
+InpMR_BB_Dev=1.7
+InpMR_RSI_Period=10
+InpMR_RSI_OB=58.0
+InpMR_RSI_OS=42.0
+InpMR_CCI_Period=20
+InpMR_ADX_Threshold=18.0
+
+; === CHRONOS ===
+InpChronos_Enabled=true
+InpChronos_ScalpSL_Pips=30.0
+InpChronos_ScalpTP_Pips=45.0
+InpChronos_LotSizeMultiplier=0.7
+InpChronos_MagicNumber=999001
+
+; === QUEEN PROTOCOL ===
+InpEnableCompounding=true
+InpBase_Risk_Percent=1.5
+InpBase_Risk_Percent_H1=0.4
+InpDefensiveDD_Percent=20.0
+InpDrawdown_Risk_Mult=0.4
+InpMaxOpenTrades=16
+InpMaxLotSize=8.0
+InpEnable_ReaperConditionFilter=false
+InpMR_Allow_Defensive=true
+InpMaxTotalRisk_Percent=12.0
+InpShortBiasThreshold=0.35
+InpEnableAdaptiveSelection=false
+
+; === TQS ===
+InpMinTQSForEntry=0.25
+
+; === TRADING HOURS ===
+InpTradeMonday=true
+InpTradeTuesday=true
+InpTradeWednesday=true
+InpTradeThursday=true
+InpTradeFriday=true
+InpTradeSaturday=false
+InpTradeSunday=false
+InpTradingStartHour=7
+InpTradingEndHour=19
+InpServerUTCOffset=2
+
+; === REAPER (GRID) ===
+InpReaper_Enabled=true
+InpReaper_BuyMagicNumber=888001
+InpReaper_SellMagicNumber=888002
+InpReaper_InitialLot=0.12
+InpReaper_LotMultiplier=1.4
+InpReaper_MaxLevels=10
+InpReaper_PipStep=20
+InpReaper_BasketTP=75.0
+InpReaper_Timeframe=16388
+InpReaper_UseDynamicGrid=true
+InpReaper_ATR_Period=14
+InpReaper_ATR_GridMult=0.5
+InpReaper_BasketTP_Money=600.0
+InpReaper_EnableTrail=true
+InpReaper_TrailStart_Money=200.0
+InpReaper_TrailStop_Pips=400
+InpReaper_EnableSentinel=true
+InpSentinel_MaxADX=30.0
+InpSentinel_MTF_MAPeriod=21
+InpSentinel_MaxATR_Mult=1.3
+InpReaper_EnableEliteFilter=true
+
+; === SILICON-X (DISABLED) ===
+InpSiliconX_Enabled=false
+InpSX_InitialLot=0.01
+InpSX_LotExponent=1.3
+InpSX_MaxLevels=8
+InpSX_PipStep=180
+InpSX_Hubble_LengthA=242
+InpSX_Hubble_LengthB=34
+InpSX_Hubble_DevA=1.5
+InpSX_Hubble_DevB=2.0
+InpSX_MaxGridDD=5.0
+InpSX_EnablePhoenix=true
+InpSX_PhoenixTP=100.0
+InpSX_EnableAegisTrail=true
+InpSX_BasketTrailStartPips=50
+InpSX_BasketTrailStopPips=30
+InpSX_PendingTrailStartPips=50
+
+; === HADES ===
+InpHades_BasketStopLoss_Percent=3.5
+
+; === QUEEN BEE CIRCUIT BREAKER ===
+InpQueen_MaxDrawdownPct=7.0
+InpQueen_MaxExposureLots=8.0
+InpQueen_ReaperDDKillPct=4.0
+InpQueen_MaxConcurrentBaskets=3
+
+; === PHANTOM (GAP FILL) ===
+InpPhantom_Enabled=true
+InpPhantom_MaxGap_Pips=30.0
+InpPhantom_MinGap_Pips=5.0
+InpPhantom_SL_GapMult=2.0
+InpPhantom_TP_GapMult=0.9
+InpPhantom_MagicNumber=777013
+
+; === NEXUS (COMPRESSION) ===
+InpNexus_Enabled=true
+InpNexus_CompressionBars=3
+InpNexus_CompressionRatio=0.75
+InpNexus_BreakoutATRMult=1.0
+InpNexus_MedianLookback=50
+InpNexus_MagicNumber=777014
+
+; === NOISE BREAKOUT ===
+InpNoiseBreakout_Enabled=true
+InpNoiseBreakoutMagic=777012
+
+; === APEX ===
+InpApex_Enabled=true
+InpApex_ATR_Period=14
+InpApex_ATR_Trigger=1.5
+InpApex_ATR_Multiplier_SL=1.0
+InpApex_ATR_Multiplier_TP=1.2
+InpApex_MagicNumber=777011
+
+; === LEVIATHAN (KELLY) ===
+InpLeviathan_Enabled=true
+InpLeviathan_KellyFraction=0.35
+InpLeviathan_MaxRisk=7.0
+InpLeviathan_MinRisk=0.75
+InpLeviathan_HistoryLookback=50
+
+; === EVENT RISK ===
+InpEventRisk_Enabled=true
+InpATR_SpikeMultiplier=2.0
+InpATR_SpikeLockoutHours=8
+InpMaxConsecutiveLoss=4
+InpLossLockoutHours=18
+InpMaxDailyLoss=0.0
+
+; === RISK MANAGEMENT ===
+InpSlippage=3
+InpMaxRiskPerTrade=0.8
