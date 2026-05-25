@@ -1470,7 +1470,7 @@ bool     g_reaper_sell_active = false;   // Flag if sell basket is active
 //--- V27.7: EVENT SHIELD STATE (ATR Spike, Consecutive Loss Guardian) ---
 datetime g_atrSpikeLockoutUntil = 0;                // Timestamp until which trading is suspended
 int      g_consecLossTracker[20][2];                // [idx][0]=streak(-1=losses,1=wins) [idx][1]=count
-datetime g_strategyLockoutUntil[15];                // Per-strategy lockout timestamps
+datetime g_strategyLockoutUntil[20];                // Per-strategy lockout timestamps
 double   g_lastATRValue = 0.0;                     // Last ATR value
 double   g_lastATRMA = 0.0;                        // Last ATR MA value
 double   g_dailyPandL = 0.0;                       // V27.16: Current day's net P&L (resets at midnight)
@@ -1484,17 +1484,17 @@ double   g_strategyMultiplier[20];                 // Dynamic risk multipliers [
 //--- V27.19: DYNAMIC PERFORMANCE-BASED LOT SIZING ---
 // Rolling trade history per strategy for Kelly calculation
 #define STRATEGY_HISTORY_SIZE 60                   // Rolling window of last N trades
-double   g_stratProfits[18][60];                   // Profit/loss of last 60 trades per strategy
-int      g_stratProfitIdx[15];                     // Current circular buffer index per strategy
+double   g_stratProfits[20][60];                   // Profit/loss of last 60 trades per strategy
+int      g_stratProfitIdx[20];                     // Current circular buffer index per strategy
 int      g_stratTotalTrades[20];                   // Total trades completed per strategy
-double   g_stratRollingWinRate[15];                // Rolling win rate (EWMA)
-double   g_stratRollingAvgWin[15];                 // Rolling average winning trade $
-double   g_stratRollingAvgLoss[15];                // Rolling average losing trade $
-double   g_stratRollingPF[15];                     // Rolling profit factor
+double   g_stratRollingWinRate[20];                // Rolling win rate (EWMA)
+double   g_stratRollingAvgWin[20];                 // Rolling average winning trade $
+double   g_stratRollingAvgLoss[20];                // Rolling average losing trade $
+double   g_stratRollingPF[20];                     // Rolling profit factor
 double   g_stratKellyFraction[20];                 // Kelly-optimal fraction per strategy
-double   g_stratSharpeProxy[15];                   // Rolling Sharpe proxy (return/volatility)
+double   g_stratSharpeProxy[20];                   // Rolling Sharpe proxy (return/volatility)
 double   g_stratHeatScore[20];                     // 0.0-1.0: How much "heat" (capital) to allocate
-datetime g_stratLastCalcTime[15];                  // Last time Kelly was recalculated
+datetime g_stratLastCalcTime[20];                  // Last time Kelly was recalculated
 // Dynamic tier caps   replace hardcoded per-strategy caps
 double   g_stratDynamicMaxMult[20];                // Dynamically computed max multiplier per strategy
 
