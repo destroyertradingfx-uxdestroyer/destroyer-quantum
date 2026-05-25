@@ -1121,11 +1121,11 @@ extern string  InpTradeComment         = "DQ_V17.10_PH4"; // V17.10 Phase 4 High
 //--- Cerberus Model A: Mean-Reversion (Simplified)
 sinput string Inp_Header_MeanReversion= "====== CERBERUS MODEL A: MEAN-REVERSION (ADAPTIVE) ======";
 extern bool    InpMeanReversion_Enabled= true;        // ENABLED: OPERATION LEVIATHAN - All strategies active
-extern int     InpMR_BB_Period         = 15;          // Bollinger Bands Period
-extern double  InpMR_BB_Dev            = 1.7;         // AGGRESSIVE: Tighter for more signals         // Tighter bands for more signals
-extern int     InpMR_RSI_Period        = 10;          // RSI Period
-extern double  InpMR_RSI_OB            = 58.0;        // AGGRESSIVE: More entries        // V27.18: Tightened from 65.0 — fewer but higher quality Mean Rev entries
-extern double  InpMR_RSI_OS            = 42.0;        // AGGRESSIVE: More entries        // V27.18: Tightened from 35.0 — fewer but higher quality Mean Rev entries
+extern int     InpMR_BB_Period         = 20;          // DATA-OPTIMIZED: BB(20) from EURUSD H4 analysis
+extern double  InpMR_BB_Dev            = 2.0;         // DATA-OPTIMIZED: BB(2.0) standard for mean reversion
+extern int     InpMR_RSI_Period        = 14;          // DATA-OPTIMIZED: RSI(14) standard period
+extern double  InpMR_RSI_OB            = 70.0;        // DATA-OPTIMIZED: RSI(70) overbought from data analysis
+extern double  InpMR_RSI_OS            = 30.0;        // DATA-OPTIMIZED: RSI(30) oversold from data analysis
 extern int     InpMR_CCI_Period        = 20;          // CCI Period for confirmation
 extern double  InpMR_ADX_Threshold     = 18.0;        // AGGRESSIVE: Looser filter        // NEW: ADX filter for trend strength
 
@@ -2858,6 +2858,119 @@ double NormalCDF(double x)
 //| Get Dynamic Risk Multiplier                                     |
 //| Calculates risk multiplier based on current drawdown            |
 //+------------------------------------------------------------------+
+//+------------------------------------------------------------------+
+//| V28.07: EQUITY-CURVE BASED POSITION SIZING                      |
+//| Increases lots when winning, decreases when losing               |
+//| Based on GitHub research: adaptive-market-ea pattern             |
+//+------------------------------------------------------------------+
+//+------------------------------------------------------------------+
+//| V28.07: REGIME DETECTION SYSTEM                                 |
+//| Detects market regime and adjusts strategy weights               |
+//| Based on GitHub research: adaptive-market-ea pattern             |
+//+------------------------------------------------------------------+
+enum ENUM_MARKET_REGIME
+{
+   REGIME_TRENDING,      // Strong trend (ADX > 25)
+   REGIME_RANGING,       // Sideways (ADX < 20)
+   REGIME_VOLATILE,      // High volatility (ATR > 1.5x average)
+   REGIME_LOW_VOL        // Low volatility (ATR < 0.7x average)
+};
+
+ENUM_MARKET_REGIME DetectMarketRegime()
+{
+    // Calculate ADX (14-period)
+    double adx = iADX(Symbol(), 0, 14, PRICE_CLOSE, MODE_MAIN, 0);
+    
+    // Calculate ATR (14-period) and compare to average
+    double atr = iATR(Symbol(), 0, 14, 0);
+    double atrAvg = 0;
+    for(int i = 0; i < 50; i++) atrAvg += iATR(Symbol(), 0, 14, i);
+    atrAvg /= 50.0;
+    
+    double atrRatio = atr / atrAvg;
+    
+    // Detect regime
+    if(adx > 25) return REGIME_TRENDING;
+    if(atrRatio > 1.5) return REGIME_VOLATILE;
+    if(atrRatio < 0.7) return REGIME_LOW_VOL;
+    return REGIME_RANGING;
+}
+
+double GetRegimeStrategyMultiplier(int strategyIndex)
+{
+    ENUM_MARKET_REGIME regime = DetectMarketRegime();
+    
+    // Strategy indices:
+    // 0=MeanReversion, 1=Chronos, 2=Reaper, 3=Silicon-X
+    // 4=Warden, 5=Nexus, 6=Phantom, 7=NoiseBreakout
+    // 8=SessionMomentum, 9=Apex, 10=Titan
+    
+    switch(regime)
+    {
+        case REGIME_TRENDING:
+            // Trending: favor momentum strategies, reduce mean reversion
+            if(strategyIndex == 0) return 0.5;  // Mean Reversion: reduce
+            if(strategyIndex == 8) return 1.5;  // Session Momentum: boost
+            if(strategyIndex == 2) return 1.2;  // Reaper: slight boost
+            return 1.0;
+            
+        case REGIME_RANGING:
+            // Ranging: favor mean reversion, reduce momentum
+            if(strategyIndex == 0) return 1.5;  // Mean Reversion: boost
+            if(strategyIndex == 8) return 0.5;  // Session Momentum: reduce
+            if(strategyIndex == 5) return 1.3;  // Nexus: boost (compression)
+            return 1.0;
+            
+        case REGIME_VOLATILE:
+            // Volatile: reduce all, favor grid strategies
+            if(strategyIndex == 2) return 1.3;  // Reaper: boost (grid)
+            if(strategyIndex == 3) return 1.3;  // Silicon-X: boost (grid)
+            if(strategyIndex == 0) return 0.7;  // Mean Reversion: reduce
+            return 0.8;
+            
+        case REGIME_LOW_VOL:
+            // Low vol: favor breakout strategies
+            if(strategyIndex == 7) return 1.5;  // NoiseBreakout: boost
+            if(strategyIndex == 5) return 1.5;  // Nexus: boost
+            if(strategyIndex == 0) return 1.2;  // Mean Reversion: slight boost
+            return 1.0;
+    }
+    
+    return 1.0;
+}
+
+double GetEquityCurveMultiplier()
+{
+    // Track equity curve using 20-period SMA of equity
+    static double equityHistory[20];
+    static int equityIndex = 0;
+    static bool initialized = false;
+    
+    if(!initialized)
+    {
+        for(int i = 0; i < 20; i++) equityHistory[i] = AccountEquity();
+        initialized = true;
+    }
+    
+    // Update equity history
+    equityHistory[equityIndex] = AccountEquity();
+    equityIndex = (equityIndex + 1) % 20;
+    
+    // Calculate 20-period SMA of equity
+    double equitySMA = 0;
+    for(int i = 0; i < 20; i++) equitySMA += equityHistory[i];
+    equitySMA /= 20.0;
+    
+    // Calculate ratio: current equity / SMA
+    double ratio = AccountEquity() / equitySMA;
+    
+    // Clamp between 0.5 and 1.5 (don't go crazy)
+    if(ratio < 0.5) ratio = 0.5;
+    if(ratio > 1.5) ratio = 1.5;
+    
+    return ratio;
+}
+
 double GetDynamicRiskMultiplier(double current_drawdown_percent)
 {
     // This function dynamically scales risk exposure based on drawdown depth.
@@ -2938,6 +3051,16 @@ double GetLotSizeV8_5_9_FIXED(double tqs, double stopLossPoints, double risk_per
     }
     
     double riskAmount = riskable_equity_base * final_risk_percent / 100.0;
+    
+    // V28.07: EQUITY-CURVE SIZING — Increase when winning, decrease when losing
+    double equityCurveMult = GetEquityCurveMultiplier();
+    riskAmount *= equityCurveMult;
+    
+    // V28.07: REGIME-BASED SIZING — Adjust based on market conditions
+    // Note: This is a global multiplier. Strategy-specific adjustments happen in GetStrategySpecificRisk()
+    ENUM_MARKET_REGIME regime = DetectMarketRegime();
+    if(regime == REGIME_VOLATILE) riskAmount *= 0.8;  // Reduce risk in volatile markets
+    if(regime == REGIME_LOW_VOL) riskAmount *= 1.2;   // Increase risk in low vol (more predictable)
     
     // ADJUST BY TQS
     riskAmount *= tqs;
@@ -6654,6 +6777,9 @@ void ExecuteNoiseBreakout()
     if(!CheckMarketConditions()) return;
     if(!CheckTimeFilter()) return;
     
+    // V28.07: ML-INSPIRED FILTER — Block unfavorable conditions
+    if(!ShouldTradeMLFilter()) return;
+    
     // 3. SQUEEZE DETECTION (shift=2, previous closed bar)
     double bb_upper_prev = iBands(Symbol(), Period(), InpNoiseBB_Period, InpNoiseBB_Dev, 0, PRICE_CLOSE, MODE_UPPER, 2);
     double bb_lower_prev = iBands(Symbol(), Period(), InpNoiseBB_Period, InpNoiseBB_Dev, 0, PRICE_CLOSE, MODE_LOWER, 2);
@@ -8108,6 +8234,52 @@ bool CheckMarketConditions()
 //| V27.20: Bad-Hours Filter — blocks entries during historically    |
 //| losing hours (20:00 UTC=46.2% loss, 16:00=42.5%, 12:00=40%)    |
 //+------------------------------------------------------------------+
+//+------------------------------------------------------------------+
+//| V28.07: ML-INSPIRED TRADE FILTER                                |
+//| Based on Python ML analysis: 61% of bars should NOT be traded    |
+//| Filters out unfavorable market conditions                         |
+//+------------------------------------------------------------------+
+bool ShouldTradeMLFilter()
+{
+    // Calculate RSI (14)
+    double rsi = iRSI(Symbol(), 0, 14, PRICE_CLOSE, 0);
+    
+    // Calculate ATR ratio (current vs average)
+    double atr = iATR(Symbol(), 0, 14, 0);
+    double atrAvg = 0;
+    for(int i = 0; i < 50; i++) atrAvg += iATR(Symbol(), 0, 14, i);
+    atrAvg /= 50.0;
+    double atrRatio = atr / atrAvg;
+    
+    // Calculate ADX
+    double adx = iADX(Symbol(), 0, 14, PRICE_CLOSE, MODE_MAIN, 0);
+    
+    // Calculate Bollinger Band width (squeeze detection)
+    double bbUpper = iBands(Symbol(), 0, 20, 2.0, 0, PRICE_CLOSE, MODE_UPPER, 0);
+    double bbLower = iBands(Symbol(), 0, 20, 2.0, 0, PRICE_CLOSE, MODE_LOWER, 0);
+    double bbWidth = (bbUpper - bbLower) / ((bbUpper + bbLower) / 2.0);
+    
+    // Calculate price momentum (5-bar return)
+    double momentum = (Close[0] - Close[5]) / Close[5] * 100;
+    
+    // FILTER 1: RSI extreme zones (avoid trading at extremes)
+    if(rsi > 80 || rsi < 20) return false;
+    
+    // FILTER 2: ATR ratio (avoid extreme volatility)
+    if(atrRatio > 2.0 || atrRatio < 0.5) return false;
+    
+    // FILTER 3: ADX filter (avoid very strong trends for mean reversion)
+    if(adx > 40) return false;
+    
+    // FILTER 4: BB squeeze (avoid trading during low volatility squeezes)
+    if(bbWidth < 0.005) return false;  // Very tight bands = low vol
+    
+    // FILTER 5: Momentum filter (avoid trading against strong momentum)
+    if(MathAbs(momentum) > 2.0) return false;  // >2% move in 5 bars
+    
+    return true;
+}
+
 bool IsBadTradingHour()
 {
    MqlDateTime dt;
@@ -9112,6 +9284,9 @@ void ExecuteVortexStrategy()
    if(!IsStrategyHealthy(InpVortex_MagicNumber)) return;
    if(!CheckTimeFilter()) return;
    
+   // V28.07: ML-INSPIRED FILTER
+   if(!ShouldTradeMLFilter()) return;
+   
    // Directional bias filter
    int bias = CheckDirectionalBias();
    
@@ -9198,6 +9373,9 @@ void ExecuteRegimeShiftStrategy()
    if(!IsStrategyHealthy(InpRegimeShift_MagicNumber)) return;
    if(!CheckTimeFilter()) return;
    
+   // V28.07: ML-INSPIRED FILTER
+   if(!ShouldTradeMLFilter()) return;
+   
    // Directional bias filter
    int bias = CheckDirectionalBias();
    
@@ -9268,6 +9446,9 @@ void ExecuteSessionMomentum()
    if(CountOpenTrades(InpSessionMomentum_MagicNumber) > 0) return;
    if(!IsStrategyHealthy(InpSessionMomentum_MagicNumber)) return;
    if(!CheckTimeFilter()) return;
+   
+   // V28.07: ML-INSPIRED FILTER — Block unfavorable conditions
+   if(!ShouldTradeMLFilter()) return;
 
    // Time filter: Only trade during London + NY hours (08:00-18:00 UTC)
    int serverHour = TimeHour(TimeCurrent());
@@ -9347,6 +9528,9 @@ void ExecuteDivergenceMR()
    if(!IsStrategyHealthy(InpDivergenceMR_MagicNumber)) return;
    if(!CheckTimeFilter()) return;
 
+   // V28.07: ML-INSPIRED FILTER
+   if(!ShouldTradeMLFilter()) return;
+
    // Directional bias filter
    int bias = CheckDirectionalBias();
 
@@ -9425,6 +9609,9 @@ void ExecuteLiquiditySweep()
    if(CountOpenTrades(InpLiquiditySweep_MagicNumber) > 0) return;
    if(!IsStrategyHealthy(InpLiquiditySweep_MagicNumber)) return;
    if(!CheckTimeFilter()) return;
+
+   // V28.07: ML-INSPIRED FILTER
+   if(!ShouldTradeMLFilter()) return;
 
    // Directional bias filter
    int bias = CheckDirectionalBias();
@@ -9530,6 +9717,9 @@ void ExecuteStructuralRetest()
    if(CountOpenTrades(InpStructuralRetest_MagicNumber) > 0) return;
    if(!IsStrategyHealthy(InpStructuralRetest_MagicNumber)) return;
    if(!CheckTimeFilter()) return;
+
+   // V28.07: ML-INSPIRED FILTER
+   if(!ShouldTradeMLFilter()) return;
 
    // Directional bias filter
    int bias = CheckDirectionalBias();
@@ -12914,15 +13104,34 @@ double MoneyManagement_Quantum(int magicNumber, double baseRiskPercent, double s
    double accountEquity = AccountEquity();
    // V27.21 FIX: Cap combined multiplier at 2.0x (was 3.0x in V27.20)
    // Lower cap reduces lot concentration and drawdown
-   double combinedMultiplier = MathMin(adaptiveMultiplier * heatMultiplier, 2.0);
-   
-   // V28.00: DD-based lot sizing reduction (tightened from 8%/10% to 5%/8%)
+  double combinedMultiplier = MathMin(adaptiveMultiplier * heatMultiplier, 2.0);
+  
+  // V28.07: REGIME-BASED MULTIPLIER — Adjust based on market conditions
+  int strategyIdx = GetStrategyIndexByMagic(magicNumber);
+  double regimeMult = GetRegimeStrategyMultiplier(strategyIdx);
+  combinedMultiplier *= regimeMult;
+  
+  // V28.00: DD-based lot sizing reduction (tightened from 8%/10% to 5%/8%)
    double ddPercent = (AccountBalance() - accountEquity) / AccountBalance() * 100.0;
    if(ddPercent >= 8.0) combinedMultiplier *= 0.5;       // 8%+ DD: half size
    else if(ddPercent >= 5.0) combinedMultiplier *= 0.75;  // 5%+ DD: 75% size
    
-   double riskAmount = accountEquity * ((effectiveRiskPercent * combinedMultiplier) / 100.0);
-   double tickValue = MarketInfo(Symbol(), MODE_TICKVALUE);
+    double riskAmount = accountEquity * ((effectiveRiskPercent * combinedMultiplier) / 100.0);
+    
+    // V28.07: VOLATILITY TARGETING — Adjust risk based on ATR
+    // If volatility is high, reduce risk. If low, increase risk.
+    double atr_current = iATR(Symbol(), 0, 14, 0);
+    double atrAvg50 = 0;
+    for(int vi = 0; vi < 50; vi++) atrAvg50 += iATR(Symbol(), 0, 14, vi);
+    atrAvg50 /= 50.0;
+    if(atrAvg50 > 0)
+    {
+        double atrRatio50 = atr_current / atrAvg50;
+        if(atrRatio50 > 1.5) riskAmount *= 0.7;       // High vol: reduce risk 30%
+        else if(atrRatio50 < 0.7) riskAmount *= 1.3;  // Low vol: increase risk 30%
+    }
+    
+    double tickValue = MarketInfo(Symbol(), MODE_TICKVALUE);
    if(tickValue == 0) tickValue = 1.0;
    double stopPips = (stopLossPips > 0) ? stopLossPips : 50.0;
    double rawLots = riskAmount / (stopPips * tickValue);
