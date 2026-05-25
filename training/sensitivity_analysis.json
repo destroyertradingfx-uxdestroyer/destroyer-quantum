@@ -1,0 +1,744 @@
+{
+  "baseline": {
+    "net_profit": -9999.997253408605,
+    "profit_factor": 0.4233868253524372,
+    "win_rate": 0.413953488372093,
+    "max_drawdown_pct": 99.99997433030256,
+    "total_trades": 1075,
+    "winning_trades": 445,
+    "losing_trades": 630
+  },
+  "param_tests": {
+    "mr_bb_period": [
+      {
+        "value": 10,
+        "net_profit": -9999.995544904827,
+        "profit_factor": 0.4197295394866828,
+        "win_rate": 0.4071914480077745,
+        "max_drawdown_pct": 99.99995955147824,
+        "total_trades": 1029
+      },
+      {
+        "value": 15,
+        "net_profit": -9999.996409993055,
+        "profit_factor": 0.42070564679262773,
+        "win_rate": 0.41030534351145037,
+        "max_drawdown_pct": 99.99996740575266,
+        "total_trades": 1048
+      },
+      {
+        "value": 20,
+        "net_profit": -9999.997253408605,
+        "profit_factor": 0.4233868253524372,
+        "win_rate": 0.413953488372093,
+        "max_drawdown_pct": 99.99997433030256,
+        "total_trades": 1075
+      },
+      {
+        "value": 25,
+        "net_profit": -9999.997411140092,
+        "profit_factor": 0.4057663074396957,
+        "win_rate": 0.4151291512915129,
+        "max_drawdown_pct": 99.99997533925115,
+        "total_trades": 1084
+      },
+      {
+        "value": 30,
+        "net_profit": -9999.997011814741,
+        "profit_factor": 0.39067635580358173,
+        "win_rate": 0.4195933456561922,
+        "max_drawdown_pct": 99.99997119665278,
+        "total_trades": 1082
+      }
+    ],
+    "mr_bb_dev": [
+      {
+        "value": 1.5,
+        "net_profit": -9999.999454443503,
+        "profit_factor": 0.39803486317824305,
+        "win_rate": 0.4164546225614928,
+        "max_drawdown_pct": 99.99999486270374,
+        "total_trades": 1179
+      },
+      {
+        "value": 1.7,
+        "net_profit": -9999.999076115548,
+        "profit_factor": 0.3891661537356002,
+        "win_rate": 0.41424802110817943,
+        "max_drawdown_pct": 99.9999912449938,
+        "total_trades": 1137
+      },
+      {
+        "value": 2.0,
+        "net_profit": -9999.997253408605,
+        "profit_factor": 0.4233868253524372,
+        "win_rate": 0.413953488372093,
+        "max_drawdown_pct": 99.99997433030256,
+        "total_trades": 1075
+      },
+      {
+        "value": 2.2,
+        "net_profit": -9999.995566349227,
+        "profit_factor": 0.41531248522357683,
+        "win_rate": 0.4085188770571152,
+        "max_drawdown_pct": 99.99995856301231,
+        "total_trades": 1033
+      },
+      {
+        "value": 2.5,
+        "net_profit": -9999.992210020879,
+        "profit_factor": 0.4115947111981544,
+        "win_rate": 0.4044489383215369,
+        "max_drawdown_pct": 99.9999292735334,
+        "total_trades": 989
+      }
+    ],
+    "mr_rsi_period": [
+      {
+        "value": 7,
+        "net_profit": -9999.99839783464,
+        "profit_factor": 0.44234415607511113,
+        "win_rate": 0.42732811140121846,
+        "max_drawdown_pct": 99.99998499905253,
+        "total_trades": 1149
+      },
+      {
+        "value": 10,
+        "net_profit": -9999.998208749923,
+        "profit_factor": 0.4338686790634861,
+        "win_rate": 0.42208370436331255,
+        "max_drawdown_pct": 99.99998357478184,
+        "total_trades": 1123
+      },
+      {
+        "value": 14,
+        "net_profit": -9999.997253408605,
+        "profit_factor": 0.4233868253524372,
+        "win_rate": 0.413953488372093,
+        "max_drawdown_pct": 99.99997433030256,
+        "total_trades": 1075
+      },
+      {
+        "value": 21,
+        "net_profit": -9999.99002799658,
+        "profit_factor": 0.42975845032280335,
+        "win_rate": 0.413,
+        "max_drawdown_pct": 99.99990944427567,
+        "total_trades": 1000
+      }
+    ],
+    "mr_rsi_os": [
+      {
+        "value": 20,
+        "net_profit": -9999.99421469697,
+        "profit_factor": 0.42516067876517594,
+        "win_rate": 0.410958904109589,
+        "max_drawdown_pct": 99.9999459195087,
+        "total_trades": 1022
+      },
+      {
+        "value": 25,
+        "net_profit": -9999.996026444267,
+        "profit_factor": 0.4215797906182048,
+        "win_rate": 0.41260744985673353,
+        "max_drawdown_pct": 99.99996285555915,
+        "total_trades": 1047
+      },
+      {
+        "value": 30,
+        "net_profit": -9999.997253408605,
+        "profit_factor": 0.4233868253524372,
+        "win_rate": 0.413953488372093,
+        "max_drawdown_pct": 99.99997433030256,
+        "total_trades": 1075
+      },
+      {
+        "value": 35,
+        "net_profit": -9999.997975659011,
+        "profit_factor": 0.4276178408944609,
+        "win_rate": 0.4177215189873418,
+        "max_drawdown_pct": 99.99998144029597,
+        "total_trades": 1106
+      },
+      {
+        "value": 40,
+        "net_profit": -9999.998167795606,
+        "profit_factor": 0.4198506466518286,
+        "win_rate": 0.42170818505338076,
+        "max_drawdown_pct": 99.99998320185608,
+        "total_trades": 1124
+      }
+    ],
+    "mr_rsi_ob": [
+      {
+        "value": 60,
+        "net_profit": -9999.998099908691,
+        "profit_factor": 0.4272260306045207,
+        "win_rate": 0.41944194419441944,
+        "max_drawdown_pct": 99.99998220959543,
+        "total_trades": 1111
+      },
+      {
+        "value": 65,
+        "net_profit": -9999.997878497548,
+        "profit_factor": 0.42851147909534804,
+        "win_rate": 0.416970802919708,
+        "max_drawdown_pct": 99.99998013654042,
+        "total_trades": 1096
+      },
+      {
+        "value": 70,
+        "net_profit": -9999.997253408605,
+        "profit_factor": 0.4233868253524372,
+        "win_rate": 0.413953488372093,
+        "max_drawdown_pct": 99.99997433030256,
+        "total_trades": 1075
+      },
+      {
+        "value": 75,
+        "net_profit": -9999.994226868506,
+        "profit_factor": 0.43074184630325063,
+        "win_rate": 0.41746641074856045,
+        "max_drawdown_pct": 99.99994758481566,
+        "total_trades": 1042
+      },
+      {
+        "value": 80,
+        "net_profit": -9999.991704926288,
+        "profit_factor": 0.431783523131504,
+        "win_rate": 0.4165029469548134,
+        "max_drawdown_pct": 99.99992468769882,
+        "total_trades": 1018
+      }
+    ],
+    "mr_sl_atr": [
+      {
+        "value": 1.0,
+        "net_profit": -9999.997498917179,
+        "profit_factor": 0.4297501132813709,
+        "win_rate": 0.4009132420091324,
+        "max_drawdown_pct": 99.99997691659027,
+        "total_trades": 1095
+      },
+      {
+        "value": 1.25,
+        "net_profit": -9999.997258993211,
+        "profit_factor": 0.42916315659755694,
+        "win_rate": 0.4086715867158672,
+        "max_drawdown_pct": 99.99997454337425,
+        "total_trades": 1084
+      },
+      {
+        "value": 1.5,
+        "net_profit": -9999.997253408605,
+        "profit_factor": 0.4233868253524372,
+        "win_rate": 0.413953488372093,
+        "max_drawdown_pct": 99.99997433030256,
+        "total_trades": 1075
+      },
+      {
+        "value": 1.75,
+        "net_profit": -9999.99659012764,
+        "profit_factor": 0.4216068896853166,
+        "win_rate": 0.4217432052483599,
+        "max_drawdown_pct": 99.99996792167767,
+        "total_trades": 1067
+      },
+      {
+        "value": 2.0,
+        "net_profit": -9999.995932440035,
+        "profit_factor": 0.4181968756591236,
+        "win_rate": 0.42735849056603775,
+        "max_drawdown_pct": 99.99996148956994,
+        "total_trades": 1060
+      }
+    ],
+    "mr_tp_atr": [
+      {
+        "value": 1.0,
+        "net_profit": -9999.997657631156,
+        "profit_factor": 0.41572981728385394,
+        "win_rate": 0.4048059149722736,
+        "max_drawdown_pct": 99.99997810370115,
+        "total_trades": 1082
+      },
+      {
+        "value": 1.25,
+        "net_profit": -9999.997315096818,
+        "profit_factor": 0.4269468647591645,
+        "win_rate": 0.41465677179962895,
+        "max_drawdown_pct": 99.99997500382494,
+        "total_trades": 1078
+      },
+      {
+        "value": 1.5,
+        "net_profit": -9999.997253408605,
+        "profit_factor": 0.4233868253524372,
+        "win_rate": 0.413953488372093,
+        "max_drawdown_pct": 99.99997433030256,
+        "total_trades": 1075
+      },
+      {
+        "value": 1.75,
+        "net_profit": -9999.997296074203,
+        "profit_factor": 0.4352521999966525,
+        "win_rate": 0.40875232774674114,
+        "max_drawdown_pct": 99.99997472905609,
+        "total_trades": 1074
+      },
+      {
+        "value": 2.0,
+        "net_profit": -9999.997478966427,
+        "profit_factor": 0.42616345262633776,
+        "win_rate": 0.40298507462686567,
+        "max_drawdown_pct": 99.99997643837042,
+        "total_trades": 1072
+      }
+    ],
+    "mom_rsi_period": [
+      {
+        "value": 7,
+        "net_profit": -9999.996195007474,
+        "profit_factor": 0.46109832150124686,
+        "win_rate": 0.41821561338289964,
+        "max_drawdown_pct": 99.99996502371339,
+        "total_trades": 1076
+      },
+      {
+        "value": 10,
+        "net_profit": -9999.995779759458,
+        "profit_factor": 0.4684310098586996,
+        "win_rate": 0.4173669467787115,
+        "max_drawdown_pct": 99.99996120666682,
+        "total_trades": 1071
+      },
+      {
+        "value": 14,
+        "net_profit": -9999.997253408605,
+        "profit_factor": 0.4233868253524372,
+        "win_rate": 0.413953488372093,
+        "max_drawdown_pct": 99.99997433030256,
+        "total_trades": 1075
+      },
+      {
+        "value": 21,
+        "net_profit": -9999.99377704704,
+        "profit_factor": 0.4689007759373637,
+        "win_rate": 0.4151309408341416,
+        "max_drawdown_pct": 99.99994206408026,
+        "total_trades": 1031
+      }
+    ],
+    "mom_rsi_buy": [
+      {
+        "value": 50,
+        "net_profit": -9999.997322859126,
+        "profit_factor": 0.44173483301198296,
+        "win_rate": 0.41458910433979684,
+        "max_drawdown_pct": 99.99997539116153,
+        "total_trades": 1083
+      },
+      {
+        "value": 55,
+        "net_profit": -9999.997253408605,
+        "profit_factor": 0.4233868253524372,
+        "win_rate": 0.413953488372093,
+        "max_drawdown_pct": 99.99997433030256,
+        "total_trades": 1075
+      },
+      {
+        "value": 60,
+        "net_profit": -9999.995152862288,
+        "profit_factor": 0.41821620252909775,
+        "win_rate": 0.41554702495201534,
+        "max_drawdown_pct": 99.9999546985552,
+        "total_trades": 1042
+      },
+      {
+        "value": 65,
+        "net_profit": -9999.99274653463,
+        "profit_factor": 0.4312437213732516,
+        "win_rate": 0.41386138613861384,
+        "max_drawdown_pct": 99.99993220896938,
+        "total_trades": 1010
+      }
+    ],
+    "mom_rsi_sell": [
+      {
+        "value": 35,
+        "net_profit": -9999.993437536703,
+        "profit_factor": 0.42333390765812623,
+        "win_rate": 0.41420118343195267,
+        "max_drawdown_pct": 99.9999389032266,
+        "total_trades": 1014
+      },
+      {
+        "value": 40,
+        "net_profit": -9999.99701173679,
+        "profit_factor": 0.413398253717872,
+        "win_rate": 0.412818096135721,
+        "max_drawdown_pct": 99.99997217916018,
+        "total_trades": 1061
+      },
+      {
+        "value": 45,
+        "net_profit": -9999.997253408605,
+        "profit_factor": 0.4233868253524372,
+        "win_rate": 0.413953488372093,
+        "max_drawdown_pct": 99.99997433030256,
+        "total_trades": 1075
+      },
+      {
+        "value": 50,
+        "net_profit": -9999.998137973032,
+        "profit_factor": 0.41805559601876685,
+        "win_rate": 0.41187214611872147,
+        "max_drawdown_pct": 99.99998259745918,
+        "total_trades": 1095
+      }
+    ],
+    "mom_sma_period": [
+      {
+        "value": 10,
+        "net_profit": -9999.994983412764,
+        "profit_factor": 0.45323617383906756,
+        "win_rate": 0.4146576663452266,
+        "max_drawdown_pct": 99.99995311487662,
+        "total_trades": 1037
+      },
+      {
+        "value": 15,
+        "net_profit": -9999.996009415165,
+        "profit_factor": 0.43467882724015366,
+        "win_rate": 0.4151658767772512,
+        "max_drawdown_pct": 99.99996270391532,
+        "total_trades": 1055
+      },
+      {
+        "value": 20,
+        "net_profit": -9999.997253408605,
+        "profit_factor": 0.4233868253524372,
+        "win_rate": 0.413953488372093,
+        "max_drawdown_pct": 99.99997433030256,
+        "total_trades": 1075
+      },
+      {
+        "value": 30,
+        "net_profit": -9999.997211336511,
+        "profit_factor": 0.4059256779730425,
+        "win_rate": 0.41574074074074074,
+        "max_drawdown_pct": 99.99997350094999,
+        "total_trades": 1080
+      },
+      {
+        "value": 50,
+        "net_profit": -9999.996068457567,
+        "profit_factor": 0.37050994182026037,
+        "win_rate": 0.4115384615384615,
+        "max_drawdown_pct": 99.99996220334117,
+        "total_trades": 1040
+      }
+    ],
+    "mom_sl_atr": [
+      {
+        "value": 1.0,
+        "net_profit": -9999.999890074436,
+        "profit_factor": 0.39115710731583,
+        "win_rate": 0.35619641465315666,
+        "max_drawdown_pct": 99.99999895935225,
+        "total_trades": 1283
+      },
+      {
+        "value": 1.25,
+        "net_profit": -9999.998796174386,
+        "profit_factor": 0.4287362664299132,
+        "win_rate": 0.39634146341463417,
+        "max_drawdown_pct": 99.9999884676418,
+        "total_trades": 1148
+      },
+      {
+        "value": 1.5,
+        "net_profit": -9999.997253408605,
+        "profit_factor": 0.4233868253524372,
+        "win_rate": 0.413953488372093,
+        "max_drawdown_pct": 99.99997433030256,
+        "total_trades": 1075
+      },
+      {
+        "value": 1.75,
+        "net_profit": -9999.991425352599,
+        "profit_factor": 0.46596147973859786,
+        "win_rate": 0.43435340572556763,
+        "max_drawdown_pct": 99.99992020248906,
+        "total_trades": 1013
+      },
+      {
+        "value": 2.0,
+        "net_profit": -9999.991237978229,
+        "profit_factor": 0.45923876214138704,
+        "win_rate": 0.43859649122807015,
+        "max_drawdown_pct": 99.99991987311871,
+        "total_trades": 969
+      }
+    ],
+    "mom_tp_atr": [
+      {
+        "value": 1.5,
+        "net_profit": -9999.999672639857,
+        "profit_factor": 0.36625840391224046,
+        "win_rate": 0.4488124488124488,
+        "max_drawdown_pct": 99.99999682388263,
+        "total_trades": 1221
+      },
+      {
+        "value": 2.0,
+        "net_profit": -9999.997253408605,
+        "profit_factor": 0.4233868253524372,
+        "win_rate": 0.413953488372093,
+        "max_drawdown_pct": 99.99997433030256,
+        "total_trades": 1075
+      },
+      {
+        "value": 2.5,
+        "net_profit": -9999.990439261313,
+        "profit_factor": 0.44814493605799555,
+        "win_rate": 0.387589013224822,
+        "max_drawdown_pct": 99.99991138133245,
+        "total_trades": 983
+      },
+      {
+        "value": 3.0,
+        "net_profit": -9999.977733540027,
+        "profit_factor": 0.4350999527885708,
+        "win_rate": 0.3694690265486726,
+        "max_drawdown_pct": 99.99979647887326,
+        "total_trades": 904
+      }
+    ],
+    "bo_atr_ratio": [
+      {
+        "value": 1.2,
+        "net_profit": -9999.999220362512,
+        "profit_factor": 0.43607053398901785,
+        "win_rate": 0.40476190476190477,
+        "max_drawdown_pct": 99.9999929653168,
+        "total_trades": 1134
+      },
+      {
+        "value": 1.3,
+        "net_profit": -9999.99917623939,
+        "profit_factor": 0.4264316419773183,
+        "win_rate": 0.4026905829596413,
+        "max_drawdown_pct": 99.99999230111705,
+        "total_trades": 1115
+      },
+      {
+        "value": 1.5,
+        "net_profit": -9999.997253408605,
+        "profit_factor": 0.4233868253524372,
+        "win_rate": 0.413953488372093,
+        "max_drawdown_pct": 99.99997433030256,
+        "total_trades": 1075
+      },
+      {
+        "value": 1.7,
+        "net_profit": -9999.995830996471,
+        "profit_factor": 0.41775832345123504,
+        "win_rate": 0.41295938104448743,
+        "max_drawdown_pct": 99.99996068476501,
+        "total_trades": 1034
+      },
+      {
+        "value": 2.0,
+        "net_profit": -9999.989271473147,
+        "profit_factor": 0.4095638292483209,
+        "win_rate": 0.40855614973262033,
+        "max_drawdown_pct": 99.99989882605004,
+        "total_trades": 935
+      }
+    ],
+    "risk_pct": [
+      {
+        "value": 0.5,
+        "net_profit": -9926.288727929918,
+        "profit_factor": 0.3553482317962172,
+        "win_rate": 0.413953488372093,
+        "max_drawdown_pct": 99.28057677967975,
+        "total_trades": 1075
+      },
+      {
+        "value": 1.0,
+        "net_profit": -9999.521814093523,
+        "profit_factor": 0.39486793932863995,
+        "win_rate": 0.413953488372093,
+        "max_drawdown_pct": 99.99544378050689,
+        "total_trades": 1075
+      },
+      {
+        "value": 1.5,
+        "net_profit": -9999.997253408605,
+        "profit_factor": 0.4233868253524372,
+        "win_rate": 0.413953488372093,
+        "max_drawdown_pct": 99.99997433030256,
+        "total_trades": 1075
+      },
+      {
+        "value": 2.0,
+        "net_profit": -9999.999984288952,
+        "profit_factor": 0.44411637795497866,
+        "win_rate": 0.413953488372093,
+        "max_drawdown_pct": 99.99999985419545,
+        "total_trades": 1075
+      },
+      {
+        "value": 2.5,
+        "net_profit": -9999.999999921154,
+        "profit_factor": 0.4495814099323409,
+        "win_rate": 0.413953488372093,
+        "max_drawdown_pct": 99.99999999927276,
+        "total_trades": 1075
+      }
+    ],
+    "max_concurrent": [
+      {
+        "value": 1,
+        "net_profit": -9999.828841913453,
+        "profit_factor": 0.3955598645114923,
+        "win_rate": 0.41442542787286063,
+        "max_drawdown_pct": 99.99842861388105,
+        "total_trades": 818
+      },
+      {
+        "value": 2,
+        "net_profit": -9999.983951634502,
+        "profit_factor": 0.43416437495166194,
+        "win_rate": 0.42115768463073855,
+        "max_drawdown_pct": 99.99985426485523,
+        "total_trades": 1002
+      },
+      {
+        "value": 3,
+        "net_profit": -9999.997253408605,
+        "profit_factor": 0.4233868253524372,
+        "win_rate": 0.413953488372093,
+        "max_drawdown_pct": 99.99997433030256,
+        "total_trades": 1075
+      },
+      {
+        "value": 4,
+        "net_profit": -9999.997486326967,
+        "profit_factor": 0.4233494340537069,
+        "win_rate": 0.41280148423005564,
+        "max_drawdown_pct": 99.99997650716217,
+        "total_trades": 1078
+      },
+      {
+        "value": 5,
+        "net_profit": -9999.997486326967,
+        "profit_factor": 0.4233494340537069,
+        "win_rate": 0.41280148423005564,
+        "max_drawdown_pct": 99.99997650716217,
+        "total_trades": 1078
+      }
+    ]
+  },
+  "impacts": [
+    {
+      "param": "risk_pct",
+      "impact": 73.71127199123657,
+      "best_value": 0.5,
+      "baseline_value": 1.5
+    },
+    {
+      "param": "max_concurrent",
+      "impact": 0.1686444135139027,
+      "best_value": 1,
+      "baseline_value": 3
+    },
+    {
+      "param": "mom_tp_atr",
+      "impact": 0.02193909982997866,
+      "best_value": 3.0,
+      "baseline_value": 2.0
+    },
+    {
+      "param": "bo_atr_ratio",
+      "impact": 0.009948889364750357,
+      "best_value": 2.0,
+      "baseline_value": 1.5
+    },
+    {
+      "param": "mom_sl_atr",
+      "impact": 0.008652096206787974,
+      "best_value": 2.0,
+      "baseline_value": 1.5
+    },
+    {
+      "param": "mr_rsi_period",
+      "impact": 0.008369838060389156,
+      "best_value": 21,
+      "baseline_value": 14
+    },
+    {
+      "param": "mr_bb_dev",
+      "impact": 0.007244422624353319,
+      "best_value": 2.5,
+      "baseline_value": 2.0
+    },
+    {
+      "param": "mr_rsi_ob",
+      "impact": 0.006394982403435279,
+      "best_value": 80,
+      "baseline_value": 70
+    },
+    {
+      "param": "mom_rsi_sell",
+      "impact": 0.0047004363295855,
+      "best_value": 35,
+      "baseline_value": 45
+    },
+    {
+      "param": "mom_rsi_buy",
+      "impact": 0.004576324496156303,
+      "best_value": 65,
+      "baseline_value": 55
+    },
+    {
+      "param": "mr_rsi_os",
+      "impact": 0.003953098635975039,
+      "best_value": 20,
+      "baseline_value": 30
+    },
+    {
+      "param": "mom_rsi_period",
+      "impact": 0.003476361564025865,
+      "best_value": 21,
+      "baseline_value": 14
+    },
+    {
+      "param": "mom_sma_period",
+      "impact": 0.0022699958408338716,
+      "best_value": 10,
+      "baseline_value": 20
+    },
+    {
+      "param": "mr_bb_period",
+      "impact": 0.0018662352649698732,
+      "best_value": 10,
+      "baseline_value": 20
+    },
+    {
+      "param": "mr_sl_atr",
+      "impact": 0.0015664771435695002,
+      "best_value": 2.0,
+      "baseline_value": 1.5
+    },
+    {
+      "param": "mr_tp_atr",
+      "impact": 0.00040422255187877454,
+      "best_value": 1.5,
+      "baseline_value": 1.5
+    }
+  ],
+  "timestamp": "2026-05-25T19:35:21.893212"
+}
