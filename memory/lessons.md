@@ -35,3 +35,21 @@ _(This file accumulates over time. Never delete entries. Only append.)_
 - V27.8a/b/c: Three parameter iterations, profit dropped $7K from V27.6
 - Adjusting numbers without understanding root cause produces 22 versions that don't work
 - **Lesson:** If the proposed change is "adjust this number," stop. Research the root cause first.
+
+## 2026-05-26 — Non-ASCII Characters Break MQL4 Compilation
+- Every .mq4 file in the repo had ~2000+ non-ASCII characters
+- Emoji (🚀🎯📊), Unicode arrows (→), special math chars (±≥≤√), box drawing (─═)
+- MQL4 compiler REJECTS these files — none would compile
+- Root cause: research notes and changelog comments were written with Unicode
+- Fix: `re.sub(r'[^\x00-\x7F]', '', content)` — strip ALL non-ASCII
+- Also replace before writing: → becomes ->, ≥ becomes >=, ± becomes +/-
+- **Lesson:** ALWAYS sanitize .mq4 files before delivery. Run non-ASCII check on every version.
+- Verified: brace balance = 0 on all 27 files after sanitization
+
+## 2026-05-26 — Correlation Trading Is NOT Viable for DESTROYER
+- Searched 6 repos implementing EURUSD/GBPUSD correlation/pairs trading
+- Best documented result: Sharpe 0.47 (3.6% annual profit) — author says "minimal edge"
+- No MQL4 EA with PF >2.0 on correlation strategies
+- EURUSD/GBPUSD correlation 0.85-0.95 on H4 — too stable for mean reversion
+- When correlation breaks (Brexit, ECB divergence), it's fundamental — not revertible
+- **Lesson:** Use correlation only as a RISK FILTER (reduce exposure when correlation breaks), not as an edge source
