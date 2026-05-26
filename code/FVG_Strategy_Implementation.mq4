@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
-//| FAIR VALUE GAP (FVG) STRATEGY — MQL4 Implementation             |
-//| For DESTROYER QUANTUM EA — EURUSD H4                             |
+//| FAIR VALUE GAP (FVG) STRATEGY  MQL4 Implementation             |
+//| For DESTROYER QUANTUM EA  EURUSD H4                             |
 //| Magic: 9007, Index: 18                                           |
 //|                                                                  |
 //| STRATEGY: After a liquidity sweep (session/prior-day high/low),  |
@@ -8,9 +8,9 @@
 //| enter in the direction of the sweep.                             |
 //+------------------------------------------------------------------+
 
-// ═══════════════════════════════════════════════════════════════════
-// §1. INPUT PARAMETERS (add to EA's input section)
-// ═══════════════════════════════════════════════════════════════════
+// 
+// 1. INPUT PARAMETERS (add to EA's input section)
+// 
 /*
 sinput string Inp_Header_FVG        = "====== V28.XX: FAIR VALUE GAP (FVG) ======";
 input bool    InpFVG_Enabled          = true;       // Enable FVG Strategy
@@ -29,9 +29,9 @@ input bool    InpFVG_RequireEMAFilter = true;       // Require EMA trend alignme
 input int     InpFVG_EMA_Period       = 50;         // EMA period for trend filter
 */
 
-// ═══════════════════════════════════════════════════════════════════
-// §2. DATA STRUCTURES
-// ═══════════════════════════════════════════════════════════════════
+// 
+// 2. DATA STRUCTURES
+// 
 
 #define MAX_FVG_STORED 50
 
@@ -45,17 +45,17 @@ struct FVGRecord {
    datetime sweepTime;     // When the sweep was confirmed
 };
 
-// ═══════════════════════════════════════════════════════════════════
-// §3. GLOBAL VARIABLES
-// ═══════════════════════════════════════════════════════════════════
+// 
+// 3. GLOBAL VARIABLES
+// 
 
 FVGRecord g_fvgStore[MAX_FVG_STORED];
 int       g_fvgCount = 0;
 datetime  g_lastFVGScanTime = 0;
 
-// ═══════════════════════════════════════════════════════════════════
-// §4. HELPER FUNCTIONS
-// ═══════════════════════════════════════════════════════════════════
+// 
+// 4. HELPER FUNCTIONS
+// 
 
 //+------------------------------------------------------------------+
 //| Check if current time is within the FVG trading window           |
@@ -117,9 +117,9 @@ double GetSessionLow(int lookbackBars)
    return lowest;
 }
 
-// ═══════════════════════════════════════════════════════════════════
-// §5. FVG STORAGE MANAGEMENT
-// ═══════════════════════════════════════════════════════════════════
+// 
+// 5. FVG STORAGE MANAGEMENT
+// 
 
 //+------------------------------------------------------------------+
 //| Add a new FVG to the store (with dedup and size filter)          |
@@ -138,7 +138,7 @@ void AddFVG(double top, double bottom, datetime barTime, int direction)
    if(fvgSizePips < InpFVG_MinSizePips) return;
    if(fvgSizePips > InpFVG_MaxSizePips) return;  // Skip breakaway gaps
    
-   // Shift everything down if at capacity (FIFO — oldest removed)
+   // Shift everything down if at capacity (FIFO  oldest removed)
    if(g_fvgCount >= MAX_FVG_STORED)
    {
       for(int j = 0; j < MAX_FVG_STORED - 1; j++)
@@ -158,7 +158,7 @@ void AddFVG(double top, double bottom, datetime barTime, int direction)
 }
 
 //+------------------------------------------------------------------+
-//| Update mitigation status — mark FVGs that price has filled       |
+//| Update mitigation status  mark FVGs that price has filled       |
 //+------------------------------------------------------------------+
 void UpdateFVG_Mitigation()
 {
@@ -182,7 +182,7 @@ void UpdateFVG_Mitigation()
 }
 
 //+------------------------------------------------------------------+
-//| Periodic cleanup — remove expired/mitigated FVGs                 |
+//| Periodic cleanup  remove expired/mitigated FVGs                 |
 //+------------------------------------------------------------------+
 void CleanupFVGStore()
 {
@@ -202,9 +202,9 @@ void CleanupFVGStore()
    g_fvgCount = writeIdx;
 }
 
-// ═══════════════════════════════════════════════════════════════════
-// §6. FVG SCANNING (Called once per new bar)
-// ═══════════════════════════════════════════════════════════════════
+// 
+// 6. FVG SCANNING (Called once per new bar)
+// 
 
 //+------------------------------------------------------------------+
 //| Scan completed bars for FVG patterns                             |
@@ -225,7 +225,7 @@ void ScanForNewFVGs()
       // Skip if too old
       if(shift > InpFVG_MaxFVGAge_Bars) continue;
       
-      // ── BULLISH FVG ──
+      //  BULLISH FVG 
       // Middle candle surged UP so much that:
       // Low of left candle (shift+2) > High of right candle (shift)
       // This creates an upside gap between them
@@ -236,7 +236,7 @@ void ScanForNewFVGs()
          AddFVG(fvgTop, fvgBottom, Time[shift + 1], +1);
       }
       
-      // ── BEARISH FVG ──
+      //  BEARISH FVG 
       // Middle candle dropped so hard that:
       // High of left candle (shift+2) < Low of right candle (shift)
       // This creates a downside gap between them
@@ -249,9 +249,9 @@ void ScanForNewFVGs()
    }
 }
 
-// ═══════════════════════════════════════════════════════════════════
-// §7. LIQUIDITY SWEEP DETECTION (Called once per new bar)
-// ═══════════════════════════════════════════════════════════════════
+// 
+// 7. LIQUIDITY SWEEP DETECTION (Called once per new bar)
+// 
 
 //+------------------------------------------------------------------+
 //| Detect if the last completed bar swept a key liquidity level     |
@@ -269,13 +269,13 @@ void DetectLiquiditySweeps()
    double sessionHigh = GetSessionHigh(InpFVG_SweepLookback);
    double sessionLow  = GetSessionLow(InpFVG_SweepLookback);
    
-   // ── BEARISH SWEEP: Price swept above a key level but closed back below ──
+   //  BEARISH SWEEP: Price swept above a key level but closed back below 
    bool sweptAbovePDH = (High[1] > prevDayHigh && Close[1] < prevDayHigh);
    bool sweptAboveSH  = (High[1] > sessionHigh && Close[1] < sessionHigh);
    
    if(sweptAbovePDH || sweptAboveSH)
    {
-      // A bearish sweep occurred — mark unmitigated bearish FVGs
+      // A bearish sweep occurred  mark unmitigated bearish FVGs
       // (Price took buy-side liquidity, now likely to reverse down into bearish FVGs)
       for(int i = 0; i < g_fvgCount; i++)
       {
@@ -291,13 +291,13 @@ void DetectLiquiditySweeps()
       }
    }
    
-   // ── BULLISH SWEEP: Price swept below a key level but closed back above ──
+   //  BULLISH SWEEP: Price swept below a key level but closed back above 
    bool sweptBelowPDL = (Low[1] < prevDayLow && Close[1] > prevDayLow);
    bool sweptBelowSL  = (Low[1] < sessionLow && Close[1] > sessionLow);
    
    if(sweptBelowPDL || sweptBelowSL)
    {
-      // A bullish sweep occurred — mark unmitigated bullish FVGs
+      // A bullish sweep occurred  mark unmitigated bullish FVGs
       // (Price took sell-side liquidity, now likely to reverse up into bullish FVGs)
       for(int i = 0; i < g_fvgCount; i++)
       {
@@ -314,17 +314,17 @@ void DetectLiquiditySweeps()
    }
 }
 
-// ═══════════════════════════════════════════════════════════════════
-// §8. MAIN STRATEGY FUNCTION
-// ═══════════════════════════════════════════════════════════════════
+// 
+// 8. MAIN STRATEGY FUNCTION
+// 
 
 //+------------------------------------------------------------------+
-//| ExecuteFVGStrategy — Main entry point, called from OnTick        |
+//| ExecuteFVGStrategy  Main entry point, called from OnTick        |
 //| Integrates with DESTROYER_QUANTUM's strategy dispatch pattern    |
 //+------------------------------------------------------------------+
 void ExecuteFVGStrategy()
 {
-   // ── Pre-checks ──
+   //  Pre-checks 
    if(!InpFVG_Enabled) return;
    if(Period() != PERIOD_H4) return;
    if(CountOpenTrades(InpFVG_MagicNumber) >= InpFVG_MaxConcurrent) return;
@@ -334,19 +334,19 @@ void ExecuteFVGStrategy()
    double spread = (Ask - Bid) / Point;
    if(spread > InpMax_Spread_Pips * 10) return;
    
-   // ── STEP 1: Scan for new FVGs (once per bar) ──
+   //  STEP 1: Scan for new FVGs (once per bar) 
    ScanForNewFVGs();
    
-   // ── STEP 2: Detect sweeps and mark FVGs (once per bar) ──
+   //  STEP 2: Detect sweeps and mark FVGs (once per bar) 
    DetectLiquiditySweeps();
    
-   // ── STEP 3: Cleanup expired/mitigated FVGs ──
+   //  STEP 3: Cleanup expired/mitigated FVGs 
    CleanupFVGStore();
    
-   // ── STEP 4: Update mitigation status (every tick — for live entries) ──
+   //  STEP 4: Update mitigation status (every tick  for live entries) 
    UpdateFVG_Mitigation();
    
-   // ── STEP 5: Look for entry ──
+   //  STEP 5: Look for entry 
    double atr = iATR(Symbol(), PERIOD_H4, 14, 0);
    if(atr <= 0) return;
    
@@ -358,7 +358,7 @@ void ExecuteFVGStrategy()
       if(g_fvgStore[i].mitigated) continue;
       if(g_fvgStore[i].sweepConfirmed == 0) continue;
       
-      // Check FVG age — don't trade stale FVGs
+      // Check FVG age  don't trade stale FVGs
       int fvgBarAge = iBarShift(Symbol(), PERIOD_H4, g_fvgStore[i].barTime);
       if(fvgBarAge > InpFVG_MaxFVGAge_Bars)
       {
@@ -370,9 +370,9 @@ void ExecuteFVGStrategy()
       int sweepAge = iBarShift(Symbol(), PERIOD_H4, g_fvgStore[i].sweepTime);
       if(sweepAge > InpFVG_MaxSweepRetrace) continue;
       
-      // ═══════════════════════════════════════════════════════════
+      // 
       // BUY ENTRY: Bullish FVG + Bullish sweep + Price inside FVG
-      // ═══════════════════════════════════════════════════════════
+      // 
       if(g_fvgStore[i].direction == +1 && g_fvgStore[i].sweepConfirmed == +1)
       {
          // Price must be touching/inside the FVG zone
@@ -409,9 +409,9 @@ void ExecuteFVGStrategy()
          }
       }
       
-      // ═══════════════════════════════════════════════════════════
+      // 
       // SELL ENTRY: Bearish FVG + Bearish sweep + Price inside FVG
-      // ═══════════════════════════════════════════════════════════
+      // 
       if(g_fvgStore[i].direction == -1 && g_fvgStore[i].sweepConfirmed == -1)
       {
          // Price must be touching/inside the FVG zone
@@ -449,9 +449,9 @@ void ExecuteFVGStrategy()
    }
 }
 
-// ═══════════════════════════════════════════════════════════════════
-// §9. VISUAL OVERLAY (Optional — for debugging/monitoring)
-// ═══════════════════════════════════════════════════════════════════
+// 
+// 9. VISUAL OVERLAY (Optional  for debugging/monitoring)
+// 
 
 //+------------------------------------------------------------------+
 //| Draw FVG zones on chart as colored rectangles                    |
@@ -487,9 +487,9 @@ void DrawFVGZones()
    }
 }
 
-// ═══════════════════════════════════════════════════════════════════
-// §10. EA INTEGRATION POINTS (Changes needed in main EA file)
-// ═══════════════════════════════════════════════════════════════════
+// 
+// 10. EA INTEGRATION POINTS (Changes needed in main EA file)
+// 
 /*
 
 CHANGE 1: Resize g_perfData array (line ~1693)
@@ -519,7 +519,7 @@ CHANGE 8: Add to GetStrategySpecificRisk (after line 4489)
 
 CHANGE 9: Add dispatch in OnTick (after Sentinel dispatch, ~line 5600)
    ADD:
-   // V28.XX BEEHIVE — Fair Value Gap Worker (ICT FVG + Liquidity Sweep)
+   // V28.XX BEEHIVE  Fair Value Gap Worker (ICT FVG + Liquidity Sweep)
    if(InpFVG_Enabled)
    {
       ExecuteFVGStrategy();

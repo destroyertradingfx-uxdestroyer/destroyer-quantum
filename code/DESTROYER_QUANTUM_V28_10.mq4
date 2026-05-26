@@ -39,7 +39,7 @@ BUG FIXES (critical - these caused V28.09 account blowup):
 
 NEW STRATEGY:
 
-5. SENTINEL (magic 777015) — EMA Crossover Trend Follower
+5. SENTINEL (magic 777015)  EMA Crossover Trend Follower
    - EMA(21)/EMA(50) crossover + RSI(14) confirmation on H4
    - SL: ATR * 1.5, TP: SL * 2.0 (2:1 R:R)
    - Max 1 position at a time
@@ -165,12 +165,12 @@ V28.04 SURGICAL PATCH -- 5 FIXES
       
    3. CONTINUOUS SCORING INTEGRATION (V25 Fix #3 - Active)
       - Used as fallback in existing strategies when binary conditions miss but math prob high
-      - Elastic threshold = 0.6 - (prob × 0.1)
+      - Elastic threshold = 0.6 - (prob  0.1)
       - Graduated scoring: RSI/BB weighted by probability
       
    4. COMPLETE RE-ENTRIES TUNED (V25 Fix #4 - Enhanced)
       - Lowered gates: confidence>0.5, expectancy>-0.1, cooldown=5 bars
-      - Increased size: 0.7× base size (was 0.5×)
+      - Increased size: 0.7 base size (was 0.5)
       - Full OrderSend integration with V23 tracking
    
    CONFIGURATION:
@@ -218,7 +218,7 @@ V28.04 SURGICAL PATCH -- 5 FIXES
    1. MARGINAL VAR CONTRIBUTION (Fix #1) - Replace Absolute VAR Blocking
       - Problem: V24's absolute VAR check blocks trades without assessing marginal impact
       - Solution: Calculate each trade's added VAR contribution, not just portfolio total
-      - Logic: marginalVar = lots × sl × tickValue / equity × tailRiskFactor
+      - Logic: marginalVar = lots  sl  tickValue / equity  tailRiskFactor
       - Soft dampening when close to limit (>80% of varLimit  ->  lots *= 0.7)
       - Regime-contextual limits with dynamic thresholds
       - Impact: +30-50% approvals for low-impact trades
@@ -236,19 +236,19 @@ V28.04 SURGICAL PATCH -- 5 FIXES
    3. CONTINUOUS SCORING FOR ADAPTIVES (Fix #3) - Elastic Signal Geometry
       - Problem: V18 binary indicators (RSI<30, BB extremes) produce sparse signals (approx 190)
       - Solution: Replace binary gates with weighted continuous scores
-      - Logic: totalScore = 0.5×rsiScore + 0.3×bbScore + 0.2×regime.confidence
-      - Adaptive threshold = 0.6 - (prob×0.1)  ->  elastic based on probability
-      - rsiScore = (rsi<30 ? 1 : rsi<40 ? 0.7 : 0) × prob (graduated, not binary)
-      - Impact: +2-3× signals from marginal cases that binary logic rejects
+      - Logic: totalScore = 0.5rsiScore + 0.3bbScore + 0.2regime.confidence
+      - Adaptive threshold = 0.6 - (prob0.1)  ->  elastic based on probability
+      - rsiScore = (rsi<30 ? 1 : rsi<40 ? 0.7 : 0)  prob (graduated, not binary)
+      - Impact: +2-3 signals from marginal cases that binary logic rejects
       - Integration: In ExecuteMeanReversionModelV8_6(), Reaper, other strategies
    
    4. COMPLETE RE-ENTRIES WITH TUNING (Fix #4) - Full OrderSend Integration
       - Problem: V24 re-entries stubbed (no OrderSend, strict gates, incomplete integration)
       - Solution: Lower gates, add full OrderSend execution, tune parameters
       - Lowered gates: confidence>0.5 (was 0.6), expectancy>-0.1 (was 0)
-      - Cooldown reduced: 5 bars (was 10), size increased: 0.7× (was 0.5×)
+      - Cooldown reduced: 5 bars (was 10), size increased: 0.7 (was 0.5)
       - Full OrderSend calls integrated with V18 execution flow
-      - Impact: +1.5-2× activations in calm markets
+      - Impact: +1.5-2 activations in calm markets
       - Integration: Complete V24_Reentry functions with OrderSend calls
    
    CONFIGURATION:
@@ -303,7 +303,7 @@ V28.04 SURGICAL PATCH -- 5 FIXES
       - Problem: V18 indicator thresholds (RSI 30/70, BB 2.0 dev) are fixed
       - Solution: Use empirical prob & expectancy to dynamically loosen thresholds within bounds
       - Logic: adaptiveRsiLow = 30 - (prob * InpAdaptMax * (rExpectancy>0 ? 1 : 0.5))
-      - Bounds: Max shift ±10 levels/pips (InpAdaptMax), gated by positive expectancy
+      - Bounds: Max shift 10 levels/pips (InpAdaptMax), gated by positive expectancy
       - Impact: +200-400 trades in favorable regime contexts
       - Applied: ExecuteMeanReversionModelV8_6, Reaper, other strategies
    
@@ -348,7 +348,7 @@ V28.04 SURGICAL PATCH -- 5 FIXES
    OBJECTIVE:
    Surgical integration of advanced mathematical concepts into V18.3 framework:
    
-   🔬 CORE SYSTEMS INTEGRATED:
+    CORE SYSTEMS INTEGRATED:
    
    1. EMPIRICAL PROBABILITY ENGINE (Option 6 Core)
       - Bin-based empirical hit-rates (5 deviation bins: <1.0, 1.0-1.5, 1.5-2.0, 2.0-2.5, >2.5)
@@ -374,13 +374,13 @@ V28.04 SURGICAL PATCH -- 5 FIXES
    5. TAIL-RISK DEPENDENCY (V22  ->  V23)
       - Conditional loss probability: P(loss | previous loss)
       - Regime-contextualized (separate tracking per regime type)
-      - Non-linear damping: damping = (1 - P_cond)² (convex scaling)
+      - Non-linear damping: damping = (1 - P_cond) (convex scaling)
    
    6. BIDIRECTIONAL REGIME FEEDBACK (V23)
       - Trade outcomes revise regime confidence
       - EWMA surprise metric with confidence-gap scaling
       - Aggregated adjustment (3+ confirms before regime shift)
-      - Bounded feedback range (±0.5 max adjustment)
+      - Bounded feedback range (0.5 max adjustment)
    
    7. TRADE-BASED LEARNING CADENCE
       - All updates occur on trade close (not ticks/bars)
@@ -629,7 +629,7 @@ COMPONENT USAGE GUIDE:
 
 10. OnTester() - Genetic evolution metric
     - Automatically used by Strategy Tester
-    - Optimizes for K-Score (profit × winrate / dd × √trades)
+    - Optimizes for K-Score (profit  winrate / dd  trades)
 
 STRATEGY INTEGRATION EXAMPLES:
 
@@ -765,7 +765,7 @@ string GetErrorDescription(int errorCode) {
    
    4. MoneyManagement_Quantum(magicNumber, baseRiskPercent) - QUANTUM RISK FUNCTION
       - Combines Account Equity, Genetic Weight, and VSA Score
-      - Formula: (Equity × Risk × Genetics × VSA) / StopLoss
+      - Formula: (Equity  Risk  Genetics  VSA) / StopLoss
       - Auto-scales lot size based on strategy performance history
       - Self-correcting: Bad strategies get smaller lots, good ones get amplified
    
@@ -1041,7 +1041,7 @@ string GetErrorDescription(int errorCode) {
    
    3. DYNAMIC ATR STOP LOSS (Drawdown Killer)
       - Replaces fixed stop losses with volatility-based stops
-      - Formula: Stop Loss = 1.5 × ATR(14)
+      - Formula: Stop Loss = 1.5  ATR(14)
       - Safety clamps: Minimum 15 pips, Maximum 100 pips
       - Prevents 50% drawdowns from fixed stops in volatile markets
    
@@ -1130,8 +1130,8 @@ extern bool    InpMeanReversion_Enabled= true;        // ENABLED: OPERATION LEVI
 extern int     InpMR_BB_Period         = 15;          // Bollinger Bands Period
 extern double  InpMR_BB_Dev            = 1.9;         // Tighter bands for more signals
 extern int     InpMR_RSI_Period        = 10;          // RSI Period
-extern double  InpMR_RSI_OB            = 62.0;        // V27.18: Tightened from 65.0 — fewer but higher quality Mean Rev entries
-extern double  InpMR_RSI_OS            = 38.0;        // V27.18: Tightened from 35.0 — fewer but higher quality Mean Rev entries
+extern double  InpMR_RSI_OB            = 62.0;        // V27.18: Tightened from 65.0  fewer but higher quality Mean Rev entries
+extern double  InpMR_RSI_OS            = 38.0;        // V27.18: Tightened from 35.0  fewer but higher quality Mean Rev entries
 extern int     InpMR_CCI_Period        = 20;          // CCI Period for confirmation
 extern double  InpMR_ADX_Threshold     = 20.0;        // NEW: ADX filter for trend strength
 
@@ -1153,13 +1153,13 @@ extern double  InpBase_Risk_Percent    = 1.0;         // V27.27: Raised from 0.5
 extern double  InpBase_Risk_Percent_H1 = 0.25;        // Lower base risk for H1 strategies
 extern double  InpDefensiveDD_Percent  = 15.0;        // Drawdown threshold to trigger defensive mode
 extern double  InpDrawdown_Risk_Mult   = 0.3;         // Risk multiplier in defensive mode (0.3 = 30% of normal risk)
-extern int     InpMaxOpenTrades      = 12;          // V27.1 FIX: Lowered from 20 — accommodates 8 strategies + grid levels without runaway
+extern int     InpMaxOpenTrades      = 12;          // V27.1 FIX: Lowered from 20  accommodates 8 strategies + grid levels without runaway
 extern double  InpMaxLotSize         = 5.0;         // V27.20: Maximum lot size per trade (configurable, was hardcoded 5.0)
 extern bool    InpEnable_ReaperConditionFilter = false; // V26 FIX: Set true to require BB+RSI extreme before MR/Warden fire
 //--- Queen: State-Based Strategy Permissions
 extern bool    InpMR_Allow_Defensive  = true;  // Mean-reversion is often safe in drawdowns
 //--- Queen: Portfolio Risk Budget
-extern double  InpMaxTotalRisk_Percent = 8.0; // V27.19: Raised from 5.0 — Kelly-governed strategies need more headroom for dynamic sizing
+extern double  InpMaxTotalRisk_Percent = 8.0; // V27.19: Raised from 5.0  Kelly-governed strategies need more headroom for dynamic sizing
 extern double  InpShortBiasThreshold  = 0.35; // V28.00: Short-side conviction threshold lowered from 0.6 to 0.35 for more short opportunities
 //--- Queen: Adaptive Strategy Selection
 extern bool   InpEnableAdaptiveSelection = false;     // <<< TEMPORARILY SET TO false
@@ -1170,8 +1170,8 @@ sinput string Inp_Header_Cooldown = "====== COOLDOWN SYSTEM ======";
 extern bool   InpEnableCooldownSystem  = false; // <<< ADD THIS NEW INPUT AND SET TO false
 
 // V26 BEEHIVE: VAR Limiter & Alpha Sentinel Bypass (backtest calibration)
-extern bool    InpDisable_VAR_Limiter  = false;  // V27.1 FIX: VAR gate MUST be active — was bypassed in V27 causing runaway exposure
-extern bool    InpDisable_AlphaSentinel = false; // V27.1 FIX: Alpha Sentinel MUST be active — was bypassed in V27 causing unfiltered basket initiations
+extern bool    InpDisable_VAR_Limiter  = false;  // V27.1 FIX: VAR gate MUST be active  was bypassed in V27 causing runaway exposure
+extern bool    InpDisable_AlphaSentinel = false; // V27.1 FIX: Alpha Sentinel MUST be active  was bypassed in V27 causing unfiltered basket initiations
 extern double InpMinProfitFactor       = 1.1;         // Bee is disabled if PF drops below this
 //--- Aegis Dynamic Risk Protocol (Enhanced)
 sinput string Inp_Header_Aegis        = "====== AEGIS DYNAMIC RISK PROTOCOL (ENHANCED) ======";
@@ -1195,7 +1195,7 @@ sinput string Inp_Header_MarketFilters= "====== MARKET CONDITION FILTERS ======"
 extern bool    InpEnableMarketFilters  = true;        // Enable market condition filters
 //--- Time Filters
 sinput string Inp_Header_TimeFilters   = "====== TIME FILTERS ======";
-extern bool    InpEnableTimeFilter     = true;        // V27.20 FIX: Enable time-based trading restrictions (was false — 20:00 UTC = 46.2% loss rate)
+extern bool    InpEnableTimeFilter     = true;        // V27.20 FIX: Enable time-based trading restrictions (was false  20:00 UTC = 46.2% loss rate)
 extern bool    InpTradeMonday          = true;        // Allow trading on Monday
 extern bool    InpTradeTuesday         = true;        // Allow trading on Tuesday
 extern bool    InpTradeWednesday       = false;       // V27.20 FIX: Block Wednesday trading (44% loss rate)
@@ -1251,9 +1251,9 @@ sinput string Inp_Header_Reaper = "====== CERBERUS MODEL R: THE REAPER (GRID/MAR
 extern bool   InpReaper_Enabled         = true;       // Enable Reaper Grid Protocol
 extern int    InpReaper_BuyMagicNumber  = 888001;     // Magic number for buy basket
 extern int    InpReaper_SellMagicNumber = 888002;     // Magic number for sell basket
-extern double InpReaper_InitialLot      = 0.08;       // V28.00: Raised from 0.05 — tighter trailing + per-level TP justifies more capital
+extern double InpReaper_InitialLot      = 0.08;       // V28.00: Raised from 0.05  tighter trailing + per-level TP justifies more capital
 extern double InpReaper_LotMultiplier   = 1.3;        // Geometric lot multiplier (1.3 from Sengkuni)
-extern int    InpReaper_MaxLevels       = 8;          // V27.1 FIX: Tightened from 10 to 8 — structural hardcap
+extern int    InpReaper_MaxLevels       = 8;          // V27.1 FIX: Tightened from 10 to 8  structural hardcap
 extern int    InpReaper_PipStep         = 25;         // Grid step in pips (base multiplier for ATR dynamic grid)
 extern double InpReaper_BasketTP        = 50.0;       // Basket take profit in USD ($50 target)
 extern int    InpReaper_Timeframe       = PERIOD_H4;  // Execution timeframe (H4 for mean reversion)
@@ -1359,33 +1359,33 @@ extern int    InpQueen_MaxConcurrentBaskets = 2;    // Max simultaneous grid bas
 //+------------------------------------------------------------------+
 
 // ============================================================
-// V26 BEEHIVE — APEX STRATEGY (Session Rollover Reverter)
+// V26 BEEHIVE  APEX STRATEGY (Session Rollover Reverter)
 // ============================================================
 extern bool    InpApex_Enabled            = true;
-extern double  InpApex_ATR_Multiplier_SL  = 1.5;   // SL = ATR × this value
-extern double  InpApex_ATR_Multiplier_TP  = 1.2;   // TP = ATR × this value
-extern double  InpApex_ATR_Trigger        = 1.5;   // Bar range must exceed ATR × this to trigger
+extern double  InpApex_ATR_Multiplier_SL  = 1.5;   // SL = ATR  this value
+extern double  InpApex_ATR_Multiplier_TP  = 1.2;   // TP = ATR  this value
+extern double  InpApex_ATR_Trigger        = 1.5;   // Bar range must exceed ATR  this to trigger
 extern int     InpApex_ATR_Period         = 20;
 extern int     InpApex_MagicNumber        = 777011;
 
 // ============================================================
-// V26 BEEHIVE — PHANTOM STRATEGY (Monday Gap Fader)
+// V26 BEEHIVE  PHANTOM STRATEGY (Monday Gap Fader)
 // ============================================================
 extern bool    InpPhantom_Enabled         = true;
-extern double  InpPhantom_MaxGap_Pips     = 30.0;  // Only trade gaps ≤ this size
+extern double  InpPhantom_MaxGap_Pips     = 30.0;  // Only trade gaps  this size
 extern double  InpPhantom_MinGap_Pips     = 5.0;   // V27.10: Increased from 3.0 to avoid micro-gap noise
 extern double  InpPhantom_SL_GapMult      = 2.0;   // V27.10: Increased from 1.5 for wider SL
 extern double  InpPhantom_TP_GapMult      = 0.9;
 extern int     InpPhantom_MagicNumber     = 777013;
 
 // ============================================================
-// V26 BEEHIVE — NEXUS STRATEGY (Volatility Compression Breakout)
+// V26 BEEHIVE  NEXUS STRATEGY (Volatility Compression Breakout)
 // ============================================================
 extern bool    InpNexus_Enabled           = true;
 extern int     InpNexus_ATR_Period        = 14;
 extern int     InpNexus_MedianLookback    = 50;
 extern int     InpNexus_CompressionBars   = 3;     // Bars below threshold to qualify
-extern double  InpNexus_CompressionRatio  = 0.75;  // ATR must be < Median × this
+extern double  InpNexus_CompressionRatio  = 0.75;  // ATR must be < Median  this
 extern double  InpNexus_SL_ATR_Mult       = 1.5;
 extern double  InpNexus_TP_Median_Mult    = 2.0;
 extern int     InpNexus_MagicNumber       = 777014;
@@ -1488,11 +1488,11 @@ sinput int    InpLeviathan_HistoryLookback = 50;       // Number of trades to an
 //=== V27.7: EVENT SHIELD + ATR CIRCUIT BREAKER ===
 sinput string InpV276_Header_EventRisk = "====== V27.7: EVENT SHIELD + ATR CIRCUIT BREAKER ======";
 sinput bool   InpEventRisk_Enabled       = true;       // Block trading during FOMC/ECB/NFP windows
-sinput double InpATR_SpikeMultiplier      = 1.8;        // Block trades if ATR(14) > this × MA(ATR,20) — V27.7
-sinput int    InpATR_SpikeLockoutHours    = 12;         // Hours to suspend trading after ATR spike — V27.7
-sinput int    InpMaxConsecutiveLoss       = 3;          // Max consecutive losses before strategy suspension — V27.7
-sinput int    InpLossLockoutHours         = 24;         // Hours to suspend strategy after consec loss limit — V27.7
-sinput double InpMaxDailyLoss             = 0.0;         // V27.18: REMOVED — was killing Phantom's gap-fill sequence. Per-strategy risk is sufficient.
+sinput double InpATR_SpikeMultiplier      = 1.8;        // Block trades if ATR(14) > this  MA(ATR,20)  V27.7
+sinput int    InpATR_SpikeLockoutHours    = 12;         // Hours to suspend trading after ATR spike  V27.7
+sinput int    InpMaxConsecutiveLoss       = 3;          // Max consecutive losses before strategy suspension  V27.7
+sinput int    InpLossLockoutHours         = 24;         // Hours to suspend strategy after consec loss limit  V27.7
+sinput double InpMaxDailyLoss             = 0.0;         // V27.18: REMOVED  was killing Phantom's gap-fill sequence. Per-strategy risk is sufficient.
 
 //--- Leviathan Engine State
 int      g_consecutiveWins = 0;          // Current consecutive winning trades
@@ -1533,7 +1533,7 @@ double   g_stratKellyFraction[18];                 // Kelly-optimal fraction per
 double   g_stratSharpeProxy[18];                   // Rolling Sharpe proxy (return/volatility)
 double   g_stratHeatScore[18];                     // 0.0-1.0: How much "heat" (capital) to allocate
 datetime g_stratLastCalcTime[18];                  // Last time Kelly was recalculated
-// Dynamic tier caps — replace hardcoded per-strategy caps
+// Dynamic tier caps  replace hardcoded per-strategy caps
 double   g_stratDynamicMaxMult[18];                // Dynamically computed max multiplier per strategy
 
 // V27.21: Drawdown protection flag
@@ -1640,7 +1640,7 @@ struct V23_StrategyPerformance {
     double rExpectancy;      // R-expectancy = R_win * P_win - R_loss * P_loss
     
     // Empirical Probability Bins (5 deviation levels)
-    EmpiricalProbBin probBins[5];  // 0: <1.0σ, 1: 1.0-1.5σ, 2: 1.5-2.0σ, 3: 2.0-2.5σ, 4: >2.5σ
+    EmpiricalProbBin probBins[5];  // 0: <1.0, 1: 1.0-1.5, 2: 1.5-2.0, 3: 2.0-2.5, 4: >2.5
     
     // Tail Risk Tracking (Per Regime)
     double condLossProb[3];  // P(loss|prev_loss) for [Range, Trend, Volatile]
@@ -1666,7 +1666,7 @@ struct V23_RegimeState {
     double volatilityCluster; // Short_var / Long_var
     double signAutocorr;      // Sign autocorrelation (persistence)
     double trendSlope;        // Linear regression slope
-    double trendR2;           // Regression R²
+    double trendR2;           // Regression R
     double entropyNorm;       // Normalized Shannon entropy [0,1]
     
     // V25: Regime Probation/Hysteresis (Fix #2)
@@ -1881,7 +1881,7 @@ public:
    // Returns: 0 (Both), 1 (Long Only), -1 (Short Only)
    int GetAllowedDirection()
    {
-      // V27.20 FIX: Asymmetric thresholds — long bias > 0.3 (easy), short bias < -InpShortBiasThreshold (hard)
+      // V27.20 FIX: Asymmetric thresholds  long bias > 0.3 (easy), short bias < -InpShortBiasThreshold (hard)
       if(m_globalBias > 0.3)  return OP_BUY;
       if(m_globalBias < -InpShortBiasThreshold) return OP_SELL;
       return -1; // Code for "Both Allowed"
@@ -3009,7 +3009,7 @@ double GetTotalCurrentRiskPercent()
         if(!OrderSelect(i, SELECT_BY_POS, MODE_TRADES)) continue;
 
         int magic = OrderMagicNumber();
-        // V27.2: FIXED — use IsOurMagicNumber() to check ALL strategies (was only checking 3)
+        // V27.2: FIXED  use IsOurMagicNumber() to check ALL strategies (was only checking 3)
         // Previously missed: Reaper (888001/888002), Silicon-X (984651), Chronos (999001),
         // NoiseBreakout (777012), Apex (777011), Phantom (777013), Nexus (777014)
         if(OrderSymbol() == Symbol() && IsOurMagicNumber(magic))
@@ -3194,19 +3194,19 @@ void LogError(ERROR_LEVEL level, string message, string function = "", int line 
     switch(level)
     {
         case ERROR_INFO:
-            level_str = "ℹ️  INFO";
+            level_str = "  INFO";
             level_color = clrDodgerBlue;
-            prefix = "🔹";
+            prefix = "";
             break;
         case ERROR_WARNING:
-            level_str = "⚠️  WARNING";
+            level_str = "  WARNING";
             level_color = clrGold;
-            prefix = "🔸";
+            prefix = "";
             break;
         case ERROR_CRITICAL:
-            level_str = "🚨 CRITICAL";
+            level_str = " CRITICAL";
             level_color = clrRed;
-            prefix = "🔥";
+            prefix = "";
             break;
     }
     
@@ -3276,7 +3276,7 @@ void LogError(ERROR_LEVEL level, string message, string function = "", int line 
         
         if(errorCount > 10)
         {
-            Print("⚠️ WARNING: High critical error rate detected - " + IntegerToString(errorCount) + " errors in last hour");
+            Print(" WARNING: High critical error rate detected - " + IntegerToString(errorCount) + " errors in last hour");
         }
         
         lastErrorCheck = TimeCurrent();
@@ -4317,7 +4317,7 @@ void CheckHighPerformanceMode()
     {
         g_high_performance_mode = false;
         g_adaptive_conviction_threshold = 6.0; // Standard thresholds
-        LogError(ERROR_INFO, "📊 Standard performance mode - Conviction threshold: 6.0", "CheckHighPerformanceMode");
+        LogError(ERROR_INFO, " Standard performance mode - Conviction threshold: 6.0", "CheckHighPerformanceMode");
     }
 }
 
@@ -4484,7 +4484,7 @@ double GetStrategySpecificRisk(int magicNumber)
    if(magicNumber == InpMagic_MeanReversion) // 777001
       return 0.0; 
    
-   // 5. SENTINEL (V28.10: Conservative — new unproven strategy)
+   // 5. SENTINEL (V28.10: Conservative  new unproven strategy)
    if(magicNumber == InpSentinel_MagicNumber) // 777015
       return 0.8;
    
@@ -4526,9 +4526,9 @@ input bool InpV23_EnableRegimeFeedback = true; // Enable bidirectional regime fe
 //| V24 ALPHA EXPANSION CONFIGURATION                                |
 //+------------------------------------------------------------------+
 input string Inp_Header_V24 = "====== V24/V25/V26 EXPANSION MODES (OPT-IN) ======";
-input bool InpAlphaExpand = true;                 // V27.2: ENABLED — V24 Alpha Expansion unlocks 600-900 trade target
-input bool InpElasticScoring = true;              // V27.2: ENABLED — V25 Elastic Scoring for continuous signal generation
-input bool InpMathFirst = false;                  // V28.01: DISABLED — MathReversal removed (not in performance report)
+input bool InpAlphaExpand = true;                 // V27.2: ENABLED  V24 Alpha Expansion unlocks 600-900 trade target
+input bool InpElasticScoring = true;              // V27.2: ENABLED  V25 Elastic Scoring for continuous signal generation
+input bool InpMathFirst = false;                  // V28.01: DISABLED  MathReversal removed (not in performance report)
 input double InpVarRelaxFactor = 1.5;             // VAR relaxation multiplier in low-risk regimes (Fix #1)
 input double InpAdaptMax = 10.0;                  // Max adaptive shift for thresholds (levels/pips) (Fix #2)
 input int InpReentryCooldown = 5;                 // Re-entry cooldown in bars (V25: reduced from 10 to 5) (Fix #4)
@@ -4547,7 +4547,7 @@ input double InpNoiseMinVolMult = 0.5;             // Minimum volume multiplier 
 input double InpNoiseBreakoutATRMult = 0.15;       // Minimum breakout distance (ATR multiplier)
 
 //+------------------------------------------------------------------+
-//| V27.27: VORTEX STRATEGY — Vortex Indicator Trend Crossover       |
+//| V27.27: VORTEX STRATEGY  Vortex Indicator Trend Crossover       |
 //| Magic: 9001                                                      |
 //+------------------------------------------------------------------+
 sinput string Inp_Header_Vortex = "====== VORTEX: VORTEX INDICATOR TREND CROSSOVER ======";
@@ -4557,7 +4557,7 @@ extern int     InpVortex_Period          = 14;          // Vortex Indicator peri
 extern int     InpVortex_ADX_Threshold   = 20;          // ADX threshold for trend confirmation
 
 //+------------------------------------------------------------------+
-//| V27.27: REGIME SHIFT STRATEGY — ADX+RSI Regime Change Detector  |
+//| V27.27: REGIME SHIFT STRATEGY  ADX+RSI Regime Change Detector  |
 //| Magic: 9002                                                      |
 //+------------------------------------------------------------------+
 sinput string Inp_Header_RegimeShift = "====== REGIME SHIFT: ADX+RSI REGIME CHANGE DETECTOR ======";
@@ -4582,13 +4582,13 @@ input int     InpDivergenceMR_MagicNumber       = 9004;       // Magic number fo
 input int     InpDivergenceMR_RSI_Period        = 14;         // RSI period for divergence detection
 input int     InpDivergenceMR_BB_Period         = 20;         // Bollinger Band period
 input double  InpDivergenceMR_BB_Dev            = 2.0;        // Bollinger Band deviation
-input double  InpDivergenceMR_Hurst_Threshold   = 0.55;       // V28.04: Raised from 0.5 — EURUSD H4 rarely < 0.5 (was 0 trades)
+input double  InpDivergenceMR_Hurst_Threshold   = 0.55;       // V28.04: Raised from 0.5  EURUSD H4 rarely < 0.5 (was 0 trades)
 input double  InpDivergenceMR_ADX_Max           = 30.0;       // Max ADX (non-trending filter)
 input double  InpDivergenceMR_ATR_SL_Mult       = 2.0;        // ATR multiplier for stop loss
 input double  InpDivergenceMR_ATR_TP_Mult       = 3.0;        // ATR multiplier for take profit
 
 sinput string Inp_Header_LiquiditySweep = "====== V28.03: LIQUIDITY SWEEP ======";
-input bool    InpLiquiditySweep_Enabled         = false;      // V28.04: CUT — PF 0.84, negative EV (-$1,439)
+input bool    InpLiquiditySweep_Enabled         = false;      // V28.04: CUT  PF 0.84, negative EV (-$1,439)
 input int     InpLiquiditySweep_MagicNumber     = 9005;       // Magic number for Liquidity Sweep
 input int     InpLiquiditySweep_RSI_Period      = 14;         // RSI period
 input int     InpLiquiditySweep_RSI_OS          = 30;         // RSI oversold level
@@ -4603,14 +4603,14 @@ sinput string Inp_Header_StructuralRetest = "====== V28.03: STRUCTURAL BREAK & R
 input bool    InpStructuralRetest_Enabled       = true;       // Enable Structural Retest
 input int     InpStructuralRetest_MagicNumber   = 9006;       // Magic number for Structural Retest
 input int     InpStructuralRetest_SwingPeriod   = 20;         // Period for swing high/low detection
-input int     InpStructuralRetest_RetraceBars   = 20;         // V28.04: Extended from 10 — 10 was too tight on H4 (0 trades)
+input int     InpStructuralRetest_RetraceBars   = 20;         // V28.04: Extended from 10  10 was too tight on H4 (0 trades)
 input double  InpStructuralRetest_ATR_SL_Mult   = 1.5;        // ATR multiplier for SL
 input double  InpStructuralRetest_ATR_TP_Mult   = 3.0;        // ATR multiplier for TP
 input double  InpStructuralRetest_MinRR         = 2.0;        // Minimum risk/reward ratio
 
-// V28.10: SENTINEL — EMA Crossover Trend Follower
+// V28.10: SENTINEL  EMA Crossover Trend Follower
 sinput string InpSentinel_Header = "====== SENTINEL: EMA CROSSOVER TREND FOLLOWER ======";
-input bool    InpSentinel_Enabled       = false;      // V28.10: Disabled — PF 0.55, -$8,459. Needs rework.
+input bool    InpSentinel_Enabled       = false;      // V28.10: Disabled  PF 0.55, -$8,459. Needs rework.
 input int     InpSentinel_MagicNumber   = 777015;
 input int     InpSentinel_FastEMA       = 21;        // Fast EMA period
 input int     InpSentinel_SlowEMA       = 50;        // Slow EMA period
@@ -4783,7 +4783,7 @@ int OnInit()
    ArrayInitialize(g_consecLossTracker, 0);
    ArrayInitialize(g_strategyLockoutUntil, 0);
    
-   // V27.8: Initialize Adaptive Risk Unwind — all strategies start at 1.0x
+   // V27.8: Initialize Adaptive Risk Unwind  all strategies start at 1.0x
    ArrayInitialize(g_strategyMultiplier, 1.0);
    
    // V27.19: Initialize Dynamic Performance-Based Lot Sizing
@@ -5048,7 +5048,7 @@ int GetVSAState()
    double volCur = (double)Volume[1];
    double volSum = 0;
    for(int vi = 1; vi <= 20; vi++) volSum += (double)Volume[vi];
-   double volAvg = volSum / 20.0; // V27.11: Fixed — using actual volume data
+   double volAvg = volSum / 20.0; // V27.11: Fixed  using actual volume data
    
    double rangeCur = High[1] - Low[1];
    double rangeAvg = iATR(NULL, 0, 20, 2);
@@ -5199,7 +5199,7 @@ void OnTick()
    // V17.6 WINNER TAKES ALL: Global Circuit Breaker Check (Second Priority)
    CheckCircuitBreaker();
    
-   // V27.6: Event-Aware Risk — log warning during FOMC/ECB/NFP windows
+   // V27.6: Event-Aware Risk  log warning during FOMC/ECB/NFP windows
    if(InpEventRisk_Enabled) CheckEventRisk();
    
    // Check if system is in lockout mode
@@ -5419,7 +5419,7 @@ void OnNewBar()
 {
    LogError(ERROR_INFO, "--- NEW BAR ANALYSIS [ORION V1.0] ---", "OnNewBar");
    
-   // V27.7: Unified Event Shield — blocks trading during high-impact events + ATR spikes
+   // V27.7: Unified Event Shield  blocks trading during high-impact events + ATR spikes
    if(IsTradeBlockedByShield())
    {
       LogError(ERROR_WARNING, "OnNewBar: Blocked by Event Shield (news/ATR spike)", "OnNewBar");
@@ -5435,7 +5435,7 @@ void OnNewBar()
       return;
    }
    
-   // V27.16: Gentle Max Daily Loss — stop new trades if daily loss limit exceeded
+   // V27.16: Gentle Max Daily Loss  stop new trades if daily loss limit exceeded
    if(InpMaxDailyLoss > 0 && g_dailyPandL < -InpMaxDailyLoss)
    {
       LogError(ERROR_WARNING, "OnNewBar: Blocked by Max Daily Loss ($" + DoubleToString(g_dailyPandL, 2) + ")", "OnNewBar");
@@ -5443,7 +5443,7 @@ void OnNewBar()
       return;
    }
    
-   // V28.00: Drawdown protection — block new trades when DD > 10% (tightened from 12%)
+   // V28.00: Drawdown protection  block new trades when DD > 10% (tightened from 12%)
    if(g_ddProtectionActive)
    {
       LogError(ERROR_WARNING, "OnNewBar: Blocked by DD Protection (drawdown > 10%)", "OnNewBar");
@@ -5483,7 +5483,7 @@ void OnNewBar()
    // OnTick_SiliconX() will now need its own internal check. We will add a global permission flag.
    // Note: Orion decides permission on a NEW BAR, OnTick can check this state.
    
-// V28.05 FIX #4: DISABLED Titan — 7 trades in 6 years, $21 profit. Dead weight.
+// V28.05 FIX #4: DISABLED Titan  7 trades in 6 years, $21 profit. Dead weight.
 // 8+ independent filters create a 0.4% pass rate. Needs redesign before re-enabling.
 // if(InpTitan_Enabled)
 // {
@@ -5498,7 +5498,7 @@ void OnNewBar()
       if(CountOpenTrades() >= InpMaxOpenTrades) { if(!IsOptimization()) UpdateDashboard_StaticV8_6(); return; }
    }
    
-// V28.05 FIX #5: DISABLED Warden — 8 trades in 6 years, $690 profit. Dead weight.
+// V28.05 FIX #5: DISABLED Warden  8 trades in 6 years, $690 profit. Dead weight.
 // VSA Injection gate (vol>1.5x AND range>1.5x on H4) is extremely rare. 0.3x risk multiplier.
 // if(InpWarden_Enabled)
 // {
@@ -5527,73 +5527,73 @@ void OnNewBar()
       if(CountOpenTrades() >= InpMaxOpenTrades) { if(!IsOptimization()) UpdateDashboard_StaticV8_6(); return; }
    }
    
-   // V26 BEEHIVE: Silicon-X sub-cap — block new workers if grid is near max levels
+   // V26 BEEHIVE: Silicon-X sub-cap  block new workers if grid is near max levels
    bool sxRoomAvailable = (CountOpenTrades(InpSX_MagicNumber) <= InpSX_MaxLevels - 2);
    
-   // V26 BEEHIVE — Apex Worker (Session Rollover Reverter)
+   // V26 BEEHIVE  Apex Worker (Session Rollover Reverter)
    if(InpApex_Enabled && sxRoomAvailable)
    {
       ExecuteApexStrategy();
       if(CountOpenTrades() >= InpMaxOpenTrades) { if(!IsOptimization()) UpdateDashboard_StaticV8_6(); return; }
    }
    
-   // V26 BEEHIVE — Phantom Worker (Monday Gap Fader)
+   // V26 BEEHIVE  Phantom Worker (Monday Gap Fader)
    if(InpPhantom_Enabled && sxRoomAvailable)
    {
       ExecutePhantomStrategy();
       if(CountOpenTrades() >= InpMaxOpenTrades) { if(!IsOptimization()) UpdateDashboard_StaticV8_6(); return; }
    }
    
-   // V26 BEEHIVE — Nexus Worker (Volatility Compression Breakout)
+   // V26 BEEHIVE  Nexus Worker (Volatility Compression Breakout)
    if(InpNexus_Enabled && sxRoomAvailable)
    {
       ExecuteNexusStrategy();
       if(CountOpenTrades() >= InpMaxOpenTrades) { if(!IsOptimization()) UpdateDashboard_StaticV8_6(); return; }
    }
 
-   // V27.27 BEEHIVE — Vortex Worker (Vortex Indicator Trend Crossover)
+   // V27.27 BEEHIVE  Vortex Worker (Vortex Indicator Trend Crossover)
    if(InpVortex_Enabled)
    {
       ExecuteVortexStrategy();
       if(CountOpenTrades() >= InpMaxOpenTrades) { if(!IsOptimization()) UpdateDashboard_StaticV8_6(); return; }
    }
 
-   // V27.27 BEEHIVE — Regime Shift Worker (ADX+RSI Regime Change Detector)
+   // V27.27 BEEHIVE  Regime Shift Worker (ADX+RSI Regime Change Detector)
    if(InpRegimeShift_Enabled)
    {
       ExecuteRegimeShiftStrategy();
       if(CountOpenTrades() >= InpMaxOpenTrades) { if(!IsOptimization()) UpdateDashboard_StaticV8_6(); return; }
    }
 
-   // V28.00 BEEHIVE — Session Momentum Worker (London/NY Breakout)
+   // V28.00 BEEHIVE  Session Momentum Worker (London/NY Breakout)
    if(InpSessionMomentum_Enabled)
    {
       ExecuteSessionMomentum();
       if(CountOpenTrades() >= InpMaxOpenTrades) { if(!IsOptimization()) UpdateDashboard_StaticV8_6(); return; }
    }
 
-   // V28.00 BEEHIVE — Divergence Mean Reversion Worker (RSI Divergence + Hurst)
+   // V28.00 BEEHIVE  Divergence Mean Reversion Worker (RSI Divergence + Hurst)
    if(InpDivergenceMR_Enabled)
    {
       ExecuteDivergenceMR();
       if(CountOpenTrades() >= InpMaxOpenTrades) { if(!IsOptimization()) UpdateDashboard_StaticV8_6(); return; }
    }
 
-   // V28.03 BEEHIVE — Liquidity Sweep Worker (Stop Hunt Reversal)
+   // V28.03 BEEHIVE  Liquidity Sweep Worker (Stop Hunt Reversal)
    if(InpLiquiditySweep_Enabled)
    {
       ExecuteLiquiditySweep();
       if(CountOpenTrades() >= InpMaxOpenTrades) { if(!IsOptimization()) UpdateDashboard_StaticV8_6(); return; }
    }
 
-   // V28.03 BEEHIVE — Structural Break & Retest Worker
+   // V28.03 BEEHIVE  Structural Break & Retest Worker
    if(InpStructuralRetest_Enabled)
    {
       ExecuteStructuralRetest();
       if(CountOpenTrades() >= InpMaxOpenTrades) { if(!IsOptimization()) UpdateDashboard_StaticV8_6(); return; }
    }
 
-   // V28.10: SENTINEL — EMA Crossover Trend Follower
+   // V28.10: SENTINEL  EMA Crossover Trend Follower
    if(InpSentinel_Enabled)
    {
       ExecuteSentinelStrategy();
@@ -5793,7 +5793,7 @@ void UpdatePerformanceV4(int magic, double profit)
         g_consecutiveWins = 0;
     }
     
-    // V27.16: Max Daily Loss — track net P&L, reset at midnight
+    // V27.16: Max Daily Loss  track net P&L, reset at midnight
     datetime today = iTime(Symbol(), PERIOD_D1, 0);
     if(today > g_lastPandLDate) {
         g_dailyPandL = 0.0;
@@ -5807,7 +5807,7 @@ void UpdatePerformanceV4(int magic, double profit)
     // --- END V27.16 ---
     // --- END ASCENSION INTEGRATION ---
     
-    // V27.7: Consecutive Loss Guardian — track per-strategy streaks
+    // V27.7: Consecutive Loss Guardian  track per-strategy streaks
     RecordStrategyResult(magic, profit);
 
     // V13.7 SENGKUNI FIX: Use the single, authoritative GetStrategyIndexFromMagic function
@@ -6791,7 +6791,7 @@ int GetStrategyIndex(int magic)
 }
 
 //+------------------------------------------------------------------+
-//| V26 BEEHIVE WORKER 1: APEX — Session Rollover Liquidity Gap    |
+//| V26 BEEHIVE WORKER 1: APEX  Session Rollover Liquidity Gap    |
 //| Magic: 777011                                                    |
 //+------------------------------------------------------------------+
 void ExecuteApexStrategy()
@@ -6820,7 +6820,7 @@ void ExecuteApexStrategy()
 
    int stratIdx = GetStrategyIndex(InpApex_MagicNumber);
 
-   // V26 BEEHIVE: Cross-strategy directional gate — avoid opposing Reaper
+   // V26 BEEHIVE: Cross-strategy directional gate  avoid opposing Reaper
    bool hasReaperBuys  = (CountOpenTrades(InpReaper_BuyMagicNumber) > 0);
    bool hasReaperSells = (CountOpenTrades(InpReaper_SellMagicNumber) > 0);
 
@@ -6857,7 +6857,7 @@ void ExecuteApexStrategy()
 }
 
 //+------------------------------------------------------------------+
-//| V26 BEEHIVE WORKER 2: PHANTOM — Monday Gap & Momentum Fade      |
+//| V26 BEEHIVE WORKER 2: PHANTOM  Monday Gap & Momentum Fade      |
 //| Magic: 777013                                                    |
 //+------------------------------------------------------------------+
 void ExecutePhantomStrategy()
@@ -6867,7 +6867,7 @@ void ExecutePhantomStrategy()
    if(CountOpenTrades(InpPhantom_MagicNumber) > 0) return;
    if(Period() != PERIOD_H4) return;
 
-   // Only fire on Monday's first H4 bar (DayOfWeek == 1, hour 0–3)
+   // Only fire on Monday's first H4 bar (DayOfWeek == 1, hour 03)
    if(DayOfWeek() != 1) return;
    if(TimeHour(TimeCurrent()) > 4) return; // Only first bar of Monday
 
@@ -6920,7 +6920,7 @@ void ExecutePhantomStrategy()
 }
 
 //+------------------------------------------------------------------+
-//| V26 BEEHIVE WORKER 3: NEXUS — Volatility Compression Breakout   |
+//| V26 BEEHIVE WORKER 3: NEXUS  Volatility Compression Breakout   |
 //| Magic: 777014                                                    |
 //+------------------------------------------------------------------+
 void ExecuteNexusStrategy()
@@ -6961,7 +6961,7 @@ void ExecuteNexusStrategy()
    bool sellSignal = (Close[0] < Low[1]);
    if(!buySignal && !sellSignal) return;
 
-   // V26 BEEHIVE: Cross-strategy directional gate — avoid opposing Reaper
+   // V26 BEEHIVE: Cross-strategy directional gate  avoid opposing Reaper
    if(buySignal && CountOpenTrades(InpReaper_SellMagicNumber) > 0) return;
    if(sellSignal && CountOpenTrades(InpReaper_BuyMagicNumber) > 0) return;
 
@@ -7218,9 +7218,9 @@ void ProcessReaperBasket(int magic_number, int order_type)
    }
    
     // --- BASKET TP CHECK ---
-    // V27.2: FIXED — use $400 Phoenix TP instead of $50 micro-TP
-    // Old: InpReaper_BasketTP ($50) — grid risk (1.3x progression) was not worth the reward
-    // New: InpReaper_BasketTP_Money ($400) — lets grid breathe to reach designed target
+    // V27.2: FIXED  use $400 Phoenix TP instead of $50 micro-TP
+    // Old: InpReaper_BasketTP ($50)  grid risk (1.3x progression) was not worth the reward
+    // New: InpReaper_BasketTP_Money ($400)  lets grid breathe to reach designed target
     if(basket_profit >= InpReaper_BasketTP_Money)
    {
       CloseAllByMagic(magic_number);
@@ -7229,10 +7229,10 @@ void ProcessReaperBasket(int magic_number, int order_type)
       return;
    }
 
-   // ══════════════════════════════════════════════════════════
+   // 
    // V28.00: PER-LEVEL PROFIT TAKING
    // Close individual levels at 1.5x ATR profit (reduces basket risk)
-   // ══════════════════════════════════════════════════════════
+   // 
    double atr_for_tp = iATR(Symbol(), PERIOD_H4, 14, 1);
    double perLevelTP = atr_for_tp * 1.5; // 1.5x ATR profit target per level
    double tickValue = MarketInfo(Symbol(), MODE_TICKVALUE);
@@ -7268,9 +7268,9 @@ void ProcessReaperBasket(int magic_number, int order_type)
        if(IsAnyGridStrategyActive()) return;
    }
    
-   // ══════════════════════════════════════════════════════════
-   // PATCH A.1: ABSOLUTE HARDCAP — No levels beyond this
-   // ══════════════════════════════════════════════════════════
+   // 
+   // PATCH A.1: ABSOLUTE HARDCAP  No levels beyond this
+   // 
    if(basket_levels >= InpReaper_HardcapLevels)
    {
       LogError(ERROR_WARNING, "Reaper ABSOLUTE HARDCAP REACHED: " + IntegerToString(InpReaper_HardcapLevels) + 
@@ -7278,9 +7278,9 @@ void ProcessReaperBasket(int magic_number, int order_type)
       return;
    }
    
-   // ══════════════════════════════════════════════════════════
-   // PATCH A.2: REGIME SUPPRESSION — Kill Reaper in fierce trends
-   // ══════════════════════════════════════════════════════════
+   // 
+   // PATCH A.2: REGIME SUPPRESSION  Kill Reaper in fierce trends
+   // 
    double adx = iADX(Symbol(), PERIOD_H4, 14, PRICE_CLOSE, MODE_MAIN, 1);
    double diPlus = iADX(Symbol(), PERIOD_H4, 14, PRICE_CLOSE, MODE_PLUSDI, 1);
    double diMinus = iADX(Symbol(), PERIOD_H4, 14, PRICE_CLOSE, MODE_MINUSDI, 1);
@@ -7314,9 +7314,9 @@ void ProcessReaperBasket(int magic_number, int order_type)
       return;
    }
    
-   // ══════════════════════════════════════════════════════════
+   // 
    // PATCH A.3: ATR-BASED DYNAMIC GRID SPACING (replaces fixed pip)
-   // ══════════════════════════════════════════════════════════
+   // 
    double atr = iATR(Symbol(), PERIOD_H4, 14, 1);
    double dynamicGridDistance = atr * InpReaper_ATR_GridMult;  // Grid step = ATR * multiplier
    
@@ -7328,9 +7328,9 @@ void ProcessReaperBasket(int magic_number, int order_type)
    double maxGridPips = 200.0 * _Point * 10;
    if(dynamicGridDistance > maxGridPips) dynamicGridDistance = maxGridPips;
    
-   // ══════════════════════════════════════════════════════════
+   // 
    // PATCH A.4: TIME-BASED COOLDOWN BETWEEN GRID LEVELS
-   // ══════════════════════════════════════════════════════════
+   // 
    datetime lastLevelTime = 0;
    
    for(int i = OrdersTotal() - 1; i >= 0; i--)
@@ -7350,9 +7350,9 @@ void ProcessReaperBasket(int magic_number, int order_type)
       }
    }
    
-   // ══════════════════════════════════════════════════════════
+   // 
    // ENTRY LOGIC (with ATR-based spacing + mandatory Alpha Sentinel)
-   // ══════════════════════════════════════════════════════════
+   // 
    bool should_add_level = false;
    int next_level = basket_levels + 1;
    
@@ -7360,7 +7360,7 @@ void ProcessReaperBasket(int magic_number, int order_type)
    {
       if(!g_reaper_buy_active)
       {
-         // FIRST TRADE: Require Alpha Sentinel (MANDATORY — no bypass)
+         // FIRST TRADE: Require Alpha Sentinel (MANDATORY  no bypass)
          should_add_level = IsHighConvictionSignal(OP_BUY);
          if(should_add_level) 
              LogError(ERROR_INFO, "Alpha Sentinel: High-conviction BUY signal approved for new Reaper basket.");
@@ -7394,7 +7394,7 @@ void ProcessReaperBasket(int magic_number, int order_type)
    {
       if(!g_reaper_sell_active)
       {
-         // FIRST TRADE: Require Alpha Sentinel (MANDATORY — no bypass)
+         // FIRST TRADE: Require Alpha Sentinel (MANDATORY  no bypass)
          should_add_level = IsHighConvictionSignal(OP_SELL);
          if(should_add_level) 
              LogError(ERROR_INFO, "Alpha Sentinel: High-conviction SELL signal approved for new Reaper basket.");
@@ -7534,9 +7534,9 @@ bool IsHighConvictionSignal(int order_type)
      // LAYER 3: DIVERGENCE - RSI must show divergence from price.
      bool divergence_confirmed = Reaper_DetectRSIDivergence(order_type);
      
-     // V27.2: RELAXED ELITE FILTER — now requires 2-of-3 confluence instead of all 3
+     // V27.2: RELAXED ELITE FILTER  now requires 2-of-3 confluence instead of all 3
      // Original: atSupportZone && stoch_confirmed && divergence_confirmed (all 3 required)
-     // This was too strict — only ~32 Reaper entries in 6 years
+     // This was too strict  only ~32 Reaper entries in 6 years
      int confluenceCount = 0;
      if(order_type == OP_BUY && atSupportZone) confluenceCount++;
      if(order_type == OP_SELL && atResistanceZone) confluenceCount++;
@@ -8079,8 +8079,8 @@ int CountOpenTrades()
          if(OrderSymbol() == Symbol())
          {
             int magic = OrderMagicNumber();
-            // V26 BEEHIVE FIX: Count ALL strategy magics — Reaper, Silicon-X,
-            // Chronos, Apex, Phantom, Nexus included — so capacity guard reflects true open exposure.
+            // V26 BEEHIVE FIX: Count ALL strategy magics  Reaper, Silicon-X,
+            // Chronos, Apex, Phantom, Nexus included  so capacity guard reflects true open exposure.
             if(magic == InpMagic_MeanReversion   ||
                magic == InpTitan_MagicNumber      ||
                magic == InpWarden_MagicNumber     ||
@@ -8138,7 +8138,7 @@ bool CheckMarketConditions()
 }
 
 //+------------------------------------------------------------------+
-//| V27.20: Bad-Hours Filter — blocks entries during historically    |
+//| V27.20: Bad-Hours Filter  blocks entries during historically    |
 //| losing hours (20:00 UTC=46.2% loss, 16:00=42.5%, 12:00=40%)    |
 //+------------------------------------------------------------------+
 bool IsBadTradingHour()
@@ -8828,7 +8828,7 @@ void ExecuteTitanStrategy()
     double volatilityRange = maxATR - minATR;
     double currentVolatilityPercentile = (currentATR - minATR) / MathMax(volatilityRange, 0.00001);
     
-    if(currentATR < volatilityThreshold || currentVolatilityPercentile < 0.4) // V28.04: Reverted from 0.25 — lower threshold let in 17 garbage trades (PF 2.00 -> 0.37)
+    if(currentATR < volatilityThreshold || currentVolatilityPercentile < 0.4) // V28.04: Reverted from 0.25  lower threshold let in 17 garbage trades (PF 2.00 -> 0.37)
     {
         LogError(ERROR_INFO, "Chimera Volatility Filter: Insufficient volatility - ATR: " + 
                         DoubleToStr(currentATR, Digits) + " Threshold: " + DoubleToStr(volatilityThreshold, Digits), 
@@ -8846,13 +8846,13 @@ void ExecuteTitanStrategy()
     double atr4 = iATR(Symbol(), Period(), 14, 4);
     
     // V27.27: Valkyrie filter REMOVED (was too restrictive, blocked 80% of trades)
-    // V28.04: Valkyrie filter RESTORED — those 80% were the BAD trades
+    // V28.04: Valkyrie filter RESTORED  those 80% were the BAD trades
     // Titan is a trend strategy. It must trade when volatility is INCREASING.
     // Check if current ATR > average of 3 prior bars (volatility expanding)
     double avgPriorATR = (atr2 + atr3 + atr4) / 3.0;
     if(atr1 < avgPriorATR)
     {
-        LogError(ERROR_INFO, "Valkyrie: ATR not expanding — current: " + 
+        LogError(ERROR_INFO, "Valkyrie: ATR not expanding  current: " + 
                   DoubleToStr(atr1, Digits) + " vs avg prior: " + DoubleToStr(avgPriorATR, Digits),
                   "ExecuteTitanStrategy");
         return;
@@ -8993,7 +8993,7 @@ void ExecuteTitanStrategy()
 
 //+------------------------------------------------------------------+
 //| Cerberus Model W: The Warden (Volatility Squeeze)                |
-//| V27.1: Graduated regime filter — extreme conditions trade freely, |
+//| V27.1: Graduated regime filter  extreme conditions trade freely, |
 //| normal conditions require tight squeeze + trend confirmation      |
 //+------------------------------------------------------------------+
 void ExecuteWardenStrategy()
@@ -9005,9 +9005,9 @@ void ExecuteWardenStrategy()
     // V27.1: Queen Bee circuit breaker guard
     if(!QueenBee_AllowsStrategy(InpWarden_MagicNumber)) return;
     
-    // ══════════════════════════════════════════════════════════
+    // 
     // PATCH B.1: GRADUATED REGIME FILTER (replaces binary toggle)
-    // ══════════════════════════════════════════════════════════
+    // 
     double rsi = iRSI(NULL, 0, 14, PRICE_CLOSE, 1);
     double bb_upper_now = iBands(NULL, 0, 20, 2, 0, PRICE_CLOSE, MODE_UPPER, 1);
     double bb_lower_now = iBands(NULL, 0, 20, 2, 0, PRICE_CLOSE, MODE_LOWER, 1);
@@ -9027,7 +9027,7 @@ void ExecuteWardenStrategy()
     // - NOT at extreme: Require stronger squeeze + trend confirmation
     if(!atExtreme)
     {
-        // Not at extreme — need additional confirmation
+        // Not at extreme  need additional confirmation
         double kc_atr_guard = iATR(Symbol(), Period(), 20, 2);
         double kc_ma_guard = iMA(Symbol(), Period(), InpWarden_KC_Period, 0, MODE_SMA, PRICE_TYPICAL, 2);
         double kc_upper_guard = kc_ma_guard + (kc_atr_guard * InpWarden_KC_ATR_Mult);
@@ -9035,7 +9035,7 @@ void ExecuteWardenStrategy()
         double bb_upper_guard = iBands(Symbol(), Period(), InpWarden_BB_Period, InpWarden_BB_Dev, 0, PRICE_CLOSE, MODE_UPPER, 2);
         double bb_lower_guard = iBands(Symbol(), Period(), InpWarden_BB_Period, InpWarden_BB_Dev, 0, PRICE_CLOSE, MODE_LOWER, 2);
         
-        // Squeeze must be very tight — BB well inside KC
+        // Squeeze must be very tight  BB well inside KC
         double squeezeRatio = (bb_upper_guard - bb_lower_guard) / (kc_upper_guard - kc_lower_guard);
    // V27.11: Looser squeeze requirement (0.8) for more frequent entries
         bool tightSqueeze = (squeezeRatio < 0.9); // V27.27: Relaxed from 0.8 for more entries
@@ -9069,7 +9069,7 @@ void ExecuteWardenStrategy()
         double avg_bar_range = iATR(Symbol(), Period(), 10, 1);
         bool breakout_confirmed = (breakout_bar_range > avg_bar_range);
 
-        // Buy Breakout CONFIRMED — V27.11: Removed ATR depth requirement for more entries
+        // Buy Breakout CONFIRMED  V27.11: Removed ATR depth requirement for more entries
         if(Close[1] > bb_upper_break && Close[1] > momentum_ma && breakout_confirmed && Volume[1] > Volume[2])
         {
             double slPoints = CalculateStopLoss_Warden();
@@ -9084,7 +9084,7 @@ void ExecuteWardenStrategy()
                if(lots > 0) OpenTrade(OP_BUY, lots, Ask, sl, tp, "WARDEN_BUY_V10.0", InpWarden_MagicNumber);
             }
         }
-        // Sell Breakout CONFIRMED — V27.11: Removed ATR depth requirement for more entries
+        // Sell Breakout CONFIRMED  V27.11: Removed ATR depth requirement for more entries
         // V27.27: Added directional bias filter
         else if(Close[1] < bb_lower_break && Close[1] < momentum_ma && breakout_confirmed && Volume[1] > Volume[2])
         {
@@ -9134,7 +9134,7 @@ int CheckDirectionalBias()
 }
 
 //+------------------------------------------------------------------+
-//| V27.27 BEEHIVE WORKER: VORTEX — Vortex Indicator Trend Crossover|
+//| V27.27 BEEHIVE WORKER: VORTEX  Vortex Indicator Trend Crossover|
 //| Magic: 9001                                                      |
 //+------------------------------------------------------------------+
 void ExecuteVortexStrategy()
@@ -9220,7 +9220,7 @@ void ExecuteVortexStrategy()
 }
 
 //+------------------------------------------------------------------+
-//| V27.27 BEEHIVE WORKER: REGIME SHIFT — ADX+RSI Regime Detector  |
+//| V27.27 BEEHIVE WORKER: REGIME SHIFT  ADX+RSI Regime Detector  |
 //| Magic: 9002                                                      |
 //+------------------------------------------------------------------+
 void ExecuteRegimeShiftStrategy()
@@ -9290,7 +9290,7 @@ void ExecuteRegimeShiftStrategy()
 
 
 //+------------------------------------------------------------------+
-//| V28.00 BEEHIVE WORKER: SESSION MOMENTUM — London/NY Breakout   |
+//| V28.00 BEEHIVE WORKER: SESSION MOMENTUM  London/NY Breakout   |
 //| Magic: 9003                                                      |
 //| Logic: Trade London session breakout with NY confirmation        |
 //+------------------------------------------------------------------+
@@ -9391,7 +9391,7 @@ void ExecuteDivergenceMR()
    double adx = iADX(Symbol(), PERIOD_H4, 14, PRICE_CLOSE, MODE_MAIN, 1);
    if(adx > InpDivergenceMR_ADX_Max) return;
 
-   // V28.00: Hurst Exponent filter — only trade in mean-reverting regime (H < 0.5)
+   // V28.00: Hurst Exponent filter  only trade in mean-reverting regime (H < 0.5)
    double hurst = CalculateHurstExponent(Symbol(), Period(), 100);
    if(hurst >= InpDivergenceMR_Hurst_Threshold) return;
 
@@ -9669,7 +9669,7 @@ void ExecuteStructuralRetest()
 }
 
 //+------------------------------------------------------------------+
-//| V28.10: SENTINEL — EMA Crossover Trend Follower                 |
+//| V28.10: SENTINEL  EMA Crossover Trend Follower                 |
 //| Magic: 777015                                                    |
 //| Logic: EMA(21)/EMA(50) crossover + RSI confirmation on H4       |
 //| SL: ATR * 1.5, TP: SL * 2.0 (2:1 R:R)                          |
@@ -9681,7 +9681,7 @@ void ExecuteSentinelStrategy()
    if(CountOpenTrades(InpSentinel_MagicNumber) > 0) return;  // Max 1 position
    if(!IsStrategyHealthy(InpSentinel_MagicNumber)) return;
 
-   // ── INDICATOR CALCULATIONS ──
+   //  INDICATOR CALCULATIONS 
    double fastEMA_curr = iMA(Symbol(), Period(), InpSentinel_FastEMA, 0, MODE_EMA, PRICE_CLOSE, 1);
    double fastEMA_prev = iMA(Symbol(), Period(), InpSentinel_FastEMA, 0, MODE_EMA, PRICE_CLOSE, 2);
    double slowEMA_curr = iMA(Symbol(), Period(), InpSentinel_SlowEMA, 0, MODE_EMA, PRICE_CLOSE, 1);
@@ -9692,19 +9692,19 @@ void ExecuteSentinelStrategy()
    
    if(fastEMA_curr <= 0 || slowEMA_curr <= 0 || rsi <= 0 || atr <= 0) return;
    
-   // ── CROSSOVER DETECTION ──
+   //  CROSSOVER DETECTION 
    bool bullishCross = (fastEMA_prev <= slowEMA_prev && fastEMA_curr > slowEMA_curr);
    bool bearishCross = (fastEMA_prev >= slowEMA_prev && fastEMA_curr < slowEMA_curr);
    
-   // ── TREND FILTER: Price must be on the right side of the slow EMA ──
+   //  TREND FILTER: Price must be on the right side of the slow EMA 
    bool priceAboveSlowEMA = (Close[1] > slowEMA_curr);
    bool priceBelowSlowEMA = (Close[1] < slowEMA_curr);
    
-   // ── LOT SIZING ──
+   //  LOT SIZING 
    double lots = MoneyManagement_Quantum(InpSentinel_MagicNumber, InpBase_Risk_Percent);
    int stratIdx = GetStrategyIndex(InpSentinel_MagicNumber);
    
-   // ── BUY SIGNAL: Bullish cross + RSI > 45 + price above slow EMA ──
+   //  BUY SIGNAL: Bullish cross + RSI > 45 + price above slow EMA 
    if(bullishCross && rsi > InpSentinel_RSI_BuyLevel && priceAboveSlowEMA)
    {
       double slDist = atr * InpSentinel_SL_ATR_Mult;
@@ -9724,7 +9724,7 @@ void ExecuteSentinelStrategy()
       return;
    }
    
-   // ── SELL SIGNAL: Bearish cross + RSI < 55 + price below slow EMA ──
+   //  SELL SIGNAL: Bearish cross + RSI < 55 + price below slow EMA 
    if(bearishCross && rsi < InpSentinel_RSI_SellLevel && priceBelowSlowEMA)
    {
       double slDist = atr * InpSentinel_SL_ATR_Mult;
@@ -10313,7 +10313,7 @@ void ManageSiliconXBasket()
 //+------------------------------------------------------------------+
 double Hades_CalculateDynamicBasketTarget(int magic_number)
 {
-    // --- Intelligence Report Formula: Target = Base × Volatility × Grid × Equity Multipliers ---
+    // --- Intelligence Report Formula: Target = Base  Volatility  Grid  Equity Multipliers ---
 
     // Define Base Target in account currency. We are increasing this from 20 to 40.
     double baseTargetProfit = 50.0; // INCREASED: Target bigger wins now that risk is controlled.
@@ -10365,7 +10365,7 @@ double Hades_CalculateDynamicBasketTarget(int magic_number)
 //+------------------------------------------------------------------+
 bool Hades_ShouldTakeEarlyProfit(double currentBasketProfit, double dynamicTargetProfit)
 {
-    // V28.00: Tighter trailing — start taking profit at 0.75x ATR (was 70% of dynamic target)
+    // V28.00: Tighter trailing  start taking profit at 0.75x ATR (was 70% of dynamic target)
     // This means we lock in profits sooner, reducing basket risk exposure
     double atr_h4 = iATR(Symbol(), PERIOD_H4, 14, 1);
     double tickValue = MarketInfo(Symbol(), MODE_TICKVALUE);
@@ -10496,10 +10496,10 @@ void ExecuteSiliconCore()
     if (TimeCurrent() - last_check_time < InpSX_TimerInterval) return; 
     last_check_time = TimeCurrent();
     
-    // ══════════════════════════════════════════════════════════
+    // 
     // V28.00: ATR-BASED GRID SPACING (replaces fixed InpSX_PipStep)
     // Grid step = 1.5x ATR H4, floored at 15 pips, capped at 200 pips
-    // ══════════════════════════════════════════════════════════
+    // 
     double atr_h4 = iATR(Symbol(), PERIOD_H4, 14, 1);
     double sxGridDistance = atr_h4 * 1.5;
     double sxMinGrid = 15.0 * _Point * 10;   // Floor: 15 pips
@@ -10515,7 +10515,7 @@ void ExecuteSiliconCore()
         if(!IsApexSentinelGreenlight()) return;
         if(!IsTrapPlacementWindowOpen()) return;
         
-        // Place traps — V28.00: ATR-based spacing
+        // Place traps  V28.00: ATR-based spacing
         double buy_trap_price = Ask + sxGridDistance;
         double sell_trap_price = Bid - sxGridDistance;
         OpenSiliconXTrade(OP_BUYSTOP, buy_trap_price, 1);
@@ -11005,7 +11005,7 @@ public:
         
         // TARGET: 9.5+ FOR TOP 1% PLACEMENT
         if(m_totalScore >= 9.5) {
-            LogError(ERROR_INFO, "🎯 COMPETITION READY: ELITE TIER PERFORMANCE", "OptimizeForCompetitionJudging");
+            LogError(ERROR_INFO, " COMPETITION READY: ELITE TIER PERFORMANCE", "OptimizeForCompetitionJudging");
         }
     }
     
@@ -11133,7 +11133,7 @@ public:
         // APPLY AGGRESSIVE RISK PARAMETERS
         InpBase_Risk_Percent = MathMin(InpBase_Risk_Percent * 1.3, 2.0); // 30% boost, max 2%
         
-        LogError(ERROR_INFO, "🎯 TITAN STRATEGY AGGRESSIVE MODE ACTIVATED", "OptimizeTitanForCompetition");
+        LogError(ERROR_INFO, " TITAN STRATEGY AGGRESSIVE MODE ACTIVATED", "OptimizeTitanForCompetition");
     }
     
     void BoostMeanReversionPerformance() {
@@ -11147,7 +11147,7 @@ public:
         InpMR_RSI_OS = 38.0;  // V27.18: Tightened from 35.0 for higher quality entries
         InpMR_ADX_Threshold = 18.0; // Lower threshold for more signals
         
-        LogError(ERROR_INFO, "📈 MEAN REVERSION PERFORMANCE BOOST ACTIVATED", "BoostMeanReversionPerformance");
+        LogError(ERROR_INFO, " MEAN REVERSION PERFORMANCE BOOST ACTIVATED", "BoostMeanReversionPerformance");
     }
     
     
@@ -11205,7 +11205,7 @@ void InitializeInstitutionalDashboard() {
     
     // PHASE 2 STATUS
     CreateLabelV8_6("PHASE_STATUS", "PHASE 2: INSTITUTIONAL DEPLOYMENT ACTIVE", 20, 480, 460, 50, C'50,150,50', 10, true, 0);
-    CreateLabelV8_6("PHASE_DETAILS", "Risk Manager: ✓ | Capital Allocator: ✓ | Competition Optimizer: ✓", 30, 500, 0, 0, C'200,255,200', 8, false, 0);
+    CreateLabelV8_6("PHASE_DETAILS", "Risk Manager:  | Capital Allocator:  | Competition Optimizer: ", 30, 500, 0, 0, C'200,255,200', 8, false, 0);
 }
 
 void UpdateInstitutionalDashboard() {
@@ -11235,7 +11235,7 @@ void UpdateInstitutionalDashboard() {
     
     // ELITE TIER INDICATOR
     if(totalScore >= 9.5) {
-        ObjectSetText("PHASE_STATUS", "🎯 ELITE TIER: COMPETITION READY", 10, "Arial Bold", clrLime);
+        ObjectSetText("PHASE_STATUS", " ELITE TIER: COMPETITION READY", 10, "Arial Bold", clrLime);
     }
 }
 
@@ -11329,25 +11329,25 @@ void InitializeInstitutionalSystem() {
     
     // PHASE 1: DEPLOY INSTITUTIONAL RISK MANAGER
     InstitutionalRisk.CalculatePortfolioVAR();
-    LogError(ERROR_INFO, "✓ Institutional Risk Manager: Portfolio VAR = " + DoubleToStr(InstitutionalRisk.GetPortfolioVAR(), 2) + "%", "InitializeInstitutionalSystem");
+    LogError(ERROR_INFO, " Institutional Risk Manager: Portfolio VAR = " + DoubleToStr(InstitutionalRisk.GetPortfolioVAR(), 2) + "%", "InitializeInstitutionalSystem");
     
     // PHASE 2: DEPLOY PROP DESK CAPITAL ALLOCATOR
     PropDesk.ImplementPropDeskAllocation();
-    LogError(ERROR_INFO, "✓ Prop Desk Capital Allocator: Performance-based allocation active", "InitializeInstitutionalSystem");
+    LogError(ERROR_INFO, " Prop Desk Capital Allocator: Performance-based allocation active", "InitializeInstitutionalSystem");
     
     // PHASE 3: DEPLOY COMPETITION OPTIMIZER
     CompetitionOptimizer.OptimizeForCompetitionJudging();
-    LogError(ERROR_INFO, "✓ Competition Optimizer: Scoring system active", "InitializeInstitutionalSystem");
+    LogError(ERROR_INFO, " Competition Optimizer: Scoring system active", "InitializeInstitutionalSystem");
     
     // PHASE 4: DEPLOY PERFORMANCE BOOSTER
     PerformanceBooster.DeployPerformanceAccelerator();
-    LogError(ERROR_INFO, "✓ Performance Booster: Aggressive optimization engaged", "InitializeInstitutionalSystem");
+    LogError(ERROR_INFO, " Performance Booster: Aggressive optimization engaged", "InitializeInstitutionalSystem");
     
     // PHASE 5: INITIALIZE INSTITUTIONAL DASHBOARD
     InitializeInstitutionalDashboard();
-    LogError(ERROR_INFO, "✓ Institutional Dashboard: Professional analytics active", "InitializeInstitutionalSystem");
+    LogError(ERROR_INFO, " Institutional Dashboard: Professional analytics active", "InitializeInstitutionalSystem");
     
-    LogError(ERROR_INFO, "🎯 INSTITUTIONAL DEPLOYMENT COMPLETE - ELITE TIER READY", "InitializeInstitutionalSystem");
+    LogError(ERROR_INFO, " INSTITUTIONAL DEPLOYMENT COMPLETE - ELITE TIER READY", "InitializeInstitutionalSystem");
 }
 
 //+------------------------------------------------------------------+
@@ -11789,7 +11789,7 @@ public:
             for(int j = i + 1; j < 7; j++) {
                 if(MathAbs(m_correlations[i][j]) > 0.8) {
                     LogError(ERROR_INFO, "ARBITRAGE OPPORTUNITY: " + g_perfData[i].name + 
-                              " ↔ " + g_perfData[j].name + " (corr: " + 
+                              "  " + g_perfData[j].name + " (corr: " + 
                               DoubleToStr(m_correlations[i][j], 2) + ")", "IdentifyCorrelationArbitrage");
                 }
             }
@@ -12466,7 +12466,7 @@ public:
                   "UpdateCompetitionScore");
         
         if(compScore >= 9.5) {
-            LogError(ERROR_INFO, "🎯 ELITE TIER ACHIEVED: COMPETITION READY", "UpdateCompetitionScore");
+            LogError(ERROR_INFO, " ELITE TIER ACHIEVED: COMPETITION READY", "UpdateCompetitionScore");
         }
     }
     
@@ -12513,16 +12513,16 @@ void InitializeEliteSystem() {
     // DEPLOY ALL ELITE COMPONENTS
     PF350Engine.DeployElitePerformanceTuning();
     
-    LogError(ERROR_INFO, "✓ PF 3.50+ Achievement Engine: TARGET 3.50+ PF", "InitializeEliteSystem");
-    LogError(ERROR_INFO, "✓ Adaptive Parameter Tuning: Market regime adaptation active", "InitializeEliteSystem");
-    LogError(ERROR_INFO, "✓ Correlation Arbitrage: Hedge fund-style correlation trading", "InitializeEliteSystem");
-    LogError(ERROR_INFO, "✓ ML-Style Adaptation: Pattern recognition active", "InitializeEliteSystem");
-    LogError(ERROR_INFO, "✓ Ultra-Aggressive Position Sizing: Competition boost engaged", "InitializeEliteSystem");
-    LogError(ERROR_INFO, "✓ Advanced Trade Management: Elite trailing and scaling active", "InitializeEliteSystem");
-    LogError(ERROR_INFO, "✓ Real-time Performance Accelerator: Continuous optimization running", "InitializeEliteSystem");
-    LogError(ERROR_INFO, "✓ Elite Dashboard: PF 3.50+ tracking active", "InitializeEliteSystem");
+    LogError(ERROR_INFO, " PF 3.50+ Achievement Engine: TARGET 3.50+ PF", "InitializeEliteSystem");
+    LogError(ERROR_INFO, " Adaptive Parameter Tuning: Market regime adaptation active", "InitializeEliteSystem");
+    LogError(ERROR_INFO, " Correlation Arbitrage: Hedge fund-style correlation trading", "InitializeEliteSystem");
+    LogError(ERROR_INFO, " ML-Style Adaptation: Pattern recognition active", "InitializeEliteSystem");
+    LogError(ERROR_INFO, " Ultra-Aggressive Position Sizing: Competition boost engaged", "InitializeEliteSystem");
+    LogError(ERROR_INFO, " Advanced Trade Management: Elite trailing and scaling active", "InitializeEliteSystem");
+    LogError(ERROR_INFO, " Real-time Performance Accelerator: Continuous optimization running", "InitializeEliteSystem");
+    LogError(ERROR_INFO, " Elite Dashboard: PF 3.50+ tracking active", "InitializeEliteSystem");
     
-    LogError(ERROR_INFO, "🎯 ELITE DEPLOYMENT COMPLETE - PF 3.50+ TARGET ACTIVATED", "InitializeEliteSystem");
+    LogError(ERROR_INFO, " ELITE DEPLOYMENT COMPLETE - PF 3.50+ TARGET ACTIVATED", "InitializeEliteSystem");
 }
 
 //+------------------------------------------------------------------+
@@ -12595,22 +12595,22 @@ void MonitorPerformanceTargets() {
     
     // Check target achievements
     LogError(ERROR_INFO, "CURRENT SYSTEM PERFORMANCE:", "MonitorPerformanceTargets");
-    LogError(ERROR_INFO, "• Profit Factor: " + DoubleToString(systemPF, 2) + " (Target: 2.5+)", "MonitorPerformanceTargets");
-    LogError(ERROR_INFO, "• Win Rate: " + DoubleToString(systemWinRate, 1) + "% (Target: 60%+)", "MonitorPerformanceTargets");
-    LogError(ERROR_WARNING, "• Trade Frequency: " + DoubleToString(tradesPerDay, 2) + " trades/day (Target: 15+)", "MonitorPerformanceTargets");
-    LogError(ERROR_INFO, "• Total Trades: " + IntegerToString((int)totalTrades), "MonitorPerformanceTargets");
-    LogError(ERROR_INFO, "• Drawdown: " + DoubleToString(g_current_drawdown, 1) + "% (Target: <10%)", "MonitorPerformanceTargets");
+    LogError(ERROR_INFO, " Profit Factor: " + DoubleToString(systemPF, 2) + " (Target: 2.5+)", "MonitorPerformanceTargets");
+    LogError(ERROR_INFO, " Win Rate: " + DoubleToString(systemWinRate, 1) + "% (Target: 60%+)", "MonitorPerformanceTargets");
+    LogError(ERROR_WARNING, " Trade Frequency: " + DoubleToString(tradesPerDay, 2) + " trades/day (Target: 15+)", "MonitorPerformanceTargets");
+    LogError(ERROR_INFO, " Total Trades: " + IntegerToString((int)totalTrades), "MonitorPerformanceTargets");
+    LogError(ERROR_INFO, " Drawdown: " + DoubleToString(g_current_drawdown, 1) + "% (Target: <10%)", "MonitorPerformanceTargets");
     
     // Target Achievement Analysis
     if(systemPF >= 2.5 && systemWinRate >= 60 && tradesPerDay >= 15 && g_current_drawdown < 10) {
-        LogError(ERROR_INFO, "🎯 ALL TARGETS ACHIEVED! SYSTEM PERFORMING AT ELITE LEVEL", "MonitorPerformanceTargets");
+        LogError(ERROR_INFO, " ALL TARGETS ACHIEVED! SYSTEM PERFORMING AT ELITE LEVEL", "MonitorPerformanceTargets");
     } else {
-        LogError(ERROR_INFO, "📊 PERFORMANCE GAP ANALYSIS:", "MonitorPerformanceTargets");
+        LogError(ERROR_INFO, " PERFORMANCE GAP ANALYSIS:", "MonitorPerformanceTargets");
         
-        if(systemPF < 2.5) LogError(ERROR_WARNING, "⚠️  PF below 2.5 target - triggering ultra-aggressive optimization", "MonitorPerformanceTargets");
-        if(systemWinRate < 60) LogError(ERROR_WARNING, "⚠️  Win rate below 60% - adjusting entry criteria", "MonitorPerformanceTargets");  
-        if(tradesPerDay < 15) LogError(ERROR_WARNING, "⚠️  Trade frequency below 15/day - reducing filtering thresholds", "MonitorPerformanceTargets");
-        if(g_current_drawdown >= 10) LogError(ERROR_WARNING, "⚠️  Drawdown above 10% - activating defensive protocols", "MonitorPerformanceTargets");
+        if(systemPF < 2.5) LogError(ERROR_WARNING, "  PF below 2.5 target - triggering ultra-aggressive optimization", "MonitorPerformanceTargets");
+        if(systemWinRate < 60) LogError(ERROR_WARNING, "  Win rate below 60% - adjusting entry criteria", "MonitorPerformanceTargets");  
+        if(tradesPerDay < 15) LogError(ERROR_WARNING, "  Trade frequency below 15/day - reducing filtering thresholds", "MonitorPerformanceTargets");
+        if(g_current_drawdown >= 10) LogError(ERROR_WARNING, "  Drawdown above 10% - activating defensive protocols", "MonitorPerformanceTargets");
         
         // Trigger optimization if not meeting targets
         if(systemPF < 2.5 || systemWinRate < 60) {
@@ -12625,11 +12625,11 @@ void MonitorPerformanceTargets() {
             double pf = (g_perfData[i].grossLoss > 0) ? g_perfData[i].grossProfit / g_perfData[i].grossLoss : 0;
             string status = (pf >= 2.5) ? "ELITE" : (pf >= 1.5) ? "GOOD" : "NEEDS OPTIMIZATION";
             
-            LogError(ERROR_INFO, "• " + g_perfData[i].name + ": PF " + DoubleToString(pf, 2) + " - " + status, "MonitorPerformanceTargets");
+            LogError(ERROR_INFO, " " + g_perfData[i].name + ": PF " + DoubleToString(pf, 2) + " - " + status, "MonitorPerformanceTargets");
             
             // Alert for strategies in cooldown
             if(g_strategyCooldown[i].disabled) {
-                LogError(ERROR_WARNING, "⚠️  " + g_perfData[i].name + " in 10-bar cooldown period", "MonitorPerformanceTargets");
+                LogError(ERROR_WARNING, "  " + g_perfData[i].name + " in 10-bar cooldown period", "MonitorPerformanceTargets");
             }
         }
     }
@@ -12926,23 +12926,23 @@ double CalculateStopLoss_Silicon()
 //+------------------------------------------------------------------+
 //| PHASE 3: ADAPTIVE KELLY MONEY MANAGEMENT (V27.8)                  |
 //| Each strategy starts at 1.0x. Wins  ->  increase, Losses  ->  decrease.|
-//| This creates a natural circuit breaker — losing strategies self-  |
+//| This creates a natural circuit breaker  losing strategies self-  |
 //| destruct (reduce size), winning strategies compound faster.       |
 //+------------------------------------------------------------------+
-//| V27.19: UPGRADED — Dynamic Kelly + Heat Score + Performance Sizing|
+//| V27.19: UPGRADED  Dynamic Kelly + Heat Score + Performance Sizing|
 //| Now uses rolling per-strategy Kelly fraction, heat-based capital  |
 //| allocation, and dynamic tier caps computed from actual PF.        |
 //+------------------------------------------------------------------+
 double MoneyManagement_Quantum(int magicNumber, double baseRiskPercent, double stopLossPips = 0)
 {
-   // ─── GET STRATEGY INDEX ───
+   //  GET STRATEGY INDEX 
    int idx = GetStrategyIndexByMagic(magicNumber);
    
-   // ═══════════════════════════════════════════════════════════════
+   // 
    // V28.00: HIGH-PF STRATEGY BASE RISK OVERRIDE
    // Phantom (PF ~3+), Warden, Titan: raise base risk to 1.5%
-   // These strategies have proven edge — they deserve more capital
-   // ═══════════════════════════════════════════════════════════════
+   // These strategies have proven edge  they deserve more capital
+   // 
    if(magicNumber == InpPhantom_MagicNumber || 
       magicNumber == InpWarden_MagicNumber || magicNumber == 666001 || magicNumber == 666002 ||
       magicNumber == InpTitan_MagicNumber)
@@ -12950,9 +12950,9 @@ double MoneyManagement_Quantum(int magicNumber, double baseRiskPercent, double s
       baseRiskPercent = MathMax(baseRiskPercent, 1.5); // Floor at 1.5% for high-PF strategies
    }
    
-   // ═══════════════════════════════════════════════════════════════
+   // 
    // V27.19: DYNAMIC TIER CAP from rolling PF (replaces hardcoded)
-   // ═══════════════════════════════════════════════════════════════
+   // 
    double maxMultiplier = 1.0;
    if(idx >= 0 && idx < 18 && g_stratTotalTrades[idx] >= 10)
    {
@@ -12973,23 +12973,23 @@ double MoneyManagement_Quantum(int magicNumber, double baseRiskPercent, double s
       else if (magicNumber == InpApex_MagicNumber) maxMultiplier = 1.5;
       else if (magicNumber == InpReaper_BuyMagicNumber || magicNumber == InpReaper_SellMagicNumber) maxMultiplier = 0.5;
       // V28.04: New strategy allocations
-      else if (magicNumber == 9003) maxMultiplier = 1.5; // SessionMomentum — high-PF potential ($4,294/trade avg)
-      else if (magicNumber == 9004) maxMultiplier = 1.0; // DivergenceMR — unproven, conservative default
-      else if (magicNumber == 9005) maxMultiplier = 0.5; // LiquiditySweep — disabled (PF 0.84), minimal if re-enabled
-      else if (magicNumber == 9006) maxMultiplier = 1.0; // StructuralRetest — unproven, conservative default
-      else if (magicNumber == InpSentinel_MagicNumber) maxMultiplier = 1.0; // V28.10: Sentinel — unproven, conservative default
+      else if (magicNumber == 9003) maxMultiplier = 1.5; // SessionMomentum  high-PF potential ($4,294/trade avg)
+      else if (magicNumber == 9004) maxMultiplier = 1.0; // DivergenceMR  unproven, conservative default
+      else if (magicNumber == 9005) maxMultiplier = 0.5; // LiquiditySweep  disabled (PF 0.84), minimal if re-enabled
+      else if (magicNumber == 9006) maxMultiplier = 1.0; // StructuralRetest  unproven, conservative default
+      else if (magicNumber == InpSentinel_MagicNumber) maxMultiplier = 1.0; // V28.10: Sentinel  unproven, conservative default
    }
    
-   // ─── ADAPTIVE RISK UNWIND (V27.8 legacy, still active) ───
+   //  ADAPTIVE RISK UNWIND (V27.8 legacy, still active) 
    double adaptiveMultiplier = 1.0;
    if(idx >= 0 && idx < 18) adaptiveMultiplier = MathMin(g_strategyMultiplier[idx], maxMultiplier);
    else adaptiveMultiplier = maxMultiplier;
    
-   // ═══════════════════════════════════════════════════════════════
+   // 
    // V27.19: HEAT-BASED RISK SCALING
    // Hot strategies (high heat) get more capital allocation
    // Cold strategies (low heat) get reduced allocation
-   // ═══════════════════════════════════════════════════════════════
+   // 
    double heatMultiplier = 1.0;
    if(idx >= 0 && idx < 18 && g_stratTotalTrades[idx] >= 10)
    {
@@ -13001,11 +13001,11 @@ double MoneyManagement_Quantum(int magicNumber, double baseRiskPercent, double s
       heatMultiplier = MathMin(heatMultiplier, 2.0);    // Max: double size
    }
    
-   // ═══════════════════════════════════════════════════════════════
+   // 
    // V27.19: KELLY-BASED RISK OVERRIDE (when enough data)
    // If we have strong Kelly data, use it as the risk percent directly
    // instead of the static baseRiskPercent
-   // ═══════════════════════════════════════════════════════════════
+   // 
    double effectiveRiskPercent = baseRiskPercent;
    if(idx >= 0 && idx < 18 && g_stratTotalTrades[idx] >= 15)
    {
@@ -13018,10 +13018,10 @@ double MoneyManagement_Quantum(int magicNumber, double baseRiskPercent, double s
       effectiveRiskPercent = MathMin(effectiveRiskPercent, 2.0);  // Max 2.0% (safety)
    }
    
-   // ═══════════════════════════════════════════════════════════════
+   // 
    // FINAL LOT SIZE CALCULATION
-   // Combines: Kelly risk % × adaptive multiplier × heat multiplier
-   // ═══════════════════════════════════════════════════════════════
+   // Combines: Kelly risk %  adaptive multiplier  heat multiplier
+   // 
    double accountEquity = AccountEquity();
    // V27.21 FIX: Cap combined multiplier at 2.0x (was 3.0x in V27.20)
    // Lower cap reduces lot concentration and drawdown
@@ -13272,10 +13272,10 @@ bool Global_Risk_Check(double lots, double stopLossPoints)
 //|                     ELITE DEPLOYMENT V13.0                       |
 //|                                                                  |
 //|                                                                  |
-//|     ⚡ CUTTING-EDGE ELITE ALGORITHMIC TRADING PLATFORM           |
-//|     🎯 PF 3.50+ TARGET: REAL-TIME OPTIMIZATION ACTIVE           |
-//|     🤖 MACHINE LEARNING-STYLE ADAPTATION RUNNING                 |
-//|     🏆 CORRELATION ARBITRAGE & PERFORMANCE ACCELERATION          |
+//|      CUTTING-EDGE ELITE ALGORITHMIC TRADING PLATFORM           |
+//|      PF 3.50+ TARGET: REAL-TIME OPTIMIZATION ACTIVE           |
+//|      MACHINE LEARNING-STYLE ADAPTATION RUNNING                 |
+//|      CORRELATION ARBITRAGE & PERFORMANCE ACCELERATION          |
 //|     *** PHASE 3: ELITE PERFORMANCE FINE-TUNING EXECUTED          |
 //|                                                                  |
 //+------------------------------------------------------------------+
@@ -13403,7 +13403,7 @@ int V23_GetDeviationBin(double deviation) {
     if(absDev < 1.5) return 1;
     if(absDev < 2.0) return 2;
     if(absDev < 2.5) return 3;
-    return 4;  // >2.5σ extreme
+    return 4;  // >2.5 extreme
 }
 
 // Initialize empirical probability bins for a strategy
@@ -13745,7 +13745,7 @@ void V23_CalculateRegression(int period, double &slope, double &r2) {
         slope = 0;
     }
     
-    // Calculate R²
+    // Calculate R
     double ssTot = 0, ssRes = 0;
     for(int i = 0; i < period; i++) {
         double y = Close[i+1];
@@ -14330,12 +14330,12 @@ bool IsTradeBlockedByEvent()
    datetime jacksonHole[] = {
       D'2020.08.27 10:00', D'2021.08.27 10:00', D'2022.08.26 10:00',
       D'2023.08.25 10:00', D'2024.08.23 10:00', D'2025.08.22 10:00', D'2026.08.28 10:00'};
-   // V28.00: GDP Releases (8:30 EST, quarterly — advance/second/third)
+   // V28.00: GDP Releases (8:30 EST, quarterly  advance/second/third)
    datetime gdp[] = {
       D'2024.01.25 08:30', D'2024.04.25 08:30', D'2024.07.25 08:30', D'2024.10.30 08:30',
       D'2025.01.30 08:30', D'2025.04.30 08:30', D'2025.07.30 08:30', D'2025.10.30 08:30',
       D'2026.01.29 08:30', D'2026.04.29 08:30', D'2026.07.29 08:30', D'2026.10.29 08:30'};
-   // V28.00: Extended blocking window — 2hr before, 1hr after (was 1hr/30min)
+   // V28.00: Extended blocking window  2hr before, 1hr after (was 1hr/30min)
    for(int i = 0; i < ArraySize(fomc); i++)
       if(now >= fomc[i] - 7200 && now < fomc[i] + 3600) return true;
    for(int i = 0; i < ArraySize(ecb); i++)
@@ -14357,7 +14357,7 @@ void CheckEventRisk()
    if(IsTradeBlockedByEvent() && Time[0] > lastLog)
    {
       lastLog = Time[0];
-      LogError(ERROR_WARNING, "Event Risk: Trading blocked — FOMC/ECB/NFP window", "CheckEventRisk");
+      LogError(ERROR_WARNING, "Event Risk: Trading blocked  FOMC/ECB/NFP window", "CheckEventRisk");
    }
 }
 //+------------------------------------------------------------------+
@@ -14385,7 +14385,7 @@ bool IsATRSpikeActive()
    {
       g_atrSpikeLockoutUntil = TimeCurrent() + InpATR_SpikeLockoutHours * 3600;
       LogError(ERROR_WARNING, "ATR SPIKE DETECTED! ATR/MA=" + DoubleToString(atr/atrMA, 2) + 
-               "x — Blocked " + IntegerToString(InpATR_SpikeLockoutHours) + "h", "IsATRSpikeActive");
+               "x  Blocked " + IntegerToString(InpATR_SpikeLockoutHours) + "h", "IsATRSpikeActive");
       return true;
    }
    return false;
@@ -14393,7 +14393,7 @@ bool IsATRSpikeActive()
 //+------------------------------------------------------------------+
 //| V27.7: CONSECUTIVE LOSS GUARDIAN                                 |
 //+------------------------------------------------------------------+
-// V28.10: FIXED — unified mapping matching g_perfData[] indices exactly
+// V28.10: FIXED  unified mapping matching g_perfData[] indices exactly
 // Previously had WRONG indices (Reaper -> 0 instead of 4, Phantom -> 5 instead of 9, etc.)
 // This caused MoneyManagement_Quantum to pull Kelly/heat from wrong strategies
 int GetStrategyIndexByMagic(int magicNumber)
@@ -14424,7 +14424,7 @@ void RecordStrategyResult(int magicNumber, double profit)
    int idx = GetStrategyIndexByMagic(magicNumber);
    if(idx < 0 || idx >= 18) return;
    
-   // ─── V27.8: LEGACY MULTIPLIER UPDATE (kept for compatibility) ───
+   //  V27.8: LEGACY MULTIPLIER UPDATE (kept for compatibility) 
    if(profit > 0)
    {
       if(g_consecLossTracker[idx][0] == -1) g_consecLossTracker[idx][1] = 0;
@@ -14441,12 +14441,12 @@ void RecordStrategyResult(int magicNumber, double profit)
       {
          g_strategyLockoutUntil[idx] = TimeCurrent() + InpLossLockoutHours * 3600;
          LogError(ERROR_WARNING, "LOSS GUARDIAN: Strategy " + IntegerToString(magicNumber) + 
-                  " — " + IntegerToString(g_consecLossTracker[idx][1]) + 
+                  "  " + IntegerToString(g_consecLossTracker[idx][1]) + 
                   " consec losses, suspended " + IntegerToString(InpLossLockoutHours) + "h", "RecordStrategyResult");
       }
    }
    
-   // ─── V27.19: ROLLING PERFORMANCE TRACKING ───
+   //  V27.19: ROLLING PERFORMANCE TRACKING 
    // Store profit in circular buffer
    g_stratProfits[idx][g_stratProfitIdx[idx]] = profit;
    g_stratProfitIdx[idx] = (g_stratProfitIdx[idx] + 1) % STRATEGY_HISTORY_SIZE;
@@ -14515,11 +14515,11 @@ void CalculateRollingKelly(int idx)
    double stddev = MathSqrt(MathMax(variance, 0.01));
    g_stratSharpeProxy[idx] = meanProfit / stddev;
    
-   // ═══════════════════════════════════════════════════════
+   // 
    // KELLY CRITERION: f* = W - ((1-W) / R)
    // Where W = win rate, R = avgWin / avgLoss (payoff ratio)
    // We use HALF-KELLY for safety (standard institutional practice)
-   // ═══════════════════════════════════════════════════════
+   // 
    double payoffRatio = (avgLoss > 0) ? avgWin / avgLoss : 2.0;
    double rawKelly = winRate - ((1.0 - winRate) / payoffRatio);
    
@@ -14530,10 +14530,10 @@ void CalculateRollingKelly(int idx)
    
    g_stratKellyFraction[idx] = halfKelly;
    
-   // ═══════════════════════════════════════════════════════
+   // 
    // DYNAMIC TIER CAP based on rolling performance
    // Instead of hardcoded per-strategy caps, compute from PF
-   // ═══════════════════════════════════════════════════════
+   // 
    double pf = g_stratRollingPF[idx];
    double dynamicMax = 1.0;
    
