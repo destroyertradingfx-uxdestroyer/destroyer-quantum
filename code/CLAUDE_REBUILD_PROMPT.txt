@@ -1,0 +1,346 @@
+==========================================================================
+HERMES AGENT — COMPLETE CONTEXT & REBUILD PROMPT
+FOR CLAUDE (CLOUD) TO OPTIMIZE AND REBUILD
+==========================================================================
+
+Ryan from South Africa (22, UTC+2/SAST) is using Hermes Agent as an AI
+partner to build DESTROYER QUANTUM — a multi-strategy MQL4 Expert Advisor
+trading EURUSD H4 on MetaTrader 4. Target: $300K from $10K.
+
+Hermes runs on: Linux EC2 (Ubuntu), AWS, ip-172-31-37-53
+Model: mimo-v2.5-pro via custom provider (opengateway.gitlawb.com)
+Config: ~/.hermes/config.yaml
+Max turns per session: 90 (THIS IS THE BOTTLENECK — see below)
+
+==========================================================================
+SECTION 1: WHAT HERMES DOES DAILY
+==========================================================================
+
+1. CODE GENERATION & MODIFICATION
+   - Writes and modifies MQL4 code (single .mq4 files, 14K+ lines)
+   - MQL4 is C-like but MetaTrader-specific: no standard lib, custom
+     indicators (iATR, iRSI, iADX, iBollinger), OrderSend(), etc.
+   - Files must be SANITIZED: no Unicode arrows, emoji, section symbols,
+     or special chars — MetaTrader compiler rejects them
+   - Always use -> for arrows, plain text for emoji
+   - Ryan prefers SINGLE integrated .mq4 files, not modular #include
+
+2. BACKTEST ANALYSIS
+   - Ryan runs backtests on his Windows machine with MT4 Strategy Tester
+   - He sends backtest results as: .htm reports, .gif equity curves,
+     log output pasted in chat, or .zip archives
+   - Hermes must parse these, identify issues, and propose fixes
+   - KEY METRICS: Profit Factor, Net Profit, Max Drawdown %, Trade Count,
+     Win Rate, Avg Win vs Avg Loss, consecutive wins/losses
+
+3. STRATEGY RESEARCH
+   - Searches GitHub repos for MQL4 EA strategies and techniques
+   - Analyzes existing EA codebases for patterns
+   - Synthesizes findings into actionable improvements
+   - Ranks improvements by impact
+
+4. FILE MANAGEMENT
+   - Project lives at: /home/ubuntu/destroyer-quantum/
+   - Code dir: /home/ubuntu/destroyer-quantum/code/
+   - Research dir: /home/ubuntu/destroyer-quantum/research/
+   - Configs dir: /home/ubuntu/destroyer-quantum/configs/
+   - .set files (MT4 parameter files) need to be sent as .zip or .txt
+     (Telegram doesn't support .set natively)
+
+5. TELEGRAM COMMUNICATION
+   - All communication with Ryan is via Telegram DM
+   - Files sent via MEDIA:/path/to/file
+   - Voice messages received and transcribed
+   - Ryan expects DIRECT, DATA-FIRST communication — no pleasantries
+
+==========================================================================
+SECTION 2: CURRENT SYSTEMS RUNNING ON HERMES
+==========================================================================
+
+A. DESTROYER QUANTUM EA (Primary Project)
+   File: DESTROYER_QUANTUM_V28_06_RESURRECTION_V2.mq4
+   Size: ~14,900 lines, ~640KB
+   Codename: RESURRECTION (V28.06)
+   Slogan: VENI VIDI VICI
+
+   STRATEGIES (14 total):
+   1. Reaper (Grid/Martingale) — $6,600 net, PF 1.52, 356 trades
+   2. Phantom (Monday Gap Fader) — $23,701 net, PF 1.91, 169 trades
+   3. NoiseBreakout (BB Squeeze) — $2,897 net, PF 1.39, 52 trades
+   4. Mean Reversion (BB+RSI) — $1,100 net, PF 999, 1 trade
+   5. Silicon-X (Grid/Breakout) — -$331 net, PF 0.00, 8 trades
+   6. Nexus (Vol Compression) — DISABLED (was -$9,525, PF 0.37)
+   7. Apex (Session Rollover)
+   8. Vortex (Vortex Indicator Crossover) — NEW, untested
+   9. RegimeShift (ADX+RSI Regime) — NEW, untested
+   10. Session Momentum (London Breakout) — NEW, untested
+   11. Divergence MR (RSI Divergence) — NEW, untested
+   12. Structural Retest — NEW, untested
+   13. Asian Range Breakout — NEW, untested
+   14. Chronos (M15 Scalper) — DISABLED (iteration overflow)
+
+   KEY SYSTEMS:
+   - HADES Protocol: Basket management (entry/exit authority)
+   - Reaper: Grid/Martingale with intelligent trailing
+   - Silicon-X: Trap-based grid with ATR spacing
+   - Queen Bee: Portfolio state manager (drawdown, high watermark)
+   - Kelly Criterion: Per-strategy dynamic lot sizing (half-Kelly)
+   - Efficiency Ratio Gate: V28.07 addition, filters choppy markets
+   - Event Shield: Blocks trades during FOMC/ECB/NFP
+   - Bad-Hours Filter: Blocks historically bad trading hours
+   - Loss Guardian: Suspends strategies after 5 consecutive losses
+   - Daily Loss Tracker: Blocks new trades when daily loss exceeded
+
+   CURRENT ISSUES (as of last backtest):
+   - VAR Limiter was blocking 60%+ of trades (now disabled)
+   - Alpha Sentinel was blocking low-conviction entries (now disabled)
+   - Chronos M15 caused iteration overflow in tester (now disabled)
+   - Nexus was -$9,525 bleed (now disabled)
+   - Wednesday was disabled, missing 20% of trading days (now enabled)
+   - New strategies (Vortex through Asian Breakout) have ZERO backtested trades
+   - Overall: 647 trades, +$24,441, PF 1.40, but massive DD potential
+
+B. CRON JOB
+   Job ID: 03243f32715a
+   Name: "DESTROYER QUANTUM — Proactive Research"
+   Schedule: every 180 minutes
+   Skill: destroyer-quantum
+   Delivers to: Telegram (Ryan's DM)
+
+C. PYTHON ML TRAINING FRAMEWORK
+   Location: /home/ubuntu/training/
+   Data: EURUSD H4, 4,436 bars (Jul 2023 - Apr 2026)
+   Purpose: ML filter to identify which bars should NOT be traded
+   Finding: 61% of bars should not be traded (ML filter proves this)
+   System python3: /usr/bin/python3
+
+==========================================================================
+SECTION 3: DAILY TOOLS AND WORKFLOWS
+==========================================================================
+
+TOOLS USED DAILY:
+- read_file: Read MQL4 source code (14K+ lines, paginated)
+- write_file: Write new files
+- patch: Find-and-replace edits in MQL4 code
+- terminal: Shell commands (python3, cp, zip, etc.)
+- send_message: Send files and messages to Telegram
+- search_files: Search code for patterns (ripgrep-backed)
+- execute_code: Python scripts with hermes_tools for batch operations
+- vision_analyze: Analyze backtest equity curve images
+- session_search: Recall past session context
+- memory: Save persistent facts across sessions
+- skill_manage: Create/update procedural skills
+- delegate_task: Spawn subagents for parallel work
+- cronjob: Schedule recurring tasks
+
+WORKFLOW PATTERNS:
+1. Ryan sends backtest results (htm/zip/log text)
+2. Hermes parses results, extracts key metrics
+3. Hermes identifies root causes of failures
+4. Hermes modifies MQL4 code to fix issues
+5. Hermes sends updated .mq4 file via Telegram
+6. Ryan backtests on Windows MT4
+7. Repeat
+
+COMMON OPERATIONS:
+- Parse MT4 backtest HTML reports (regex-based extraction)
+- Find zero-divide bugs (search for division operations)
+- Balance braces/parentheses in MQL4 code
+- Check for Unicode characters that break MT4 compiler
+- Copy files between directories before sending
+- Zip .set files for Telegram delivery
+
+==========================================================================
+SECTION 4: KNOWN PROBLEMS AND FAILURES
+==========================================================================
+
+CRITICAL ISSUE: 90-TURN LIMIT
+- Hermes has max_turns: 90 per session
+- Complex tasks (research + code + verify) easily hit this
+- When hit, session terminates with "Connection error"
+- This forces Ryan to re-explain context
+- NEED: Either increase limit or optimize token usage
+
+ISSUE: NO MQL4 COMPILATION
+- Cannot compile .mq4 files (no MetaTrader on Linux)
+- Cannot run backtests
+- Must rely on Ryan for all testing
+- NEED: Either Wine+MT4 or MQL4 linter/compiler on server
+
+ISSUE: CONTEXT LOSS ACROSS SESSIONS
+- Memory file is 2,200 char limit (currently at 97%)
+- Complex project state gets lost between sessions
+- Ryan has to re-explain what happened
+- NEED: Better context persistence or larger memory
+
+ISSUE: LOOPING / ITERATION
+- Ryan hates "running around in circles"
+- When a fix breaks something else, Hermes sometimes keeps
+  iterating instead of reverting to what worked
+- NEED: Revert-first mentality when fixes cause regressions
+
+ISSUE: FILE DELIVERY VIA TELEGRAM
+- .set files not in Telegram's supported document types
+- configs/ directory not in media allow list
+- Must copy files to code/ directory before sending
+- Must zip unsupported file types
+- NEED: Automatic file type handling
+
+ISSUE: UNICODE IN MQL4
+- MQL4 compiler rejects: arrows (→), emoji (🚀), §, etc.
+- Hermes sometimes introduces these during edits
+- NEED: Automatic sanitization pass before sending files
+
+ISSUE: SINGLE FILE PREFERENCE
+- Ryan wants one integrated .mq4 file, not modular
+- When Hermes suggests #include architecture, Ryan pushes back
+- One file = one compile = one backtest
+- NEED: Respect this constraint always
+
+==========================================================================
+SECTION 5: WHAT RYAN NEEDS HERMES TO BECOME
+==========================================================================
+
+1. PROACTIVE, NOT REACTIVE
+   - Don't wait for Ryan to identify problems
+   - Analyze backtest results and propose fixes before being asked
+   - Research new strategies during downtime
+
+2. ZERO-LOOP POLICY
+   - When a fix breaks something, STOP and revert
+   - Don't iterate endlessly trying to "improve" what already works
+   - The V28.06 aggressive set made $68,938 at PF 1.89 — that's the baseline
+   - If changes make it worse, revert immediately
+
+3. FASTER CONTEXT LOADING
+   - Current: read_file with pagination on 14K line files is slow
+   - Need: Indexed access to key functions, not full file scans
+   - Need: Persistent cache of file structure
+
+4. AUTONOMOUS RESEARCH CAPABILITY
+   - Search GitHub for MQL4 strategies independently
+   - Analyze and rank improvements
+   - Code them proactively during off-hours
+
+5. BETTER ERROR DIAGNOSIS
+   - Parse MT4 logs more intelligently
+   - Identify zero-divide, array-out-of-bounds, etc. faster
+   - Cross-reference line numbers with code context
+
+6. SMARTER FILE HANDLING
+   - Auto-detect file types and handle Telegram limitations
+   - Auto-sanitize MQL4 files before sending
+   - Auto-copy to correct directories
+
+==========================================================================
+SECTION 6: SPECIFIC TECHNICAL CONSTRAINTS
+==========================================================================
+
+MQL4 CONSTRAINTS:
+- No standard C library (no sprintf, use DoubleToString)
+- Custom functions: iATR, iRSI, iADX, iBollinger, iMA, iClose, etc.
+- OrderSend() for trades, OrderModify() for changes
+- Magic numbers identify strategies (777001-999001)
+- _Point is symbol-specific point size
+- Pips vs Points: 1 pip = 10 points on EURUSD (5-digit broker)
+- Max lot size: 8.0, Min lot: 0.01
+- Tester mode: Every tick (most accurate)
+
+TELEGRAM CONSTRAINTS:
+- No table syntax (use bullet lists or key:value)
+- MEDIA: prefix for file delivery
+- Supported: .png, .jpg, .webp (photos), .ogg (voice), .mp4 (video)
+- NOT supported: .set, .mq4 as documents (must zip or use MEDIA: prefix)
+- Markdown: **bold**, *italic*, ~~strike~~, ||spoiler||, `code`, ```blocks```
+
+SERVER CONSTRAINTS:
+- Linux Ubuntu on AWS EC2
+- No GUI, no Wine (MT4 won't run)
+- Python 3.11 available
+- Git available
+- Node.js available
+- No MetaTrader compiler
+
+==========================================================================
+SECTION 7: REBUILD INSTRUCTIONS FOR CLAUDE
+==========================================================================
+
+Please analyze everything above and provide:
+
+1. OPTIMIZED SYSTEM PROMPT
+   - Rewrite Hermes's personality and instructions to be more efficient
+   - Reduce token waste on unnecessary operations
+   - Add clear decision trees for common scenarios
+   - Include the revert-first principle explicitly
+
+2. IMPROVED MEMORY STRUCTURE
+   - Design a better memory schema that fits within character limits
+   - Prioritize what matters: project state > preferences > environment
+   - Include a "session handoff" format for context continuity
+
+3. WORKFLOW OPTIMIZATIONS
+   - How to hit 90 turns less often (batch operations, execute_code)
+   - How to parse backtest results faster
+   - How to modify MQL4 code with fewer read_file calls
+
+4. SKILL IMPROVEMENTS
+   - Better backtest report parsing skill
+   - MQL4 code modification patterns (common fixes library)
+   - Sanitization pipeline for MQL4 files
+
+5. CONFIG RECOMMENDATIONS
+   - Should max_turns increase? What's the cost?
+   - Should any toolsets be restricted to save tokens?
+   - Model/provider recommendations for better performance
+
+6. FILE STRUCTURE
+   - Send back all documentation as organized files
+   - Include updated SKILL.md files
+   - Include optimized config.yaml
+   - Include any helper scripts
+
+DELIVERABLES NEEDED:
+- Updated system prompt (hermes-agent persona)
+- Updated MEMORY.md / USER.md templates
+- New or improved SKILL.md files for:
+  * mql4-development (code patterns, common fixes, sanitization)
+  * backtest-analysis (report parsing, metric extraction)
+  * destroyer-quantum (project-specific knowledge)
+- Updated config.yaml with recommendations
+- Helper scripts for file management
+
+==========================================================================
+SECTION 8: PROJECT HISTORY TIMELINE
+==========================================================================
+
+V28.06 RESURRECTION baseline: 14.7K lines, 14 strategies
+- Aggressive .set: $68,938 profit, PF 1.89, DD 26%
+- This is THE baseline. Don't break it.
+
+V28.07 changes (current session):
+- Added Asian Range Breakout strategy (magic 9007)
+- Added Efficiency Ratio regime gate
+- Enabled Vortex + RegimeShift (were coded but disabled)
+- Fixed zero divide in Kelly payoffRatio
+- Disabled Nexus ($-9,525 bleed)
+- Disabled VAR Limiter (blocking trades)
+- Disabled Alpha Sentinel (blocking trades)
+- Disabled Chronos (iteration overflow)
+- Enabled Wednesday trading
+- Backtest results: 647 trades, +$24,441, PF 1.40
+
+TARGET: $170K+ from $10K, PF 2.0+, DD < 30%, 1000+ trades
+
+==========================================================================
+END OF CONTEXT DOCUMENT
+==========================================================================
+
+Ryan will pass this to Claude (Cloud). Claude should:
+1. Read everything above carefully
+2. Design optimized Hermes Agent configuration
+3. Produce all deliverables listed in Section 7
+4. Send complete documentation and files back
+
+The goal: Make Hermes Agent the ultimate MQL4 EA development partner
+that doesn't waste turns, doesn't loop, doesn't break working code,
+and proactively improves the trading system.

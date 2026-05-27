@@ -1,0 +1,147 @@
+# DESTROYER QUANTUM V28.12 — Strategy Rescue Analysis
+
+## What Happened
+V28.12 just blew a $10,000 account to $1.07 (PF 0.74, DD 99.99%, 449 trades). This version added 5 new A-Tier strategies (TBM, PO3, FractalModel, APlusFVG, CRT) to the proven V28.06 base. The result was catastrophic.
+
+## The Critical Comparison — Same Strategies, Different Results
+
+### V28.06 (PROVEN BASE — $50,399 profit)
+| Strategy | Trades | Net Profit | PF |
+|----------|--------|------------|-----|
+| Phantom | 166 | $24,061 | 1.71 |
+| SessionMomentum | 2 | $8,588 | 999 |
+| Nexus | 4 | $5,799 | 4.31 |
+| NoiseBreakout | 51 | $1,320 | 1.17 |
+| MeanReversion | 53 | $19 | 1.00 |
+| Reaper | 130 | $1,941 | 1.17 |
+| **TOTAL** | **601** | **$50,399** | **1.92** |
+
+### V28.12 (CURRENT — -$9,998 loss)
+| Strategy | Trades | Net Profit | PF |
+|----------|--------|------------|-----|
+| Phantom | 26 | -$281 | 0.80 |
+| SessionMomentum | 0 | — | — |
+| Nexus | 1 | $1 | 999 |
+| NoiseBreakout | 3 | $248 | 1.75 |
+| MeanReversion | 0 | — | — |
+| Reaper | 56 | -$510 | 0.47 |
+| APlusFVG (NEW) | 33 | $1,029 | 1.58 |
+| FractalModel (NEW) | 41 | -$2,823 | 0.31 |
+| PO3 (NEW) | 51 | -$1,230 | 0.78 |
+| TBM (NEW) | 18 | -$899 | 0.13 |
+| Silicon-X | 2 | $0 | 999 |
+| CRT (NEW) | 0 | — | — |
+| **TOTAL** | **449** | **-$9,998** | **0.74** |
+
+## THE SMOKING GUN — What The New Strategies Did To The Old Ones
+
+### 1. Phantom COLLAPSED: 166T/$24K -> 26T/-$281
+- Trade count dropped 84% (166 -> 26)
+- Went from $24,061 profit to -$281 LOSS
+- PF dropped from 1.71 to 0.80
+- WHY: The new strategies are likely taking trades that block Phantom's entries, OR the new strategies' open trades are consuming InpMaxOpenTrades slots so Phantom can't enter.
+
+### 2. Reaper DESTROYED: 130T/$1.9K -> 56T/-$510
+- Trade count dropped 57% (130 -> 56)
+- Went from $1,941 profit to -$510 LOSS
+- PF dropped from 1.17 to 0.47
+- WHY: Same issue — new strategies stealing trade slots or creating conflicting positions.
+
+### 3. SessionMomentum & MeanReversion: ZERO TRADES
+- V28.06: SessionMomentum 2T/$8,588, MeanReversion 53T/$19
+- V28.12: Both at 0 trades
+- WHY: The new strategies are running first in the dispatch chain and consuming all available trade slots before SessionMomentum and MeanReversion get their turn.
+
+### 4. Nexus GUTTED: 4T/$5,799 -> 1T/$1
+- V28.06: 4 trades, $5,799 profit
+- V28.12: 1 trade, $1 profit
+- WHY: Same slot contention issue.
+
+## The 5 New A-Tier Strategies — Performance Analysis
+
+### APlusFVG — THE ONLY WINNER (33T, $1,029, PF 1.58)
+- This is the only new strategy that actually works.
+- 33 trades is a decent sample size.
+- PF 1.58 is solid.
+- VERDICT: KEEP. This one has a real edge.
+
+### FractalModel — BIGGEST LOSER (41T, -$2,823, PF 0.31)
+- 41 trades and only PF 0.31 means it loses 3x more than it makes.
+- This single strategy accounts for 51% of all losses.
+- The fractal breakout logic is clearly not suited for EURUSD H4.
+- VERDICT: DISABLE IMMEDIATELY. Needs complete redesign.
+
+### PO3 (Power of 3) — MAJOR LOSER (51T, -$1,230, PF 0.78)
+- 51 trades (most of any new strategy) and losing steadily.
+- PF 0.78 means it loses $1.22 for every $1 made.
+- High trade count = it's actively destroying the account.
+- VERDICT: DISABLE. The accumulation/manipulation/distribution model isn't working on H4.
+
+### TBM (Time-Based Manipulation) — WORST PF (18T, -$899, PF 0.13)
+- Only 18 trades but PF 0.13 is catastrophic.
+- Loses $7.69 for every $1 made.
+- VERDICT: DISABLE. This is the worst ratio in the entire system.
+
+### CRT (Candle Range Theory) — NO TRADES
+- Zero trades in the entire backtest.
+- Either filters are too tight or logic isn't triggering.
+- VERDICT: Needs investigation — may need relaxed filters.
+
+## ROOT CAUSE ANALYSIS
+
+### Problem 1: Trade Slot Contention
+The dispatch chain runs strategies in order. New A-Tier strategies (TBM, PO3, FractalModel, APlusFVG, CRT) run BEFORE the proven strategies (Phantom, Reaper, Nexus). When the new strategies open trades, they consume InpMaxOpenTrades slots. By the time Phantom/Reaper/Nexus try to execute, there's no room.
+
+V28.06 had ~6 strategies competing for slots.
+V28.12 has ~17 strategies competing for the same slots.
+The proven strategies got starved.
+
+### Problem 2: Correlated Losses
+When TBM, PO3, and FractalModel all lose simultaneously (which they do — they're all directional strategies), the account drawdown compounds. Three losers hitting at once = 3x the drawdown of one loser.
+
+### Problem 3: New Strategies Don't Complement — They Conflict
+TBM, PO3, and FractalModel all try to trade directional breakouts. They're not diversifying — they're triplicating the same bet. When the bet is wrong, all three lose.
+
+## RECOMMENDED FIXES
+
+### Immediate Actions (V28.13)
+1. **DISABLE** FractalModel (-$2,823, PF 0.31)
+2. **DISABLE** PO3 (-$1,230, PF 0.78)
+3. **DISABLE** TBM (-$899, PF 0.13)
+4. **KEEP** APlusFVG ($1,029, PF 1.58)
+5. **INVESTIGATE** CRT (0 trades — check filters)
+6. **FIX** Reaper — its PF dropped from 1.17 to 0.47. Check if new strategies are interfering with its grid logic.
+
+### Dispatch Order Fix
+Move proven strategies (Phantom, Reaper, Nexus) to execute BEFORE new strategies. New strategies should be last in the chain so they don't steal slots from winners.
+
+### The Math
+If we disable the 3 losers (TBM, PO3, FractalModel), we remove -$4,952 in losses.
+APlusFVG adds +$1,029.
+The proven strategies should return to their V28.06 levels.
+Expected result: $50K+ profit range.
+
+## Questions For Claude
+
+1. **Why did Phantom's trade count drop from 166 to 26?** Is it purely slot contention, or did the new strategies' open positions change the market state that Phantom reads?
+
+2. **Why did Reaper go from profitable to losing?** Is it the same slot contention, or are the new strategies creating positions that interfere with Reaper's grid management?
+
+3. **Is FractalModel salvageable?** What specific changes to its breakout logic would make it profitable on EURUSD H4? Or should it be cut permanently?
+
+4. **Can PO3 be fixed?** The accumulation/manipulation/distribution concept is sound in theory. What's wrong with the implementation?
+
+5. **Why does TBM have PF 0.13?** That's 7.7x worse than random. What in the time-based manipulation logic is creating such terrible entries?
+
+6. **Why did CRT generate zero trades?** Are the filters too tight? Is the logic broken? What specific relaxation would generate trades?
+
+7. **What is the optimal dispatch order?** Should winners run first (to guarantee their slots) or losers run first (to let winners fill remaining slots)?
+
+8. **How do we prevent slot contention?** Should we give each strategy a dedicated slot allocation instead of sharing InpMaxOpenTrades?
+
+9. **Is APlusFVG the only new strategy worth keeping?** Are there elements of TBM/PO3/FractalModel that could be extracted and merged into APlusFVG to strengthen it?
+
+10. **What is the path to $300K?** Given V28.06 made $50K in 6 years, what specific changes would 6x that? More risk? Better strategy selection? Compounding optimization?
+
+## THE BOTTOM LINE
+The 5 new A-Tier strategies destroyed a proven $50K system. 4 out of 5 are losers. Only APlusFVG works. The immediate fix is: disable the 3 worst losers, fix the dispatch order, and get back to V28.06 baseline performance. Then add strategies ONE AT A TIME with backtest validation before adding the next.

@@ -1,0 +1,253 @@
+================================================================================
+            DESTROYER QUANTUM — STRATEGY REFINEMENT REQUEST
+                     For: Claude (AI Code Partner)
+                     From: Ryan + Hermes
+                     Date: 2027-05-27
+================================================================================
+
+OBJECTIVE
+---------
+We need you to REWRITE and REFINE 5 ICT/SMC-inspired strategies that were
+added to our multi-strategy EA (DESTROYER QUANTUM V28.08). These strategies
+are currently raw implementations that either (a) never fire, (b) lose money,
+or (c) are blocked by risk filters. They need to be reworked into production-
+quality H4 strategies that actually generate trades on EURUSD.
+
+
+BACKGROUND
+----------
+DESTROYER QUANTUM is a multi-strategy MQL4 Expert Advisor trading EURUSD on H4.
+It runs 10+ strategies simultaneously from a single .mq4 file. The proven base
+(V28.06) achieved:
+
+  $10K -> $50,399 | PF 1.92 | DD 19.4% | 601 trades | 75% win rate
+
+The proven strategies are:
+  - Phantom (PF 1.71, 166 trades) — trend continuation
+  - NoiseBreakout (PF 1.77, 52 trades) — range breakout
+  - Reaper Protocol (PF 1.45, 376 trades) — grid recovery
+  - SessionMomentum (PF 999, 2 trades) — high-conviction session plays
+  - Nexus (PF 4.31, 4 trades) — multi-factor confluence
+
+We added 5 new "A-Tier" strategies (magic 9010-9014) to push from $50K toward
+$170K. The result: V28.08 scored -$8,215 net loss, PF 0.93, DD 93.79%.
+The EA blew up. These 5 strategies need a complete rethink.
+
+
+WHAT WE TRIED (AND WHAT WENT WRONG)
+------------------------------------
+
+1. All 5 strategies use EMA20 on H4 as their sole bias filter.
+   -> This is too simplistic. On H4, EMA20 flips frequently, causing
+      whipsaws. The proven strategies (Phantom, NB) use multi-factor
+      confluence, not a single EMA.
+
+2. TBM, PowerOf3, Fractal produced ZERO trades in backtesting.
+   -> Their entry conditions are too narrow/restrictive for H4 data.
+   -> TBM: requires sweep of previous candle + reversal close + EMA bias
+      -> On 10,925 H4 bars, this combination never occurred.
+   -> PO3: requires body > 50% of range + direction alignment
+      -> Too restrictive as a standalone filter.
+   -> Fractal: requires 3 consecutive higher lows (or lower highs)
+      -> Rare on H4 without additional confirmation.
+
+3. APlusFVG and CRT were disabled as losers (produced negative trades).
+   -> APlusFVG: FVG detection + breakout + EMA20/50 alignment
+      -> The FVG detection code may have bugs (checking i-1, i+1 indices
+         which shift on every new bar). Entry timing is wrong.
+   -> CRT: sweep of candle range + EMA alignment
+      -> Entry conditions overlap with TBM (both look for sweeps).
+
+4. Risk filters killed the EA:
+   -> VAR limit (threshold 1.0) blocked nearly ALL trades in final hours.
+   -> ADX=57.6 "regime suppression" blocked Reaper BUY grid.
+   -> These are system-level issues, not strategy-specific, but the
+      strategies' poor performance triggered aggressive risk responses.
+
+5. All strategies use the same exit: fixed RR ratio (InpRR_Ratio, default 2.0)
+   -> No trailing, no partial TP, no time-based exit.
+   -> One-size-fits-all exit doesn't work across different strategy types.
+
+
+THE 5 STRATEGIES — CURRENT IMPLEMENTATION
+------------------------------------------
+
+Each strategy: (a) checks for existing open trades with same magic number,
+(b) determines bias, (c) checks entry conditions, (d) executes with fixed SL/TP.
+
+--- STRATEGY 1: TBM (Time-Based Manipulation) | Magic 9010 ---
+
+Logic: Sweep of previous candle's low/high + reversal close, filtered by EMA20 bias.
+
+Entry (BUY):
+  - Close[0] > EMA20 on H4 (bullish bias)
+  - Low[0] < Low[1] (current bar swept below previous bar's low)
+  - Close[0] > Open[0] (bullish close)
+  - Close[0] > Low[1] (closed above the swept level)
+
+Entry (SELL):
+  - Close[0] < EMA20 on H4 (bearish bias)
+  - High[0] > High[1] (current bar swept above previous bar's high)
+  - Close[0] < Open[0] (bearish close)
+  - Close[0] < High[1] (closed below the swept level)
+
+SL: Low[0] - 10pts (buy) / High[0] + 10pts (sell)
+TP: SL distance * RR ratio (default 2.0)
+
+Problem: This exact combination of conditions (sweep + reversal + EMA alignment)
+NEVER occurred in 10,925 H4 bars. The conditions are too specific.
+
+--- STRATEGY 2: PowerOf3 (PO3) | Magic 9011 ---
+
+Logic: Expansion candle (large body, small wicks) in direction of EMA20 bias.
+
+Entry (BUY):
+  - Close[0] > EMA20 on H4 (bullish bias)
+  - (High[0] - Low[0]) > 0 (valid range)
+  - |Close[0] - Open[0]| / (High[0] - Low[0]) >= 0.5 (body >= 50% of range)
+  - Close[0] > Open[0] (bullish candle)
+
+Entry (SELL):
+  - Close[0] < EMA20 on H4 (bearish bias)
+  - |Close[0] - Open[0]| / (High[0] - Low[0]) >= 0.5
+  - Close[0] < Open[0] (bearish candle)
+
+SL: Low[0] - 10pts (buy) / High[0] + 10pts (sell)
+TP: SL distance * RR ratio
+
+Problem: Body >= 50% of range is common, but combined with EMA20 alignment
+the signals are noisy. No volume or context confirmation. Produces many
+false signals or none depending on market conditions.
+
+--- STRATEGY 3: Fractal Model | Magic 9012 ---
+
+Logic: 3-candle pattern of consecutive higher lows (buy) or lower highs (sell),
+confirmed by EMA20 bias and directional close.
+
+Entry (BUY):
+  - Close[0] > EMA20 on H4
+  - Low[0] > Low[1] > Low[2] (3 consecutive higher lows)
+  - Close[0] > Open[0] (bullish close)
+
+Entry (SELL):
+  - Close[0] < EMA20 on H4
+  - High[0] < High[1] < High[2] (3 consecutive lower highs)
+  - Close[0] < Open[0] (bearish close)
+
+SL: Low[2] - 10pts (buy) / High[2] + 10pts (sell)
+TP: SL distance * RR ratio
+
+Problem: Strict 3-bar structure + EMA alignment rarely occurs on H4.
+Needs relaxation or additional entry triggers (e.g., retest of the fractal level).
+
+--- STRATEGY 4: APlusFVG (Fair Value Gap + Breakout) | Magic 9013 ---
+
+Logic: Detect FVG at breakout of previous day's range, filtered by EMA20/50 alignment.
+
+Entry (BUY):
+  - Time < 17:00 server
+  - Previous day range (High[1D] - Low[1D]) >= 20 pips
+  - EMA20 > EMA50 on H4 (trend alignment)
+  - FVG detected: Low[i-1] > High[i+1] for i in 1..3
+  - Close[i] > previous day high (breakout)
+  - Price currently inside FVG zone (Ask between fvgHigh and fvgLow)
+
+Entry (SELL): inverse conditions.
+
+SL: Low[3] - 10pts / High[3] + 10pts
+TP: SL distance * RR ratio
+
+Problem: FVG detection may have index bugs (shifting i-1/i+1 references).
+Day-range breakout + FVG + EMA triple alignment is extremely rare.
+The FVG zone check (price must be IN the gap) conflicts with the breakout
+(price already moved beyond the gap).
+
+--- STRATEGY 5: CRT (Candle Range Theory) | Magic 9014 ---
+
+Logic: Session-based sweep of candle range, filtered by EMA20/50 alignment.
+
+Entry (BUY):
+  - Time: 07:00-20:00 server (London+NY sessions)
+  - EMA20 > EMA50 on H4 (bullish alignment)
+  - Close[0] > EMA20
+  - Low[1] < Low[2] (previous bar swept below bar-before's low)
+  - Close[1] > Open[1] (previous bar closed bullish)
+
+Entry (SELL): inverse conditions.
+
+SL: Low[1] - 10pts / High[1] + 10pts
+TP: SL distance * RR ratio
+
+Problem: Overlaps heavily with TBM (both look for sweeps).
+EMA20/50 alignment is stricter than EMA20 alone but the sweep condition
+uses previous bar data, creating a 1-bar delay that misses the move.
+
+
+WHAT WE NEED FROM YOU
+---------------------
+
+1. REWRITE each strategy with REFINED entry logic that will actually fire
+   on EURUSD H4 (10,925 bars, ~4.5 years of data).
+
+2. Each strategy MUST:
+   - Have a UNIQUE edge (no overlap with other strategies)
+   - Use multi-factor confluence (not just EMA20)
+   - Include proper confirmation (not raw candle patterns)
+   - Have strategy-appropriate exits (not one-size-fits-all RR)
+   - Target 20-80 trades over 4.5 years (enough to be statistically
+     meaningful, not so many that it's noise)
+
+3. Preserve the existing framework:
+   - Magic numbers must stay: 9010, 9011, 9012, 9013, 9014
+   - Each function signature: void ExecuteXXX(double lotSize, double rrRatio)
+   - Must call MoneyManagement_Quantum(magic, risk) for lot sizing
+   - Must call GetStrategyIndexFromMagic(magic) for tracking
+   - Max 1 open trade per strategy (check existing orders by magic)
+   - Spread check: if(spread > InpMax_Spread_Pips * 10) return;
+   - Buffer: 10 * Point for SL
+
+4. DO NOT change:
+   - The dispatch chain (how strategies are called)
+   - The money management system
+   - The risk management framework
+   - Any existing proven strategies (Phantom, NB, Reaper, etc.)
+
+5. For each strategy, provide:
+   - Strategy name and magic number
+   - Concept (what market edge it exploits)
+   - Entry logic (BUY and SELL) with exact MQL4 conditions
+   - Exit logic (SL, TP, trailing, time stop — whatever fits)
+   - Expected trade frequency on EURUSD H4
+   - Why it's different from the other 4 strategies
+
+
+DESIRED OUTCOMES
+----------------
+
+1. All 5 strategies produce trades in backtesting (0 trades is unacceptable)
+2. Each strategy has a positive expected value (PF > 1.1 individually)
+3. Combined with existing proven strategies, push net profit toward $170K
+4. Keep DD under 35% (the system-level risk filters need fixing too, but
+   strategies shouldn't make it worse)
+5. Each strategy exploits a DIFFERENT market inefficiency:
+   - TBM: time-of-day / session structure
+   - PO3: volatility expansion / momentum
+   - Fractal: price structure / swing points
+   - APlusFVG: institutional order flow / gaps
+   - CRT: session-based supply/demand zones
+
+6. Code must compile cleanly in MetaEditor (MQL4 syntax, no Unicode,
+   no emoji, no special characters — MetaTrader compiler rejects them)
+
+
+CONTEXT FILES (if you need them)
+---------------------------------
+- Current EA code: /home/ubuntu/destroyer-quantum/code/RESURRECTION_BASE.mq4
+- V28.06 TITAN (proven base): /home/ubuntu/destroyer-quantum/code/DESTROYER_QUANTUM_V28_06_TITAN.mq4
+- Research library: /home/ubuntu/destroyer-quantum/research/
+- Strategy library: /home/ubuntu/destroyer-quantum/strategy-library/
+- Latest results: /home/ubuntu/destroyer-quantum/memory/latest-results.md
+
+================================================================================
+                        END OF REFINEMENT REQUEST
+================================================================================
