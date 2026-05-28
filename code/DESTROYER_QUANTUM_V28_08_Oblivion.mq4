@@ -13200,7 +13200,7 @@ double GetEquityCurveMultiplier()
 {
    if(!g_equityInit) { for(int i=0;i<20;i++) g_equityHistory[i]=AccountEquity(); g_equityInit=true; }
    g_equityHistory[g_equityIdx] = AccountEquity();
-   g_equityIdx = (g_equityIdx+1) %% 20;
+   g_equityIdx = (g_equityIdx+1) % 20;
    double equitySMA=0; for(int i=0;i<20;i++) equitySMA+=g_equityHistory[i]; equitySMA/=20.0;
    if(equitySMA <= 0) return 1.0;
    double ratio = AccountEquity() / equitySMA;
