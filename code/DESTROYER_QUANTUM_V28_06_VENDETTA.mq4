@@ -7,7 +7,7 @@
 //+------------------------------------------------------------------+
 #property copyright "Copyright 2026, Quantum Leap Analytics"
 #property link      "https://github.com/okyyryan"
-#property version   "28.06"  // V28.06 VENDETTA: Tight trail restored + Aggressive + Silicon-X
+#property version   "28.06"  // V28.06 VENDETTA: +SPECTRE +AETHER GAP
 #property strict
 
 /*
@@ -1496,34 +1496,34 @@ bool     g_reaper_sell_active = false;   // Flag if sell basket is active
 
 //--- V27.7: EVENT SHIELD STATE (ATR Spike, Consecutive Loss Guardian) ---
 datetime g_atrSpikeLockoutUntil = 0;                // Timestamp until which trading is suspended
-int      g_consecLossTracker[17][2];                // [idx][0]=streak(-1=losses,1=wins) [idx][1]=count
-datetime g_strategyLockoutUntil[15];                // Per-strategy lockout timestamps
+int      g_consecLossTracker[19][2]; // V28.07: Extended to 19                // [idx][0]=streak(-1=losses,1=wins) [idx][1]=count
+datetime g_strategyLockoutUntil[19]; // V28.07: Extended to 19                // Per-strategy lockout timestamps
 double   g_lastATRValue = 0.0;                     // Last ATR value
 double   g_lastATRMA = 0.0;                        // Last ATR MA value
 double   g_dailyPandL = 0.0;                       // V27.16: Current day's net P&L (resets at midnight)
 datetime g_lastPandLDate = 0;                      // V27.16: Date of last P&L reset
 
 //--- V27.8: ADAPTIVE RISK UNWIND STATE ---
-double   g_strategyMultiplier[17];                 // Dynamic risk multipliers [0-16] per strategy index
+double   g_strategyMultiplier[19]; // V28.07: Extended to 19                 // Dynamic risk multipliers [0-16] per strategy index
 // Each starts at 1.0. On loss: *= 0.8, On win: *= 1.1
 // Clamped between 0.2 and strategy's max Kelly tier
 
 //--- V27.19: DYNAMIC PERFORMANCE-BASED LOT SIZING ---
 // Rolling trade history per strategy for Kelly calculation
 #define STRATEGY_HISTORY_SIZE 60                   // Rolling window of last N trades
-double   g_stratProfits[15][60];                   // Profit/loss of last 60 trades per strategy
-int      g_stratProfitIdx[15];                     // Current circular buffer index per strategy
-int      g_stratTotalTrades[17];                   // Total trades completed per strategy
-double   g_stratRollingWinRate[15];                // Rolling win rate (EWMA)
-double   g_stratRollingAvgWin[15];                 // Rolling average winning trade $
-double   g_stratRollingAvgLoss[15];                // Rolling average losing trade $
-double   g_stratRollingPF[15];                     // Rolling profit factor
-double   g_stratKellyFraction[17];                 // Kelly-optimal fraction per strategy
-double   g_stratSharpeProxy[15];                   // Rolling Sharpe proxy (return/volatility)
-double   g_stratHeatScore[17];                     // 0.0-1.0: How much "heat" (capital) to allocate
-datetime g_stratLastCalcTime[15];                  // Last time Kelly was recalculated
+double   g_stratProfits[19][60]; // V28.07: Extended to 19                   // Profit/loss of last 60 trades per strategy
+int      g_stratProfitIdx[19]; // V28.07: Extended to 19                     // Current circular buffer index per strategy
+int      g_stratTotalTrades[19]; // V28.07: Extended to 19                   // Total trades completed per strategy
+double   g_stratRollingWinRate[19]; // V28.07: Extended to 19                // Rolling win rate (EWMA)
+double   g_stratRollingAvgWin[19]; // V28.07: Extended to 19                 // Rolling average winning trade $
+double   g_stratRollingAvgLoss[19]; // V28.07: Extended to 19                // Rolling average losing trade $
+double   g_stratRollingPF[19]; // V28.07: Extended to 19                     // Rolling profit factor
+double   g_stratKellyFraction[19]; // V28.07: Extended to 19                 // Kelly-optimal fraction per strategy
+double   g_stratSharpeProxy[19]; // V28.07: Extended to 19                   // Rolling Sharpe proxy (return/volatility)
+double   g_stratHeatScore[19]; // V28.07: Extended to 19                     // 0.0-1.0: How much "heat" (capital) to allocate
+datetime g_stratLastCalcTime[19]; // V28.07: Extended to 19                  // Last time Kelly was recalculated
 // Dynamic tier caps  replace hardcoded per-strategy caps
-double   g_stratDynamicMaxMult[17];                // Dynamically computed max multiplier per strategy
+double   g_stratDynamicMaxMult[19]; // V28.07: Extended to 19                // Dynamically computed max multiplier per strategy
 
 // V27.21: Drawdown protection flag
 bool     g_ddProtectionActive = false;             // Set by ManageDrawdownExposure_V2 when DD > 10% (V28.00: tightened from 12%)
@@ -1605,6 +1605,20 @@ struct PerfData
    int    trades;
    double grossProfit;
    double grossLoss;
+   // V28.07: Extended fields for comprehensive report
+   int    wins;
+   int    losses;
+   int    longTrades;
+   int    shortTrades;
+   double bestTrade;
+   double worstTrade;
+   int    maxConsecWins;
+   int    maxConsecLosses;
+   double totalRR;         // Sum of R-multiples for Sharpe-like
+   double totalRR2;        // Sum of R-multiple squared for Sharpe-like
+   double maxDrawdown;
+   double peakEquity;
+   double runningEquity;
 };
 
 // ============================================================================
@@ -1679,7 +1693,7 @@ struct V23_TradeEquityDelta {
 //   4=Reaper         5=Silicon-X            6=Chronos      7=NoiseBreakout
 //   8=Apex           9=Phantom             10=Nexus       11=Vortex
 //  12=RegimeShift   13=SessionMomentum    14=DivergenceMR  15-16=Reserved
-PerfData g_perfData[17];
+PerfData g_perfData[19]; // V28.07: Extended to 19 for SPECTRE + AETHER_GAP
 
 // V13.0 ELITE: Strategy Cooldown System - Temporary Disablement Protocol
 struct StrategyCooldown {
@@ -1687,7 +1701,7 @@ struct StrategyCooldown {
    datetime disabledTime;
    int disabledBars;
 };
-StrategyCooldown g_strategyCooldown[17]; // V28.00: Extended to 17 strategies
+StrategyCooldown g_strategyCooldown[19]; // V28.07: Extended to 19 strategies
 // ---
 
 //--- Dashboard Objects
@@ -4217,7 +4231,7 @@ void UpdatePerformanceMetrics()
         double avg_return = total_profit / total_trades;
         double variance = 0;
         
-        for(int i = 0; i < 17 && i < ArraySize(g_perfData); i++) // V28.00: Extended to 17
+        for(int i = 0; i < 19 && i < ArraySize(g_perfData); i++) // V28.07: Extended to 19
         {
             if(g_perfData[i].trades > 0)
             {
@@ -4593,6 +4607,37 @@ input double  InpStructuralRetest_ATR_SL_Mult   = 1.5;        // ATR multiplier 
 input double  InpStructuralRetest_ATR_TP_Mult   = 3.0;        // ATR multiplier for TP
 input double  InpStructuralRetest_MinRR         = 2.0;        // Minimum risk/reward ratio
 
+// ============================================================
+// V28.07  SPECTRE (Fair Value Gap Limit Order Sniper)
+// ============================================================
+sinput string Inp_Header_Spectre = "====== V28.07: SPECTRE (FVG LIMIT ORDER SNIPER) ======";
+input bool    InpSpectre_Enabled           = true;       // Enable SPECTRE Strategy
+input int     InpSpectre_MagicNumber       = 420101;     // Magic number for SPECTRE
+input int     InpSpectre_FVG_Lookback      = 10;         // Bars to look back for FVG detection
+input double  InpSpectre_FVG_MinGap_Pips   = 5.0;        // Minimum FVG gap size in pips
+input int     InpSpectre_ADX_Period        = 14;         // ADX period for trend filter
+input double  InpSpectre_ADX_Threshold     = 20.0;       // Min ADX for entry (confirms trend)
+input double  InpSpectre_ATR_SL_Mult       = 1.5;        // ATR multiplier for stop loss
+input double  InpSpectre_ATR_TP_Mult       = 3.0;        // ATR multiplier for take profit
+input int     InpSpectre_MaxPendingBars    = 1;          // Max H4 bars before pending order expires
+
+// ============================================================
+// V28.07  AETHER GAP (FVG + Volatility Contraction Fill)
+// ============================================================
+sinput string Inp_Header_AetherGap = "====== V28.07: AETHER GAP (FVG VOL CONTRACTION FILL) ======";
+input bool    InpAetherGap_Enabled         = true;       // Enable AETHER GAP Strategy
+input int     InpAetherGap_MagicNumber     = 777016;     // Magic number for AETHER GAP
+input int     InpAetherGap_FVG_Lookback    = 10;         // Bars to look back for FVG detection
+input double  InpAetherGap_FVG_MinGap_Pips = 3.0;        // Minimum FVG gap size in pips
+input int     InpAetherGap_ATR_Period      = 14;         // ATR period for vol contraction
+input int     InpAetherGap_ATR_SMA_Period  = 50;         // SMA period for ATR median
+input double  InpAetherGap_VolContraction  = 0.8;        // ATR must be < SMA_ATR * this
+input double  InpAetherGap_RSI_Min         = 35.0;       // RSI lower bound (avoid oversold chase)
+input double  InpAetherGap_RSI_Max         = 65.0;       // RSI upper bound (avoid overbought chase)
+input int     InpAetherGap_MaxFVG_Age      = 5;          // Max bars old for FVG to be valid
+input double  InpAetherGap_ATR_SL_Mult     = 1.5;        // ATR multiplier for stop loss
+input double  InpAetherGap_ATR_TP_Mult     = 2.5;        // ATR multiplier for take profit
+
 // V23 Runtime State
 double v23_lastDeviation = 0;      // Last calculated deviation (for bin mapping)
 double v23_lastEquity = 0;         // For equity delta calculation
@@ -4673,10 +4718,12 @@ int OnInit()
     g_perfData[14].name = "DivergenceMR";    // V28.00: New strategy
     g_perfData[15].name = "LiquiditySweep"; // V28.03: New strategy
     g_perfData[16].name = "StructuralRetest"; // V28.03: New strategy
+    g_perfData[17].name = "Spectre";         // V28.07: FVG Limit Order Sniper
+    g_perfData[18].name = "AetherGap";       // V28.07: FVG Vol Contraction Fill
    // ---
    
    // V13.0 ELITE: Initialize Strategy Cooldown System
-   for(int i = 0; i < 17; i++)  // V28.00: Extended to 17 strategies
+   for(int i = 0; i < 19; i++)  // V28.07: Extended to 19 strategies
    {
        g_strategyCooldown[i].disabled = false;
        g_strategyCooldown[i].disabledTime = 0;
@@ -4707,6 +4754,12 @@ int OnInit()
     
     // V27: NoiseBreakout: 777012
     V23_RegisterStrategy("NoiseBreakout", 777012);
+    
+    // V28.07: SPECTRE (FVG Limit Order Sniper)
+    V23_RegisterStrategy("Spectre", 420101);
+    
+    // V28.07: AETHER GAP (FVG Vol Contraction Fill)
+    V23_RegisterStrategy("AetherGap", 777016);
     
     // V24/V25/V26 ALPHA EXPANSION INITIALIZATION
     if(InpAlphaExpand) {
@@ -5565,6 +5618,20 @@ void OnNewBar()
       if(CountOpenTrades() >= InpMaxOpenTrades) { if(!IsOptimization()) UpdateDashboard_StaticV8_6(); return; }
    }
 
+   // V28.07  SPECTRE (FVG Limit Order Sniper)
+   if(InpSpectre_Enabled)
+   {
+      ExecuteSpectre();
+      if(CountOpenTrades() >= InpMaxOpenTrades) { if(!IsOptimization()) UpdateDashboard_StaticV8_6(); return; }
+   }
+
+   // V28.07  AETHER GAP (FVG Vol Contraction Fill)
+   if(InpAetherGap_Enabled)
+   {
+      ExecuteAetherGap();
+      if(CountOpenTrades() >= InpMaxOpenTrades) { if(!IsOptimization()) UpdateDashboard_StaticV8_6(); return; }
+   }
+
    if(!IsOptimization())
    {
      UpdateDashboard_StaticV8_6();
@@ -5819,6 +5886,8 @@ string GetStrategyNameFromMagic(int magic)
     if(magic == InpDivergenceMR_MagicNumber) return "DivergenceMR"; // V28.00
     if(magic == InpLiquiditySweep_MagicNumber) return "LiquiditySweep"; // V28.03
     if(magic == InpStructuralRetest_MagicNumber) return "StructuralRetest"; // V28.03
+    if(magic == InpSpectre_MagicNumber) return "Spectre"; // V28.07
+    if(magic == InpAetherGap_MagicNumber) return "AetherGap"; // V28.07
 
     return "Unknown";
 }
@@ -5845,7 +5914,9 @@ bool IsOurMagicNumber(int magic)
        magic == InpSessionMomentum_MagicNumber ||  // V28.00: Session Momentum
        magic == InpDivergenceMR_MagicNumber ||        // V28.00: Divergence MR
        magic == InpLiquiditySweep_MagicNumber ||      // V28.03: Liquidity Sweep
-       magic == InpStructuralRetest_MagicNumber)      // V28.03: Structural Retest
+       magic == InpStructuralRetest_MagicNumber ||  // V28.03: Structural Retest
+       magic == InpSpectre_MagicNumber ||            // V28.07: SPECTRE
+       magic == InpAetherGap_MagicNumber)            // V28.07: AETHER GAP
     {
         return true;
     }
@@ -5876,6 +5947,8 @@ int GetStrategyIndexFromMagic(int magicNumber)
     if(magicNumber == InpDivergenceMR_MagicNumber) return 14; // V28.00: Divergence MR
     if(magicNumber == InpLiquiditySweep_MagicNumber) return 15; // V28.03: Liquidity Sweep
     if(magicNumber == InpStructuralRetest_MagicNumber) return 16; // V28.03: Structural Retest
+    if(magicNumber == InpSpectre_MagicNumber) return 17; // V28.07: SPECTRE
+    if(magicNumber == InpAetherGap_MagicNumber) return 18; // V28.07: AETHER GAP
 
     return -1; // Return -1 for unknown
 }
@@ -5975,13 +6048,30 @@ void ReconcileFinalPerformance()
    LogError(ERROR_INFO, "--- EXECUTING FINAL PERFORMANCE RECONCILIATION ---", "ReconcileFinalPerformance");
    
    // Create temporary performance structs to hold the reconciled data.
-   PerfData reconciledData[17]; // V28.00: Extended to 17 strategies
-   for(int i=0; i<17; i++) // V28.00: Extended to 17 strategies
+   PerfData reconciledData[19]; // V28.07: Extended to 19 strategies
+   int consecWins[19];
+   int consecLosses[19];
+   for(int i=0; i<19; i++)
    {
-      reconciledData[i].name = g_perfData[i].name; // Copy names over
+      reconciledData[i].name = g_perfData[i].name;
       reconciledData[i].trades = 0;
       reconciledData[i].grossProfit = 0.0;
       reconciledData[i].grossLoss = 0.0;
+      reconciledData[i].wins = 0;
+      reconciledData[i].losses = 0;
+      reconciledData[i].longTrades = 0;
+      reconciledData[i].shortTrades = 0;
+      reconciledData[i].bestTrade = 0.0;
+      reconciledData[i].worstTrade = 0.0;
+      reconciledData[i].maxConsecWins = 0;
+      reconciledData[i].maxConsecLosses = 0;
+      reconciledData[i].totalRR = 0.0;
+      reconciledData[i].totalRR2 = 0.0;
+      reconciledData[i].maxDrawdown = 0.0;
+      reconciledData[i].peakEquity = 0.0;
+      reconciledData[i].runningEquity = 0.0;
+      consecWins[i] = 0;
+      consecLosses[i] = 0;
    }
    
    // Loop through the entire account history from the beginning.
@@ -5989,35 +6079,91 @@ void ReconcileFinalPerformance()
    {
       if(!OrderSelect(i, SELECT_BY_POS, MODE_HISTORY)) continue;
       
-      // Use our robust IsOurMagicNumber check to ensure we only count our own trades.
       int magic = OrderMagicNumber();
       if(IsOurMagicNumber(magic))
       {
-         // Use our robust indexing function to find the correct strategy.
          int index = GetStrategyIndexFromMagic(magic);
          if (index != -1)
          {
             double profit = OrderProfit() + OrderCommission() + OrderSwap();
+            double slDist = 0;
+            
+            // Calculate R-multiple from SL distance
+            if(OrderStopLoss() > 0)
+            {
+               if(OrderType() == OP_BUY)
+                  slDist = MathAbs(OrderOpenPrice() - OrderStopLoss());
+               else if(OrderType() == OP_SELL)
+                  slDist = MathAbs(OrderStopLoss() - OrderOpenPrice());
+            }
+            
+            double rMultiple = 0;
+            if(slDist > 0.0001)
+               rMultiple = profit / (slDist * OrderLots() * 100000.0);  // Approximate R
             
             reconciledData[index].trades++;
-            if (profit >= 0)
+            
+            if(OrderType() == OP_BUY)
+               reconciledData[index].longTrades++;
+            else if(OrderType() == OP_SELL)
+               reconciledData[index].shortTrades++;
+            
+            if(profit >= 0)
             {
                reconciledData[index].grossProfit += profit;
+               reconciledData[index].wins++;
+               consecWins[index]++;
+               consecLosses[index] = 0;
+               if(consecWins[index] > reconciledData[index].maxConsecWins)
+                  reconciledData[index].maxConsecWins = consecWins[index];
+               if(profit > reconciledData[index].bestTrade)
+                  reconciledData[index].bestTrade = profit;
             }
             else
             {
                reconciledData[index].grossLoss += MathAbs(profit);
+               reconciledData[index].losses++;
+               consecLosses[index]++;
+               consecWins[index] = 0;
+               if(consecLosses[index] > reconciledData[index].maxConsecLosses)
+                  reconciledData[index].maxConsecLosses = consecLosses[index];
+               if(profit < reconciledData[index].worstTrade)
+                  reconciledData[index].worstTrade = profit;
             }
+            
+            reconciledData[index].totalRR += rMultiple;
+            reconciledData[index].totalRR2 += rMultiple * rMultiple;
+            
+            // Track drawdown
+            reconciledData[index].runningEquity += profit;
+            if(reconciledData[index].runningEquity > reconciledData[index].peakEquity)
+               reconciledData[index].peakEquity = reconciledData[index].runningEquity;
+            double dd = reconciledData[index].peakEquity - reconciledData[index].runningEquity;
+            if(dd > reconciledData[index].maxDrawdown)
+               reconciledData[index].maxDrawdown = dd;
          }
       }
    }
    
    // Now, overwrite the potentially inaccurate global stats with the reconciled data.
-   for(int i=0; i<17; i++) // V28.00: Extended to 17 strategies
+   for(int i=0; i<19; i++)
    {
       g_perfData[i].trades = reconciledData[i].trades;
       g_perfData[i].grossProfit = reconciledData[i].grossProfit;
       g_perfData[i].grossLoss = reconciledData[i].grossLoss;
+      g_perfData[i].wins = reconciledData[i].wins;
+      g_perfData[i].losses = reconciledData[i].losses;
+      g_perfData[i].longTrades = reconciledData[i].longTrades;
+      g_perfData[i].shortTrades = reconciledData[i].shortTrades;
+      g_perfData[i].bestTrade = reconciledData[i].bestTrade;
+      g_perfData[i].worstTrade = reconciledData[i].worstTrade;
+      g_perfData[i].maxConsecWins = reconciledData[i].maxConsecWins;
+      g_perfData[i].maxConsecLosses = reconciledData[i].maxConsecLosses;
+      g_perfData[i].totalRR = reconciledData[i].totalRR;
+      g_perfData[i].totalRR2 = reconciledData[i].totalRR2;
+      g_perfData[i].maxDrawdown = reconciledData[i].maxDrawdown;
+      g_perfData[i].peakEquity = reconciledData[i].peakEquity;
+      g_perfData[i].runningEquity = reconciledData[i].runningEquity;
    }
    
    LogError(ERROR_INFO, "--- RECONCILIATION COMPLETE. Generating final, accurate report. ---", "ReconcileFinalPerformance");
@@ -6028,36 +6174,177 @@ void ReconcileFinalPerformance()
 //+------------------------------------------------------------------+
 void GeneratePerformanceReport()
 {
-   Print("--- DESTROYER QUANTUM V11.1: DETAILED PERFORMANCE REPORT (GENEVA V4.1) ---");
-
+   // ========================================================================
+   // V28.07 COMPREHENSIVE PERFORMANCE REPORT
+   // ========================================================================
+   
+   string sep = "==========================================================================";
+   string line = "---------------------------------------------------------------------------";
+   
+   // --- Calculate overall totals ---
    double totalNetProfit = 0, totalGrossProfit = 0, totalGrossLoss = 0;
-   int totalTrades = 0;
-
-   for (int i=0; i<17; i++) // V28.00: Extended to 17 strategies
+   int totalTrades = 0, totalWins = 0, totalLosses = 0;
+   double totalBest = 0, totalWorst = 0;
+   int totalMaxConsecWins = 0, totalMaxConsecLosses = 0;
+   double totalMaxDD = 0, totalPeakEq = 0, totalRunEq = 0;
+   
+   for(int i=0; i<19; i++)
    {
-      if (g_perfData[i].trades == 0) continue;
-
-      double netProfit = g_perfData[i].grossProfit - g_perfData[i].grossLoss;
-      double pf = (g_perfData[i].grossLoss > 0) ? g_perfData[i].grossProfit / g_perfData[i].grossLoss : 999.0;
-
-      totalNetProfit += netProfit;
+      if(g_perfData[i].trades == 0) continue;
+      double netP = g_perfData[i].grossProfit - g_perfData[i].grossLoss;
+      totalNetProfit += netP;
       totalGrossProfit += g_perfData[i].grossProfit;
       totalGrossLoss += g_perfData[i].grossLoss;
       totalTrades += g_perfData[i].trades;
-      
-      PrintFormat("Strategy: %-22s | Trades: %4d | Net Profit: %8.2f | Gross Profit: %8.2f | Gross Loss: %8.2f | Profit Factor: %5.2f",
-                  g_perfData[i].name, g_perfData[i].trades, netProfit, g_perfData[i].grossProfit, g_perfData[i].grossLoss, pf);
+      totalWins += g_perfData[i].wins;
+      totalLosses += g_perfData[i].losses;
+      if(g_perfData[i].bestTrade > totalBest) totalBest = g_perfData[i].bestTrade;
+      if(g_perfData[i].worstTrade < totalWorst) totalWorst = g_perfData[i].worstTrade;
+      if(g_perfData[i].maxConsecWins > totalMaxConsecWins) totalMaxConsecWins = g_perfData[i].maxConsecWins;
+      if(g_perfData[i].maxConsecLosses > totalMaxConsecLosses) totalMaxConsecLosses = g_perfData[i].maxConsecLosses;
+      if(g_perfData[i].maxDrawdown > totalMaxDD) totalMaxDD = g_perfData[i].maxDrawdown;
    }
-
-   Print("\n--- OVERALL SYSTEM PERFORMANCE ---");
-   PrintFormat("Total Trades Across All Strategies: %d", totalTrades);
-   PrintFormat("Total System Net Profit: %+8.2f", totalNetProfit);
-   PrintFormat("Total System Gross Profit: %8.2f", totalGrossProfit);
-   PrintFormat("Total System Gross Loss: %8.2f", totalGrossLoss);
    
+   double overallWR = (totalTrades > 0) ? (double)totalWins / totalTrades * 100.0 : 0;
    double overallPF = (totalGrossLoss > 0) ? totalGrossProfit / totalGrossLoss : 999.0;
-   PrintFormat("Overall Profit Factor: %.2f", overallPF);
-   Print("--------------------------------------------------");
+   double overallExpect = (totalTrades > 0) ? totalNetProfit / totalTrades : 0;
+   
+   // --- HEADER ---
+   Print(sep);
+   PrintFormat("   DESTROYER QUANTUM V28.06 | %s | PF: %.2f | Net: $%.2f",
+               TimeToString(TimeCurrent(), TIME_DATE|TIME_MINUTES), overallPF, totalNetProfit);
+   Print(sep);
+   Print("");
+   
+   // --- STRATEGY RANKING (by Net Profit) ---
+   Print("   --- STRATEGY RANKING (by Net Profit) ---");
+   
+   // Build sortable array of [index, netProfit]
+   double sortProfits[19];
+   int sortIdx[19];
+   int activeCount = 0;
+   for(int i=0; i<19; i++)
+   {
+      if(g_perfData[i].trades == 0) continue;
+      sortProfits[activeCount] = g_perfData[i].grossProfit - g_perfData[i].grossLoss;
+      sortIdx[activeCount] = i;
+      activeCount++;
+   }
+   
+   // Simple bubble sort (descending by profit)
+   for(int a=0; a<activeCount-1; a++)
+   {
+      for(int b=0; b<activeCount-a-1; b++)
+      {
+         if(sortProfits[b] < sortProfits[b+1])
+         {
+            double tmpP = sortProfits[b]; sortProfits[b] = sortProfits[b+1]; sortProfits[b+1] = tmpP;
+            int tmpI = sortIdx[b]; sortIdx[b] = sortIdx[b+1]; sortIdx[b+1] = tmpI;
+         }
+      }
+   }
+   
+   for(int r=0; r<activeCount; r++)
+   {
+      int idx = sortIdx[r];
+      double netP = sortProfits[r];
+      PrintFormat("   %2d. %-22s %+.2f", r+1, g_perfData[idx].name, netP);
+   }
+   
+   Print("");
+   PrintFormat("   Total Trades: %d (W: %d / L: %d)", totalTrades, totalWins, totalLosses);
+   PrintFormat("   Win Rate: %.1f%% | Profit Factor: %.2f", overallWR, overallPF);
+   PrintFormat("   Net Profit: $%.2f | Gross Profit: $%.2f | Gross Loss: -$%.2f",
+               totalNetProfit, totalGrossProfit, totalGrossLoss);
+   PrintFormat("   Expectancy: $%.2f/trade", overallExpect);
+   Print(sep);
+   Print("");
+   
+   // --- OVERALL SYSTEM PERFORMANCE ---
+   Print("   OVERALL SYSTEM PERFORMANCE");
+   Print(sep);
+   Print("");
+   
+   // Compute overall R-multiple avg and Sharpe-like
+   double totalRRSum = 0, totalRR2Sum = 0;
+   int totalRRCount = 0;
+   for(int i=0; i<19; i++)
+   {
+      if(g_perfData[i].trades == 0) continue;
+      totalRRSum += g_perfData[i].totalRR;
+      totalRR2Sum += g_perfData[i].totalRR2;
+      totalRRCount += g_perfData[i].trades;
+   }
+   double overallRAvg = (totalRRCount > 0) ? totalRRSum / totalRRCount : 0;
+   double overallRVar = (totalRRCount > 1) ? (totalRR2Sum/totalRRCount) - (overallRAvg*overallRAvg) : 0;
+   double overallSharpe = (overallRVar > 0.0001) ? overallRAvg / MathSqrt(overallRVar) : 0;
+   double overallProfitDD = (totalMaxDD > 0) ? totalNetProfit / totalMaxDD : 999.0;
+   double overallPayoff = 0;
+   double overallAvgWin = (totalWins > 0) ? totalGrossProfit / totalWins : 0;
+   double overallAvgLoss = (totalLosses > 0) ? totalGrossLoss / totalLosses : 0;
+   overallPayoff = (overallAvgLoss > 0) ? overallAvgWin / overallAvgLoss : 999.0;
+   
+   PrintFormat("   Max Drawdown: $%.2f | R-Multiple Avg: %.2f", totalMaxDD, overallRAvg);
+   PrintFormat("   Max Consec Wins: %d | Max Consec Losses: %d", totalMaxConsecWins, totalMaxConsecLosses);
+   PrintFormat("   Avg Win: $%.2f | Avg Loss: -$%.2f | Best: $%.2f | Worst: -$%.2f",
+               overallAvgWin, overallAvgLoss, totalBest, MathAbs(totalWorst));
+   PrintFormat("   Profit Factor: %.2f | Sharpe-like (R): %.2f | Profit/DD: %.2f",
+               overallPF, overallSharpe, overallProfitDD);
+   PrintFormat("   Net Profit: $%.2f | Gross Profit: $%.2f | Gross Loss: -$%.2f",
+               totalNetProfit, totalGrossProfit, totalGrossLoss);
+   PrintFormat("   Win Rate: %.1f%% | Payoff Ratio: %.2f | Expectancy: $%.2f/trade",
+               overallWR, overallPayoff, overallExpect);
+   PrintFormat("   Trades: %d (W: %d / L: %d)", totalTrades, totalWins, totalLosses);
+   Print("");
+   
+   // --- PER-STRATEGY DETAIL BLOCKS (ranked by net profit) ---
+   for(int r=0; r<activeCount; r++)
+   {
+      int idx = sortIdx[r];
+      double netP = g_perfData[idx].grossProfit - g_perfData[idx].grossLoss;
+      double pf = (g_perfData[idx].grossLoss > 0) ? g_perfData[idx].grossProfit / g_perfData[idx].grossLoss : 999.0;
+      double wr = (g_perfData[idx].trades > 0) ? (double)g_perfData[idx].wins / g_perfData[idx].trades * 100.0 : 0;
+      double avgWin = (g_perfData[idx].wins > 0) ? g_perfData[idx].grossProfit / g_perfData[idx].wins : 0;
+      double avgLoss = (g_perfData[idx].losses > 0) ? g_perfData[idx].grossLoss / g_perfData[idx].losses : 0;
+      double payoff = (avgLoss > 0) ? avgWin / avgLoss : 999.0;
+      double expect = (g_perfData[idx].trades > 0) ? netP / g_perfData[idx].trades : 0;
+      double rAvg = (g_perfData[idx].trades > 0) ? g_perfData[idx].totalRR / g_perfData[idx].trades : 0;
+      double rVar = (g_perfData[idx].trades > 1) ? (g_perfData[idx].totalRR2/g_perfData[idx].trades) - (rAvg*rAvg) : 0;
+      double sharpe = (rVar > 0.0001) ? rAvg / MathSqrt(rVar) : 0;
+      double profitDD = (g_perfData[idx].maxDrawdown > 0) ? netP / g_perfData[idx].maxDrawdown : 999.0;
+      
+      // Determine status tag
+      string tag = "[BREAKEVEN]";
+      if(netP > 1000 && pf >= 1.5) tag = "[ELITE]";
+      else if(netP > 100 && pf >= 1.2) tag = "[PROFITABLE]";
+      else if(netP > -100) tag = "[BREAKEVEN]";
+      else if(netP > -500) tag = "[WEAK]";
+      else tag = "[LOSING]";
+      
+      Print(line);
+      PrintFormat("   %s %s", tag, g_perfData[idx].name);
+      Print(line);
+      Print("");
+      PrintFormat("   Max Drawdown: $%.2f | R-Multiple Avg: %.2f", g_perfData[idx].maxDrawdown, rAvg);
+      PrintFormat("   Max Consec Wins: %d | Max Consec Losses: %d",
+                  g_perfData[idx].maxConsecWins, g_perfData[idx].maxConsecLosses);
+      PrintFormat("   Avg Win: $%.2f | Avg Loss: -$%.2f | Best: $%.2f | Worst: -$%.2f",
+                  avgWin, avgLoss, g_perfData[idx].bestTrade, MathAbs(g_perfData[idx].worstTrade));
+      PrintFormat("   Profit Factor: %.2f | Sharpe-like (R): %.2f | Profit/DD: %.2f",
+                  pf, sharpe, profitDD);
+      PrintFormat("   Net Profit: $%.2f | Gross Profit: $%.2f | Gross Loss: -$%.2f",
+                  netP, g_perfData[idx].grossProfit, g_perfData[idx].grossLoss);
+      PrintFormat("   Win Rate: %.1f%% | Payoff Ratio: %.2f | Expectancy: $%.2f/trade",
+                  wr, payoff, expect);
+      PrintFormat("   Trades: %d (W: %d / L: %d) | Long: %d | Short: %d",
+                  g_perfData[idx].trades, g_perfData[idx].wins, g_perfData[idx].losses,
+                  g_perfData[idx].longTrades, g_perfData[idx].shortTrades);
+      Print("");
+   }
+   
+   Print(sep);
+   PrintFormat("   DESTROYER QUANTUM V28.06: COMPREHENSIVE PERFORMANCE REPORT");
+   Print(sep);
 }
 
 //+------------------------------------------------------------------+
@@ -9630,6 +9917,226 @@ void ExecuteStructuralRetest()
    }
 }
 
+
+//+------------------------------------------------------------------+
+//| V28.07: SPECTRE - Fair Value Gap Limit Order Sniper               |
+//| Magic: 420101                                                     |
+//| Strategy: Detect FVG on H4, place Buy/Sell Limit at gap edge,    |
+//|           ADX trend filter, auto-expire if not filled.            |
+//| Expected: 2-8 trades/year, PF 2.5-4.0, R:R 2.0:1                |
+//+------------------------------------------------------------------+
+void ExecuteSpectre()
+{
+   if(!InpSpectre_Enabled) return;
+   if(CountOpenTrades(InpSpectre_MagicNumber) > 0) return;
+   if(!IsStrategyHealthy(InpSpectre_MagicNumber)) return;
+   
+   // Delete any stale pending orders from previous bars
+   Spectre_CleanExpiredOrders();
+   
+   // ADX trend filter - only trade in trending markets
+   double adx = iADX(Symbol(), PERIOD_H4, InpSpectre_ADX_Period, PRICE_CLOSE, MODE_MAIN, 1);
+   if(adx < InpSpectre_ADX_Threshold) return;
+   
+   // Determine trend direction from DI+/DI-
+   double diPlus  = iADX(Symbol(), PERIOD_H4, InpSpectre_ADX_Period, PRICE_CLOSE, MODE_PLUSDI, 1);
+   double diMinus = iADX(Symbol(), PERIOD_H4, InpSpectre_ADX_Period, PRICE_CLOSE, MODE_MINUSDI, 1);
+   bool bullishTrend = (diPlus > diMinus);
+   bool bearishTrend = (diMinus > diPlus);
+   
+   // Detect Fair Value Gaps
+   double atr = iATR(Symbol(), PERIOD_H4, 14, 1);
+   double minGapSize = InpSpectre_FVG_MinGap_Pips * 10 * Point;  // pips to price
+   
+   // Scan for bullish FVG: Low[i-1] > High[i+1] (gap up)
+   for(int i = 1; i <= InpSpectre_FVG_Lookback; i++)
+   {
+      double gapLow  = Low[i-1];   // bottom of gap
+      double gapHigh = High[i+1];  // top of gap
+      
+      if(gapLow > gapHigh && (gapLow - gapHigh) >= minGapSize)
+      {
+         // Bullish FVG found - place Buy Limit at top of gap (price returns to fill)
+         if(bullishTrend)
+         {
+            double entry = gapHigh;  // enter at top of FVG zone
+            double sl = entry - (atr * InpSpectre_ATR_SL_Mult);
+            double tp = entry + (atr * InpSpectre_ATR_TP_Mult);
+            
+            // Only place if price is above entry (limit order below current price)
+            if(Bid > entry)
+            {
+               double lots = MoneyManagement_Quantum(InpSpectre_MagicNumber, InpBase_Risk_Percent);
+               if(lots > 0)
+               {
+                  int ticket = OrderSend(Symbol(), OP_BUYLIMIT, lots, NormalizeDouble(entry, Digits),
+                                         3, NormalizeDouble(sl, Digits), NormalizeDouble(tp, Digits),
+                                         "SPECTRE_BUY", InpSpectre_MagicNumber, 0, clrDodgerBlue);
+                  if(ticket > 0)
+                  {
+                     int stratIdx = GetStrategyIndexFromMagic(InpSpectre_MagicNumber);
+                     if(stratIdx >= 0) g_perfData[stratIdx].trades++;
+                     return;  // One trade per bar
+                  }
+               }
+            }
+         }
+      }
+   }
+   
+   // Scan for bearish FVG: High[i-1] < Low[i+1] (gap down)
+   for(int i = 1; i <= InpSpectre_FVG_Lookback; i++)
+   {
+      double gapHigh = High[i-1];  // top of gap
+      double gapLow  = Low[i+1];   // bottom of gap
+      
+      if(gapLow > gapHigh && (gapLow - gapHigh) >= minGapSize)
+      {
+         // Bearish FVG found - place Sell Limit at bottom of gap (price returns to fill)
+         if(bearishTrend)
+         {
+            double entry = gapLow;  // enter at bottom of FVG zone
+            double sl = entry + (atr * InpSpectre_ATR_SL_Mult);
+            double tp = entry - (atr * InpSpectre_ATR_TP_Mult);
+            
+            // Only place if price is below entry (limit order above current price)
+            if(Ask < entry)
+            {
+               double lots = MoneyManagement_Quantum(InpSpectre_MagicNumber, InpBase_Risk_Percent);
+               if(lots > 0)
+               {
+                  int ticket = OrderSend(Symbol(), OP_SELLLIMIT, lots, NormalizeDouble(entry, Digits),
+                                         3, NormalizeDouble(sl, Digits), NormalizeDouble(tp, Digits),
+                                         "SPECTRE_SELL", InpSpectre_MagicNumber, 0, clrOrangeRed);
+                  if(ticket > 0)
+                  {
+                     int stratIdx = GetStrategyIndexFromMagic(InpSpectre_MagicNumber);
+                     if(stratIdx >= 0) g_perfData[stratIdx].trades++;
+                     return;  // One trade per bar
+                  }
+               }
+            }
+         }
+      }
+   }
+}
+
+//+------------------------------------------------------------------+
+//| SPECTRE: Delete pending orders older than MaxPendingBars          |
+//+------------------------------------------------------------------+
+void Spectre_CleanExpiredOrders()
+{
+   for(int i = OrdersTotal() - 1; i >= 0; i--)
+   {
+      if(!OrderSelect(i, SELECT_BY_POS, MODE_TRADES)) continue;
+      if(OrderMagicNumber() != InpSpectre_MagicNumber) continue;
+      if(OrderSymbol() != Symbol()) continue;
+      
+      // Check if order is pending (Buy Limit or Sell Limit)
+      if(OrderType() == OP_BUYLIMIT || OrderType() == OP_SELLLIMIT)
+      {
+         // Calculate how many H4 bars have passed since order was placed
+         int barsElapsed = iBarShift(Symbol(), PERIOD_H4, OrderOpenTime(), false);
+         if(barsElapsed > InpSpectre_MaxPendingBars)
+         {
+            OrderDelete(OrderTicket());
+         }
+      }
+   }
+}
+
+//+------------------------------------------------------------------+
+//| V28.07: AETHER GAP - FVG + Volatility Contraction Fill           |
+//| Magic: 777016                                                     |
+//| Strategy: Detect FVG on H4, wait for volatility contraction      |
+//|           (ATR < SMA of ATR), RSI 35-65 zone, freshness filter.  |
+//|           Enter market order when price returns to fill gap.      |
+//| Expected: 15-25 trades/year, WR ~72%, PF ~2.4, R:R 1.7:1        |
+//+------------------------------------------------------------------+
+void ExecuteAetherGap()
+{
+   if(!InpAetherGap_Enabled) return;
+   if(CountOpenTrades(InpAetherGap_MagicNumber) > 0) return;
+   if(!IsStrategyHealthy(InpAetherGap_MagicNumber)) return;
+   
+   // Volatility contraction filter - only trade when market is quiet
+   double atr = iATR(Symbol(), PERIOD_H4, InpAetherGap_ATR_Period, 1);
+   double atrSma = 0;
+   for(int j = 1; j <= InpAetherGap_ATR_SMA_Period; j++)
+      atrSma += iATR(Symbol(), PERIOD_H4, InpAetherGap_ATR_Period, j);
+   atrSma /= InpAetherGap_ATR_SMA_Period;
+   
+   if(atr > atrSma * InpAetherGap_VolContraction) return;  // Too volatile, skip
+   
+   // RSI filter - avoid momentum extremes
+   double rsi = iRSI(Symbol(), PERIOD_H4, 14, PRICE_CLOSE, 1);
+   if(rsi < InpAetherGap_RSI_Min || rsi > InpAetherGap_RSI_Max) return;
+   
+   // Detect Fair Value Gaps with freshness filter
+   double minGapSize = InpAetherGap_FVG_MinGap_Pips * 10 * Point;
+   
+   // Scan for bullish FVG (gap up: Low[i-1] > High[i+1])
+   for(int i = 1; i <= InpAetherGap_FVG_Lookback; i++)
+   {
+      // Freshness filter - FVG must be recent
+      if(i > InpAetherGap_MaxFVG_Age) break;
+      
+      double gapLow  = Low[i-1];
+      double gapHigh = High[i+1];
+      
+      if(gapLow > gapHigh && (gapLow - gapHigh) >= minGapSize)
+      {
+         // Check if price is currently inside the FVG zone (filling the gap)
+         if(Bid >= gapHigh && Bid <= gapLow)
+         {
+            double sl = Low[i] - (atr * InpAetherGap_ATR_SL_Mult);  // SL below the candle that created the gap
+            double tp = gapLow + (atr * InpAetherGap_ATR_TP_Mult);  // TP above the gap
+            double lots = MoneyManagement_Quantum(InpAetherGap_MagicNumber, InpBase_Risk_Percent);
+            if(lots > 0)
+            {
+               int ticket = OpenTrade(OP_BUY, lots, Ask, sl, tp, "AETHER_BUY", InpAetherGap_MagicNumber);
+               if(ticket > 0)
+               {
+                  int stratIdx = GetStrategyIndexFromMagic(InpAetherGap_MagicNumber);
+                  if(stratIdx >= 0) g_perfData[stratIdx].trades++;
+                  return;
+               }
+            }
+         }
+      }
+   }
+   
+   // Scan for bearish FVG (gap down: High[i-1] < Low[i+1])
+   for(int i = 1; i <= InpAetherGap_FVG_Lookback; i++)
+   {
+      if(i > InpAetherGap_MaxFVG_Age) break;
+      
+      double gapHigh = High[i-1];
+      double gapLow  = Low[i+1];
+      
+      if(gapLow > gapHigh && (gapLow - gapHigh) >= minGapSize)
+      {
+         // Check if price is currently inside the FVG zone
+         if(Bid >= gapHigh && Bid <= gapLow)
+         {
+            double sl = High[i] + (atr * InpAetherGap_ATR_SL_Mult);
+            double tp = gapHigh - (atr * InpAetherGap_ATR_TP_Mult);
+            double lots = MoneyManagement_Quantum(InpAetherGap_MagicNumber, InpBase_Risk_Percent);
+            if(lots > 0)
+            {
+               int ticket = OpenTrade(OP_SELL, lots, Bid, sl, tp, "AETHER_SELL", InpAetherGap_MagicNumber);
+               if(ticket > 0)
+               {
+                  int stratIdx = GetStrategyIndexFromMagic(InpAetherGap_MagicNumber);
+                  if(stratIdx >= 0) g_perfData[stratIdx].trades++;
+                  return;
+               }
+            }
+         }
+      }
+   }
+}
+
 //| Cerberus Model S: The Silicon-X Protocol (Grid/Martingale Hybrid)|
 //| V13.8 - Reverse-engineered from Silicon Ex EA intelligence.     |
 //+------------------------------------------------------------------+
@@ -12839,7 +13346,7 @@ double MoneyManagement_Quantum(int magicNumber, double baseRiskPercent, double s
    // V27.19: DYNAMIC TIER CAP from rolling PF (replaces hardcoded)
    // 
    double maxMultiplier = 1.0;
-   if(idx >= 0 && idx < 17 && g_stratTotalTrades[idx] >= 10)
+   if(idx >= 0 && idx < 19 && g_stratTotalTrades[idx] >= 10)
    {
       // Use dynamically computed cap from CalculateRollingKelly()
       maxMultiplier = g_stratDynamicMaxMult[idx];
@@ -12866,7 +13373,7 @@ double MoneyManagement_Quantum(int magicNumber, double baseRiskPercent, double s
    
    //  ADAPTIVE RISK UNWIND (V27.8 legacy, still active) 
    double adaptiveMultiplier = 1.0;
-   if(idx >= 0 && idx < 17) adaptiveMultiplier = MathMin(g_strategyMultiplier[idx], maxMultiplier);
+   if(idx >= 0 && idx < 19) adaptiveMultiplier = MathMin(g_strategyMultiplier[idx], maxMultiplier);
    else adaptiveMultiplier = maxMultiplier;
    
    // 
@@ -12875,7 +13382,7 @@ double MoneyManagement_Quantum(int magicNumber, double baseRiskPercent, double s
    // Cold strategies (low heat) get reduced allocation
    // 
    double heatMultiplier = 1.0;
-   if(idx >= 0 && idx < 17 && g_stratTotalTrades[idx] >= 10)
+   if(idx >= 0 && idx < 19 && g_stratTotalTrades[idx] >= 10)
    {
       double heat = g_stratHeatScore[idx];
       // Heat maps to risk scaling: 0.00.25x, 0.51.0x, 1.02.0x
@@ -12891,7 +13398,7 @@ double MoneyManagement_Quantum(int magicNumber, double baseRiskPercent, double s
    // instead of the static baseRiskPercent
    // 
    double effectiveRiskPercent = baseRiskPercent;
-   if(idx >= 0 && idx < 17 && g_stratTotalTrades[idx] >= 15)
+   if(idx >= 0 && idx < 19 && g_stratTotalTrades[idx] >= 15)
    {
       double kellyFrac = g_stratKellyFraction[idx];
       // Use Kelly fraction as risk %, blend with base (60% Kelly, 40% base)
@@ -14295,12 +14802,14 @@ int GetStrategyIndexByMagic(int magicNumber)
    if(magicNumber == InpDivergenceMR_MagicNumber) return 13; // V28.00: Divergence MR
    if(magicNumber == InpLiquiditySweep_MagicNumber) return 14; // V28.03: Liquidity Sweep
    if(magicNumber == InpStructuralRetest_MagicNumber) return 15; // V28.03: Structural Retest
+   if(magicNumber == InpSpectre_MagicNumber) return 16; // V28.07: SPECTRE
+   if(magicNumber == InpAetherGap_MagicNumber) return 17; // V28.07: AETHER GAP
    return -1;
 }
 void RecordStrategyResult(int magicNumber, double profit)
 {
    int idx = GetStrategyIndexByMagic(magicNumber);
-   if(idx < 0 || idx >= 17) return;
+   if(idx < 0 || idx >= 19) return;
    
    //  V27.8: LEGACY MULTIPLIER UPDATE (kept for compatibility) 
    if(profit > 0)
@@ -14345,7 +14854,7 @@ void RecordStrategyResult(int magicNumber, double profit)
 //+------------------------------------------------------------------+
 void CalculateRollingKelly(int idx)
 {
-   if(idx < 0 || idx >= 17) return;
+   if(idx < 0 || idx >= 19) return;
    
    int wins = 0;
    int losses = 0;
@@ -14442,7 +14951,7 @@ void CalculateRollingKelly(int idx)
 //+------------------------------------------------------------------+
 void CalculateHeatScore(int idx)
 {
-   if(idx < 0 || idx >= 17) return;
+   if(idx < 0 || idx >= 19) return;
    
    double pf = g_stratRollingPF[idx];
    double wr = g_stratRollingWinRate[idx];
