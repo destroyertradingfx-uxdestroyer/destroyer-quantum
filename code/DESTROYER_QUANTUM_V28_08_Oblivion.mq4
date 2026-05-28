@@ -13143,7 +13143,7 @@ double GetDynamicKellyFraction(double baseKelly = 0.35)
 double GetPortfolioHeatMultiplier()
 {
    int stratsInDD = 0, stratsActive = 0;
-   for(int i = 0; i < 20; i++)
+   for(int i = 0; i < 17; i++)
    {
       if(g_stratTotalTrades[i] >= 10)
       {
