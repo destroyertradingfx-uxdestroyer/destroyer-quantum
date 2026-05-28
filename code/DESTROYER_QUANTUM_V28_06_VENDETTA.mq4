@@ -5928,10 +5928,10 @@ bool IsOurMagicNumber(int magic)
 //+------------------------------------------------------------------+
 // Get the strategy index from a magic number (Global Function)
 //+------------------------------------------------------------------+
-//| DQ_GetStrategyIdx: SINGLE SOURCE OF TRUTH for strategy indices  |
+//| GetStrategyIdx: SINGLE SOURCE OF TRUTH for strategy indices  |
 //| ALL systems call this: Guardian, Reconcile, Dashboard, Execute  |
 //+------------------------------------------------------------------+
-int DQ_GetStrategyIdx(int magic)
+int GetStrategyIdx(int magic)
 {
    if(magic == InpMagic_MeanReversion)    return 0;
    // Index 1 reserved (Quantum Oscillator - disabled)
@@ -5951,8 +5951,8 @@ int DQ_GetStrategyIdx(int magic)
    if(magic == InpLiquiditySweep_MagicNumber) return 15;
    if(magic == InpStructuralRetest_MagicNumber) return 16;\n   if(magic == InpSpectre_MagicNumber) return 17;\n   if(magic == InpAetherGap_MagicNumber) return 18;\n   return -1;\n}
 
-// Legacy wrapper: GetStrategyIndexFromMagic -> DQ_GetStrategyIdx
-int GetStrategyIndexFromMagic(int magicNumber) { return DQ_GetStrategyIdx(magicNumber); }
+// Legacy wrapper: GetStrategyIndexFromMagic -> GetStrategyIdx
+int GetStrategyIndexFromMagic(int magicNumber) { return GetStrategyIdx(magicNumber); }
 
 //+------------------------------------------------------------------+
 //| Calculate strategy volatility based on returns                  |
@@ -6073,7 +6073,7 @@ void ReconcileFinalPerformance()
       int magic = OrderMagicNumber();
       if(!IsOurMagicNumber(magic)) continue;
       
-      int idx = DQ_GetStrategyIdx(magic);
+      int idx = GetStrategyIdx(magic);
       if(idx < 0 || idx >= 17) continue;
       
       double profit = OrderProfit() + OrderCommission() + OrderSwap();
@@ -6983,8 +6983,8 @@ void ExecuteNoiseBreakout()
 //+------------------------------------------------------------------+
 //| V26 BEEHIVE: Get strategy perfData index from magic number      |
 //+------------------------------------------------------------------+
-// Legacy wrapper: GetStrategyIndex -> DQ_GetStrategyIdx
-int GetStrategyIndex(int magic) { return DQ_GetStrategyIdx(magic); }
+// Legacy wrapper: GetStrategyIndex -> GetStrategyIdx
+int GetStrategyIndex(int magic) { return GetStrategyIdx(magic); }
 
 //+------------------------------------------------------------------+
 //| V26 BEEHIVE WORKER 1: APEX -- Session Rollover Liquidity Gap    |
@@ -9911,7 +9911,7 @@ void ExecuteSpectre()
                   int ticket = OpenTrade(OP_BUYLIMIT, lots, NormalizeDouble(entry, Digits), NormalizeDouble(sl, Digits), NormalizeDouble(tp, Digits), "SPECTRE_BUY", InpSpectre_MagicNumber);
                   if(ticket > 0)
                   {
-                     int stratIdx = DQ_GetStrategyIdx(InpSpectre_MagicNumber);
+                     int stratIdx = GetStrategyIdx(InpSpectre_MagicNumber);
                      if(stratIdx >= 0) g_perfData[stratIdx].trades++;
                   }
                }
@@ -9941,7 +9941,7 @@ void ExecuteSpectre()
                   int ticket = OpenTrade(OP_SELLLIMIT, lots, NormalizeDouble(entry, Digits), NormalizeDouble(sl, Digits), NormalizeDouble(tp, Digits), "SPECTRE_SELL", InpSpectre_MagicNumber);
                   if(ticket > 0)
                   {
-                     int stratIdx = DQ_GetStrategyIdx(InpSpectre_MagicNumber);
+                     int stratIdx = GetStrategyIdx(InpSpectre_MagicNumber);
                      if(stratIdx >= 0) g_perfData[stratIdx].trades++;
                   }
                }
@@ -14598,8 +14598,8 @@ bool IsATRSpikeActive()
 //+------------------------------------------------------------------+
 //| V27.7: CONSECUTIVE LOSS GUARDIAN                                 |
 //+------------------------------------------------------------------+
-// Legacy wrapper: GetStrategyIndexByMagic -> DQ_GetStrategyIdx
-int GetStrategyIndexByMagic(int magicNumber) { return DQ_GetStrategyIdx(magicNumber); }
+// Legacy wrapper: GetStrategyIndexByMagic -> GetStrategyIdx
+int GetStrategyIndexByMagic(int magicNumber) { return GetStrategyIdx(magicNumber); }
 void RecordStrategyResult(int magicNumber, double profit)
 {
    int idx = GetStrategyIndexByMagic(magicNumber);
