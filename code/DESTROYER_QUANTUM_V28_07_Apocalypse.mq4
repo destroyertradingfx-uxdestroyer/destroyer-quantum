@@ -1613,6 +1613,8 @@ struct PerfData
    double worstTrade;
    int    maxConsecWins;
    int    maxConsecLosses;
+   double totalRR;
+   double totalRR2;
    double maxDrawdown;
    double peakEquity;
    double runningEquity;
@@ -6864,7 +6866,6 @@ void ExecuteNoiseBreakout()
         
         double lots = MoneyManagement_Quantum(InpNoiseBreakout_Magic, InpBase_Risk_Percent * 0.5);
         
-                int ticket = OpenTrade(OP_SELL
         if(OpenTrade(OP_BUY, lots, Ask, sl, tp, "NOISE_BUY", InpNoiseBreakout_Magic) > 0)
         {
             UpdatePerformanceV4(InpNoiseBreakout_Magic, 0);
@@ -6889,7 +6890,6 @@ void ExecuteNoiseBreakout()
         
         double lots = MoneyManagement_Quantum(InpNoiseBreakout_Magic, InpBase_Risk_Percent * 0.5);
         
-                int ticket = OpenTrade(OP_SELL
         if(OpenTrade(OP_SELL, lots, Bid, sl, tp, "NOISE_SELL", InpNoiseBreakout_Magic) > 0)
         {
             UpdatePerformanceV4(InpNoiseBreakout_Magic, 0);
@@ -7013,9 +7013,8 @@ void ExecutePhantomStrategy()
    double tp        = gapPoints * InpPhantom_TP_GapMult;
 
    int    stratIdx = GetStrategyIndex(InpPhantom_MagicNumber);
-   double lots = MoneyManagement_Quantum(InpNoiseBreakout_Magic, InpBase_Risk_Percent * 0.5);
-        
-           int ticket = OpenTrade(OP_SELL
+   double lots = MoneyManagement_Quantum(InpPhantom_MagicNumber, InpBase_Risk_Percent);
+   
    if(mondayOpen > fridayClose)
    {
       double slPrice = Ask + sl;
@@ -7086,12 +7085,12 @@ void ExecuteNexusStrategy()
    double tpDist = atrMedian  * InpNexus_TP_Median_Mult;
 
    int    stratIdx = GetStrategyIndex(InpNexus_MagicNumber);
-   double lots = MoneyManagement_Quantum(InpNoiseBreakout_Magic, InpBase_Risk_Percent * 0.5);
-        
-           int ticket = OpenTrade(OP_SELL
+   double lots = MoneyManagement_Quantum(InpNexus_MagicNumber, InpBase_Risk_Percent);
+   
+   if(Close[1] > atrMedian) // Bullish breakout
    {
       int bias = CheckDirectionalBias();
-      if(bias != 1 && bias != 2) return; // Only allow BUY if bullish bias or near EMA
+      if(bias != 1 && bias != 2) return;
       
       double slPrice = Ask - slDist;
       double tpPrice = Ask + tpDist;
@@ -9190,9 +9189,8 @@ void ExecuteWardenStrategy()
             double sl = Ask - (slPoints * Point);
             double tp_dist = MathAbs(Close[1] - sl);
             double tp = Close[1] + (tp_dist * 2.0);
-            double lots = MoneyManagement_Quantum(InpNoiseBreakout_Magic, InpBase_Risk_Percent * 0.5);
-        
-                    int ticket = OpenTrade(OP_SELL
+            double lots = MoneyManagement_Quantum(InpWarden_MagicNumber, InpBase_Risk_Percent);
+            
             {
                LogError(ERROR_INFO, "ExecuteWardenStrategy: Quantum Lot Sizing (BUY) = " + DoubleToString(lots, 2), "ExecuteWardenStrategy");
                if(lots > 0) OpenTrade(OP_BUY, lots, Ask, sl, tp, "WARDEN_BUY_V10.0", InpWarden_MagicNumber);
@@ -9209,9 +9207,8 @@ void ExecuteWardenStrategy()
             double sl = Bid + (slPoints * Point);
             double tp_dist = MathAbs(sl - Close[1]);
             double tp = Close[1] - (tp_dist * 2.0);
-            double lots = MoneyManagement_Quantum(InpNoiseBreakout_Magic, InpBase_Risk_Percent * 0.5);
-        
-                    int ticket = OpenTrade(OP_SELL
+            double lots = MoneyManagement_Quantum(InpWarden_MagicNumber, InpBase_Risk_Percent);
+            
             {
                LogError(ERROR_INFO, "ExecuteWardenStrategy: Quantum Lot Sizing (SELL) = " + DoubleToString(lots, 2), "ExecuteWardenStrategy");
                if(lots > 0) OpenTrade(OP_SELL, lots, Bid, sl, tp, "WARDEN_SELL_V10.0", InpWarden_MagicNumber);
@@ -13596,7 +13593,7 @@ void V23_UpdateEmpiricalProb(int stratIdx, bool tradeWasWinner, double entryDevi
     if(stratIdx < 0 || stratIdx >= v23_stratCount) return;
     
     int bin = V23_GetDeviationBin(entryDeviation);
-    if(idx < 0 || idx >= 20) return;
+    if(stratIdx < 0 || stratIdx >= 20) return;
     
     double alpha = InpV23_EwmaAlpha;
     double hitValue = tradeWasWinner ? 1.0 : 0.0;
@@ -14756,7 +14753,7 @@ void CalculateHeatScore(int idx)
 bool IsStrategyLockedOut(int magicNumber)
 {
    int idx = GetStrategyIndexByMagic(magicNumber);
-   if(idx < 0 || idx >= 20) return;
+   if(idx < 0 || idx >= 20) return false;
    if(g_strategyLockoutUntil[idx] > 0 && TimeCurrent() < g_strategyLockoutUntil[idx]) return true;
    return false;
 }
