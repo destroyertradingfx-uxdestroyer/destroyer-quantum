@@ -13132,8 +13132,8 @@ double GetDynamicKellyFraction(double baseKelly = 0.35)
    if(g_high_watermark_equity > 0)
       ddPercent = (g_high_watermark_equity - AccountEquity()) / g_high_watermark_equity * 100;
    // Continuous: at 0%% DD -> 0.45, at 20%% DD -> 0.10
-   double dynamicKelly = baseKelly - (ddPercent * 0.015);
-   return MathMax(0.10, MathMin(0.45, dynamicKelly));
+   double dynamicKelly = baseKelly - (ddPercent * 0.005);
+   return MathMax(0.20, MathMin(0.45, dynamicKelly));
 }
 
 //+------------------------------------------------------------------+
@@ -13316,38 +13316,9 @@ double MoneyManagement_Quantum(int magicNumber, double baseRiskPercent, double s
    effectiveRiskPercent *= (dynamicKelly / 0.35);  // Scale risk by Kelly ratio
    effectiveRiskPercent = MathMax(effectiveRiskPercent, 0.1);
    
-   // ===============================================================
-   // V28.08: PORTFOLIO HEAT GOVERNOR
-   // When >50% of active strategies struggle, reduce ALL sizing
-   // Catches correlated DD that per-strategy heat misses
-   // ===============================================================
-   double portfolioHeatMult = GetPortfolioHeatMultiplier();
-   combinedMultiplier *= portfolioHeatMult;
-   
-   // ===============================================================
-   // V28.08: DIRECTIONAL CONCENTRATION RISK
-   // Reduce lots when too many strategies go same direction
-   // Prevents correlated blowups
-   // ===============================================================
-   UpdateDirectionalExposure();
-   // Apply concentration penalty based on net directional bias
-   // When portfolio is heavily long or short, reduce ALL new trades
-   int netExposure = g_buyCount - g_sellCount;
-   double dirConMult = 1.0;
-   if(MathAbs(netExposure) >= 5)
-      dirConMult = MathMax(0.5, 1.0 - (MathAbs(netExposure) * 0.08));
-   combinedMultiplier *= dirConMult;
-   
-   // ===============================================================
-   // V28.08: EQUITY CURVE MULTIPLIER (SMA-based)
-   // Above 20-SMA: amplify (1.0x-1.5x), below: contract (0.5x-1.0x)
-   // Anti-martingale: trade bigger when winning, smaller when losing
-   // ===============================================================
-   double equityCurveMult = GetEquityCurveMultiplier();
-   combinedMultiplier *= equityCurveMult;
-   
-   // Final combined cap: 2.5x (slightly higher than V28.07's 2.0x to allow amplification)
-   combinedMultiplier = MathMin(combinedMultiplier, 2.5);
+   // V28.08: Dynamic Kelly already applied above via effectiveRiskPercent scaling
+   // No additional multipliers needed — Kelly alone provides DD-adaptive sizing
+   // Previous v1 had 4 multipliers that compounded to 0.4x — too aggressive
    
    double riskAmount = accountEquity * ((effectiveRiskPercent * combinedMultiplier) / 100.0);
    double tickValue = MarketInfo(Symbol(), MODE_TICKVALUE);
