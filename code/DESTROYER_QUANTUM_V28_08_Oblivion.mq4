@@ -7042,14 +7042,16 @@ void ExecutePhantomStrategy()
    int    stratIdx = GetStrategyIndex(InpPhantom_MagicNumber);
    double lots = MoneyManagement_Quantum(InpPhantom_MagicNumber, InpBase_Risk_Percent);
    
-   // V28.08: Cap Phantom max loss per trade at $1,500 (was uncapped, hit $4,472)
-   double phantomMaxLoss = 1500.0;
-   double slPips = sl / (Point * 10);
+   // V28.08 v7: Cap Phantom max loss per trade at $1,000 (was uncapped, hit $4,472)
+   double phantomMaxLoss = 1000.0;
+   double slPoints = sl / Point;  // Use points, not pips (tickVal is per point)
    double tickVal = MarketInfo(Symbol(), MODE_TICKVALUE);
-   if(tickVal > 0 && slPips > 0)
+   if(tickVal > 0 && slPoints > 0)
    {
-      double maxLotsForCap = phantomMaxLoss / (slPips * tickVal);
+      double maxLotsForCap = phantomMaxLoss / (slPoints * tickVal);
       if(lots > maxLotsForCap) lots = MathFloor(maxLotsForCap / MarketInfo(Symbol(), MODE_LOTSTEP)) * MarketInfo(Symbol(), MODE_LOTSTEP);
+      PrintFormat("[Phantom] Risk cap: lots %.2f -> %.2f (maxLoss $%.0f, SL %.0f pts, tickVal %.4f)", 
+                  lots, maxLotsForCap, phantomMaxLoss, slPoints, tickVal);
    }
    
    if(mondayOpen > fridayClose)
@@ -13229,11 +13231,16 @@ double MoneyManagement_Quantum(int magicNumber, double baseRiskPercent, double s
    // Phantom (PF ~3+), Warden, Titan: raise base risk to 1.5%
    // These strategies have proven edge — they deserve more capital
    // ===============================================================
-   if(magicNumber == InpPhantom_MagicNumber || 
-      magicNumber == InpWarden_MagicNumber || magicNumber == 666001 || magicNumber == 666002 ||
+   // V28.08: Phantom risk floor reduced to 0.8% (was 1.5%, caused $4,472 max loss)
+   if(magicNumber == InpPhantom_MagicNumber)
+   {
+      baseRiskPercent = MathMax(baseRiskPercent, 0.8);
+   }
+   // Other high-PF strategies keep 1.5% floor
+   else if(magicNumber == InpWarden_MagicNumber || magicNumber == 666001 || magicNumber == 666002 ||
       magicNumber == InpTitan_MagicNumber)
    {
-      baseRiskPercent = MathMax(baseRiskPercent, 1.5); // Floor at 1.5% for high-PF strategies
+      baseRiskPercent = MathMax(baseRiskPercent, 1.5);
    }
    
    // ===============================================================
@@ -13244,6 +13251,8 @@ double MoneyManagement_Quantum(int magicNumber, double baseRiskPercent, double s
    {
       // Use dynamically computed cap from CalculateRollingKelly()
       maxMultiplier = g_stratDynamicMaxMult[idx];
+      // V28.08: Cap Phantom dynamic multiplier at 1.0 (prevents over-sizing in DD)
+      if(magicNumber == InpPhantom_MagicNumber) maxMultiplier = MathMin(maxMultiplier, 1.0);
    }
    else
    {
@@ -13252,7 +13261,7 @@ double MoneyManagement_Quantum(int magicNumber, double baseRiskPercent, double s
       else if (magicNumber == InpSX_MagicNumber) maxMultiplier = 2.0;
       else if (magicNumber == InpTitan_MagicNumber) maxMultiplier = 2.0;
       else if (magicNumber == InpNexus_MagicNumber) maxMultiplier = 2.0;
-      else if (magicNumber == InpPhantom_MagicNumber) maxMultiplier = 1.5;
+      else if (magicNumber == InpPhantom_MagicNumber) maxMultiplier = 1.0;  // V28.08: Was 1.5, capped at 1.0 for DD control
       else if (magicNumber == InpNoiseBreakout_Magic) maxMultiplier = 1.5;
       else if (magicNumber == InpMagic_MeanReversion || magicNumber == 555001) maxMultiplier = 1.5;
       else if (magicNumber == InpChronos_MagicNumber) maxMultiplier = 1.5;
