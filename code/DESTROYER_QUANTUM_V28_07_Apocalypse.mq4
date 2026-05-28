@@ -1613,8 +1613,6 @@ struct PerfData
    double worstTrade;
    int    maxConsecWins;
    int    maxConsecLosses;
-   double totalRR;
-   double totalRR2;
    double maxDrawdown;
    double peakEquity;
    double runningEquity;
@@ -4619,6 +4617,7 @@ input double  InpAetherGap_ATR_TP_Mult    = 2.5;         // ATR multiplier for T
 input int     InpAetherGap_RSI_Period     = 14;          // RSI period
 input double  InpAetherGap_RSI_Low        = 35.0;        // RSI lower bound
 input double  InpAetherGap_RSI_High       = 65.0;        // RSI upper bound
+
 input int     InpStructuralRetest_SwingPeriod   = 20;         // Period for swing high/low detection
 input int     InpStructuralRetest_RetraceBars   = 20;         // V28.04: Extended from 10 — 10 was too tight on H4 (0 trades)
 input double  InpStructuralRetest_ATR_SL_Mult   = 1.5;        // ATR multiplier for SL
@@ -4704,7 +4703,9 @@ int OnInit()
     g_perfData[13].name = "SessionMomentum"; // V28.00: New strategy
     g_perfData[14].name = "DivergenceMR";    // V28.00: New strategy
     g_perfData[15].name = "LiquiditySweep"; // V28.03: New strategy
-    g_perfData[16].name = "StructuralRetest";\n   g_perfData[17].name = "Spectre";\n   g_perfData[18].name = "AetherGap";
+    g_perfData[16].name = "StructuralRetest";
+   g_perfData[17].name = "Spectre";
+   g_perfData[18].name = "AetherGap";
    // ---
    
    // V13.0 ELITE: Initialize Strategy Cooldown System
@@ -5611,6 +5612,20 @@ void OnNewBar()
       if(CountOpenTrades() >= InpMaxOpenTrades) { if(!IsOptimization()) UpdateDashboard_StaticV8_6(); return; }
    }
 
+   // V28.07: SPECTRE
+   if(InpSpectre_Enabled)
+   {
+      ExecuteSpectre();
+      if(CountOpenTrades() >= InpMaxOpenTrades) { if(!IsOptimization()) UpdateDashboard_StaticV8_6(); return; }
+   }
+
+   // V28.07: AETHER GAP
+   if(InpAetherGap_Enabled)
+   {
+      ExecuteAetherGap();
+      if(CountOpenTrades() >= InpMaxOpenTrades) { if(!IsOptimization()) UpdateDashboard_StaticV8_6(); return; }
+   }
+
    if(!IsOptimization())
    {
      UpdateDashboard_StaticV8_6();
@@ -5864,7 +5879,9 @@ string GetStrategyNameFromMagic(int magic)
     if(magic == InpSessionMomentum_MagicNumber) return "SessionMomentum"; // V28.00
     if(magic == InpDivergenceMR_MagicNumber) return "DivergenceMR"; // V28.00
     if(magic == InpLiquiditySweep_MagicNumber) return "LiquiditySweep"; // V28.03
-    if(magic == InpStructuralRetest_MagicNumber) return "StructuralRetest"; // V28.03\n    if(magic == 420101) return "Spectre"; // V28.07\n    if(magic == 777016) return "AetherGap"; // V28.07
+    if(magic == InpStructuralRetest_MagicNumber) return "StructuralRetest";
+    if(magic == 420101) return "Spectre";
+    if(magic == 777016) return "AetherGap";
 
     return "Unknown";
 }
@@ -5891,7 +5908,9 @@ bool IsOurMagicNumber(int magic)
        magic == InpSessionMomentum_MagicNumber ||  // V28.00: Session Momentum
        magic == InpDivergenceMR_MagicNumber ||        // V28.00: Divergence MR
        magic == InpLiquiditySweep_MagicNumber ||      // V28.03: Liquidity Sweep
-       magic == InpStructuralRetest_MagicNumber ||      // V28.03\n       magic == 420101 ||                              // V28.07: Spectre\n       magic == 777016)                               // V28.07: AetherGap
+       magic == InpStructuralRetest_MagicNumber ||      // V28.03
+       magic == 420101 ||                              // V28.07: Spectre
+       magic == 777016)                               // V28.07: AetherGap
     {
         return true;
     }
@@ -5901,13 +5920,10 @@ bool IsOurMagicNumber(int magic)
 //+------------------------------------------------------------------+
 //| Get the strategy index from a magic number (Global Function)    |
 //+------------------------------------------------------------------+
-// Get the strategy index from a magic number (Global Function)
 // SINGLE SOURCE OF TRUTH for all strategy indices
-// All systems (Guardian, Reconcile, Dashboard) must call this function
 int GetStrategyIdx(int magicNumber) 
 {
     if(magicNumber == InpMagic_MeanReversion) return 0;
-    // Index 1 (Quantum Oscillator) is disabled.
     if(magicNumber == InpTitan_MagicNumber) return 2;
     if(magicNumber == InpWarden_MagicNumber || magicNumber == 666001 || magicNumber == 666002) return 3;
     if(magicNumber == InpReaper_BuyMagicNumber || magicNumber == InpReaper_SellMagicNumber) return 4;
@@ -5917,8 +5933,8 @@ int GetStrategyIdx(int magicNumber)
     if(magicNumber == InpApex_MagicNumber) return 8;
     if(magicNumber == InpPhantom_MagicNumber) return 9;
     if(magicNumber == InpNexus_MagicNumber) return 10;
-    if(magicNumber == 999002) return 11; // MathReversal
-    if(magicNumber == InpVortex_MagicNumber) return 12; // Fixed: was 11 (collision with MathReversal)
+    if(magicNumber == 999002) return 11;
+    if(magicNumber == InpVortex_MagicNumber) return 12;
     if(magicNumber == InpRegimeShift_MagicNumber) return 13;
     if(magicNumber == InpSessionMomentum_MagicNumber) return 14;
     if(magicNumber == InpDivergenceMR_MagicNumber) return 15;
@@ -5928,8 +5944,6 @@ int GetStrategyIdx(int magicNumber)
     if(magicNumber == 777016) return 19;
     return -1;
 }
-
-// Legacy wrapper
 int GetStrategyIndexFromMagic(int magicNumber) { return GetStrategyIdx(magicNumber); }
 
 //+------------------------------------------------------------------+
@@ -6294,7 +6308,7 @@ void ExecuteMeanReversionModelV8_6()
    
    string regime_description = "";
    
-   if(Hurst < 0.55) // V28.07: Widened from 0.50 for more entries
+   if(Hurst < 0.55) // V28.07: Widened from 0.50
    {
       // PRIME CONDITION (Strong Mean Reversion): Trade Aggressively
       adaptive_dev = 1.8;  // Easier entry (tighter bands)
@@ -6677,7 +6691,10 @@ void ExecuteMathReversal()
     
     // === V26 MATH-FIRST TRIGGER CONDITIONS ===
     // High probability + significant deviation + low chaos + positive edge + stable regime
-    bool mathConfident = (prob > 0.5) &&                  // V28.07: Lowered from 0.7\n                         (MathAbs(deviation) > 1.0) &&    // V28.07: Lowered from 1.5\n                         (entropyNorm < 0.8) &&           // V28.07: Relaxed from 0.6\n                         (confidence > 0.3);              // V28.07: Lowered from 0.5
+    bool mathConfident = (prob > 0.5) &&                  // V28.07: Lowered from 0.7
+                         (MathAbs(deviation) > 1.0) &&    // V28.07: Lowered from 1.5
+                         (entropyNorm < 0.8) &&           // V28.07: Relaxed from 0.6
+                         (confidence > 0.3);              // V28.07: Lowered from 0.5
     
     if(!mathConfident) {
         return; // Math not confident enough
@@ -6845,7 +6862,7 @@ void ExecuteNoiseBreakout()
         double tp_dist = MathAbs(Close[1] - sl);
         double tp = Close[1] + (tp_dist * 2.0);  // 2:1 R:R
         
-        double lots = MoneyManagement_Quantum(InpNoiseBreakout_Magic, InpBase_Risk_Percent * 0.5); // V28.07: Half risk to reduce DD
+        double lots = MoneyManagement_Quantum(InpNoiseBreakout_Magic, InpBase_Risk_Percent * 0.5);
         
                 int ticket = OpenTrade(OP_SELL
         if(OpenTrade(OP_BUY, lots, Ask, sl, tp, "NOISE_BUY", InpNoiseBreakout_Magic) > 0)
@@ -6870,7 +6887,7 @@ void ExecuteNoiseBreakout()
         double tp_dist = MathAbs(sl - Close[1]);
         double tp = Close[1] - (tp_dist * 2.0);  // 2:1 R:R
         
-        double lots = MoneyManagement_Quantum(InpNoiseBreakout_Magic, InpBase_Risk_Percent * 0.5); // V28.07: Half risk to reduce DD
+        double lots = MoneyManagement_Quantum(InpNoiseBreakout_Magic, InpBase_Risk_Percent * 0.5);
         
                 int ticket = OpenTrade(OP_SELL
         if(OpenTrade(OP_SELL, lots, Bid, sl, tp, "NOISE_SELL", InpNoiseBreakout_Magic) > 0)
@@ -6996,7 +7013,7 @@ void ExecutePhantomStrategy()
    double tp        = gapPoints * InpPhantom_TP_GapMult;
 
    int    stratIdx = GetStrategyIndex(InpPhantom_MagicNumber);
-   double lots = MoneyManagement_Quantum(InpNoiseBreakout_Magic, InpBase_Risk_Percent * 0.5); // V28.07: Half risk to reduce DD
+   double lots = MoneyManagement_Quantum(InpNoiseBreakout_Magic, InpBase_Risk_Percent * 0.5);
         
            int ticket = OpenTrade(OP_SELL
    if(mondayOpen > fridayClose)
@@ -7069,7 +7086,7 @@ void ExecuteNexusStrategy()
    double tpDist = atrMedian  * InpNexus_TP_Median_Mult;
 
    int    stratIdx = GetStrategyIndex(InpNexus_MagicNumber);
-   double lots = MoneyManagement_Quantum(InpNoiseBreakout_Magic, InpBase_Risk_Percent * 0.5); // V28.07: Half risk to reduce DD
+   double lots = MoneyManagement_Quantum(InpNoiseBreakout_Magic, InpBase_Risk_Percent * 0.5);
         
            int ticket = OpenTrade(OP_SELL
    {
@@ -7138,7 +7155,7 @@ void ExecuteMicrostructureStrategy()
    double m15_BB_Lower = CustomBBOnArray(m15Close, 0, 20, 2.0, 0, MODE_LOWER, 1);
    double m15_BB_Upper = CustomBBOnArray(m15Close, 0, 20, 2.0, 0, MODE_UPPER, 1);
    
-   bool buy_scalp  = (bias == 1)  && (m15Close[1] < m15_BB_Lower) && (m15_RSI < 40); // V28.07: Relaxed from 30
+   bool buy_scalp  = (bias == 1)  && (m15Close[1] < m15_BB_Lower) && (m15_RSI < 40);
    bool sell_scalp = (bias == -1) && (m15Close[1] > m15_BB_Upper) && (m15_RSI > 60); // V28.07: Relaxed from 70
 
    // --- EXECUTION BLOCK ---
@@ -9097,7 +9114,7 @@ void ExecuteWardenStrategy()
 {
     if(Period() != PERIOD_H4) return;
     if(CountOpenTrades(InpWarden_MagicNumber) > 0) return;
-    if(!IsStrategyHealthy(InpWarden_MagicNumber)) return;
+    // V28.07: QueenBee gate removed
     
     // V27.1: Queen Bee circuit breaker guard
     // V28.07: QueenBee gate removed — was blocking all trades
@@ -9135,7 +9152,7 @@ void ExecuteWardenStrategy()
         // Squeeze must be very tight — BB well inside KC
         double squeezeRatio = (bb_upper_guard - bb_lower_guard) / (kc_upper_guard - kc_lower_guard);
    // V27.11: Looser squeeze requirement (0.8) for more frequent entries
-        bool tightSqueeze = (squeezeRatio < 0.95); // V28.07: Relaxed from 0.9 for more entries
+        bool tightSqueeze = (squeezeRatio < 0.95); // V28.07: Relaxed from 0.9
         
         if(!tightSqueeze || !hasTrend)
         {
@@ -9173,7 +9190,7 @@ void ExecuteWardenStrategy()
             double sl = Ask - (slPoints * Point);
             double tp_dist = MathAbs(Close[1] - sl);
             double tp = Close[1] + (tp_dist * 2.0);
-            double lots = MoneyManagement_Quantum(InpNoiseBreakout_Magic, InpBase_Risk_Percent * 0.5); // V28.07: Half risk to reduce DD
+            double lots = MoneyManagement_Quantum(InpNoiseBreakout_Magic, InpBase_Risk_Percent * 0.5);
         
                     int ticket = OpenTrade(OP_SELL
             {
@@ -9192,7 +9209,7 @@ void ExecuteWardenStrategy()
             double sl = Bid + (slPoints * Point);
             double tp_dist = MathAbs(sl - Close[1]);
             double tp = Close[1] - (tp_dist * 2.0);
-            double lots = MoneyManagement_Quantum(InpNoiseBreakout_Magic, InpBase_Risk_Percent * 0.5); // V28.07: Half risk to reduce DD
+            double lots = MoneyManagement_Quantum(InpNoiseBreakout_Magic, InpBase_Risk_Percent * 0.5);
         
                     int ticket = OpenTrade(OP_SELL
             {
@@ -13579,7 +13596,7 @@ void V23_UpdateEmpiricalProb(int stratIdx, bool tradeWasWinner, double entryDevi
     if(stratIdx < 0 || stratIdx >= v23_stratCount) return;
     
     int bin = V23_GetDeviationBin(entryDeviation);
-    if(bin < 0 || bin >= 5) return;
+    if(idx < 0 || idx >= 20) return;
     
     double alpha = InpV23_EwmaAlpha;
     double hitValue = tradeWasWinner ? 1.0 : 0.0;
@@ -14739,7 +14756,7 @@ void CalculateHeatScore(int idx)
 bool IsStrategyLockedOut(int magicNumber)
 {
    int idx = GetStrategyIndexByMagic(magicNumber);
-   if(idx < 0 || idx >= 17) return false;
+   if(idx < 0 || idx >= 20) return;
    if(g_strategyLockoutUntil[idx] > 0 && TimeCurrent() < g_strategyLockoutUntil[idx]) return true;
    return false;
 }
