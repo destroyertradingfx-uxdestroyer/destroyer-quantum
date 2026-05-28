@@ -13204,8 +13204,8 @@ double GetEquityCurveMultiplier()
    double equitySMA=0; for(int i=0;i<20;i++) equitySMA+=g_equityHistory[i]; equitySMA/=20.0;
    if(equitySMA <= 0) return 1.0;
    double ratio = AccountEquity() / equitySMA;
-   // Clamp 0.5x-1.5x
-   if(ratio<0.5) ratio=0.5; if(ratio>1.5) ratio=1.5;
+   // V28.08 v5: Tighter bounds (0.8-1.2) to prevent over-amplification
+   if(ratio<0.8) ratio=0.8; if(ratio>1.2) ratio=1.2;
    return ratio;
 }
 
@@ -13316,9 +13316,10 @@ double MoneyManagement_Quantum(int magicNumber, double baseRiskPercent, double s
    effectiveRiskPercent *= (dynamicKelly / 0.35);  // Scale risk by Kelly ratio
    effectiveRiskPercent = MathMax(effectiveRiskPercent, 0.1);
    
-   // V28.08: Dynamic Kelly already applied above via effectiveRiskPercent scaling
-   // No additional multipliers needed — Kelly alone provides DD-adaptive sizing
-   // Previous v1 had 4 multipliers that compounded to 0.4x — too aggressive
+   // V28.08: Equity Curve Multiplier (gentle: 0.8x-1.2x)
+   double equityCurveMult = GetEquityCurveMultiplier();
+   combinedMultiplier *= equityCurveMult;
+   combinedMultiplier = MathMin(combinedMultiplier, 2.5);
    
    double riskAmount = accountEquity * ((effectiveRiskPercent * combinedMultiplier) / 100.0);
    double tickValue = MarketInfo(Symbol(), MODE_TICKVALUE);
