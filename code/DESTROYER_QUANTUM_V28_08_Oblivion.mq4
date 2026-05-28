@@ -7042,6 +7042,16 @@ void ExecutePhantomStrategy()
    int    stratIdx = GetStrategyIndex(InpPhantom_MagicNumber);
    double lots = MoneyManagement_Quantum(InpPhantom_MagicNumber, InpBase_Risk_Percent);
    
+   // V28.08: Cap Phantom max loss per trade at $1,500 (was uncapped, hit $4,472)
+   double phantomMaxLoss = 1500.0;
+   double slPips = sl / (Point * 10);
+   double tickVal = MarketInfo(Symbol(), MODE_TICKVALUE);
+   if(tickVal > 0 && slPips > 0)
+   {
+      double maxLotsForCap = phantomMaxLoss / (slPips * tickVal);
+      if(lots > maxLotsForCap) lots = MathFloor(maxLotsForCap / MarketInfo(Symbol(), MODE_LOTSTEP)) * MarketInfo(Symbol(), MODE_LOTSTEP);
+   }
+   
    if(mondayOpen > fridayClose)
    {
       double slPrice = Ask + sl;
