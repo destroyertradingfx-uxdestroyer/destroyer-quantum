@@ -14798,12 +14798,12 @@ int GetStrategyIndexByMagic(int magicNumber)
    if(magicNumber == InpChronos_MagicNumber) return 9;
    if(magicNumber == InpVortex_MagicNumber) return 10; // V27.27: Vortex
    if(magicNumber == InpRegimeShift_MagicNumber) return 11; // V27.27: Regime Shift
-   if(magicNumber == InpSessionMomentum_MagicNumber) return 12; // V28.00: Session Momentum
-   if(magicNumber == InpDivergenceMR_MagicNumber) return 13; // V28.00: Divergence MR
-   if(magicNumber == InpLiquiditySweep_MagicNumber) return 14; // V28.03: Liquidity Sweep
-   if(magicNumber == InpStructuralRetest_MagicNumber) return 15; // V28.03: Structural Retest
-   if(magicNumber == InpSpectre_MagicNumber) return 16; // V28.07: SPECTRE
-   if(magicNumber == InpAetherGap_MagicNumber) return 17; // V28.07: AETHER GAP
+   if(magicNumber == InpSessionMomentum_MagicNumber) return 13; // V28.00: Session Momentum
+   if(magicNumber == InpDivergenceMR_MagicNumber) return 14; // V28.00: Divergence MR
+   if(magicNumber == InpLiquiditySweep_MagicNumber) return 15; // V28.03: Liquidity Sweep
+   if(magicNumber == InpStructuralRetest_MagicNumber) return 16; // V28.03: Structural Retest
+   if(magicNumber == InpSpectre_MagicNumber) return 17; // V28.07: SPECTRE
+   if(magicNumber == InpAetherGap_MagicNumber) return 18; // V28.07: AETHER GAP
    return -1;
 }
 void RecordStrategyResult(int magicNumber, double profit)
