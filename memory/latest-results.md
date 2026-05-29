@@ -1,53 +1,38 @@
 # Latest Backtest Results
 
-## Version: V28.09 (TESTED — CATASTROPHIC FAILURE)
-- Net Profit: -$5,775
-- Profit Factor: 0.81
-- Max Drawdown: 94.48%
-- Total Trades: 830
-- Win Rate: 51.81%
-- Final Equity: $4,224 (from $10,000)
-- **ACCOUNT BLOWN — DO NOT USE**
+## Version: V28.08 OBLIVION v7
+- Date: 2026-05-29
+- Net Profit: $60,975.44
+- Profit Factor: 2.27
+- Max Drawdown: 17.20% ($6,810.92)
+- Total Trades: 554 (W: 403 / L: 151)
+- Win Rate: 72.74%
+- Expectancy: $110.06/trade
+- Final Equity: $70,975.44
+- Best Trade: $11,152 | Worst: -$1,165.71
+- Max Consec W: 21 | Max Consec L: 7
+- OnTester: 109.58
 
-### Per-Strategy Breakdown
-| Strategy | Trades | Net Profit | Profit Factor |
-|---|---|---|---|
-| SessionMomentum | 2 | $98 | 999 |
-| Nexus | 4 | $112 | 4.57 |
-| Phantom | 274 | $3,517 | 1.40 |
-| NoiseBreakout | 63 | $497 | 1.38 |
-| Reaper Protocol | 289 | -$100 | 0.98 |
-| Mean Reversion | 1 | $33 | 999 |
-| Sentinel | 0 | — | — |
+## Strategy Ranking (by Net Profit):
+1. Phantom: +$20,704 (165 trades, PF 1.72, WR 80.6%, DD $4,553)
+2. Nexus: +$17,817 (3 trades, PF 999, WR 100%)
+3. DivergenceMR: +$11,964 (2 trades, PF 999, WR 100%)
+4. NoiseBreakout: +$6,691 (51 trades, PF 2.13, WR 64.7%, DD $1,286)
+5. Reaper Protocol: +$3,368 (317 trades, PF 1.26, WR 69.1%, DD $3,065)
+6. Mean Reversion: +$503 (2 trades, PF 999, WR 100%)
+7. Silicon-X: -$72 (16 trades, PF 0.84, WR 81.2%)
 
-### Root Cause
-1. **Triple GetStrategyIndex conflict** — GetStrategyIndexByMagic had WRONG indices. MoneyManagement_Quantum pulled Kelly/heat from wrong strategies. SessionMomentum/Nexus got tiny lot sizes.
-2. **Sentinel not in IsOurMagicNumber** — 197 invisible trades
-3. **Array size mismatch** — [17] vs [18]
-4. **Phantom Tuesday gap extension** — Flooded with low-quality gap trades
-5. **NB relaxation** — Added noise trades
+## Still Dead (0 trades): 
+Titan, Warden, Quantum Oscillator, Apex, Microstructure, MathReversal, 
+SPECTRE, AETHER GAP, Vortex, RegimeShift, Chronos, SessionMomentum
 
-## Version: V28.10 (AWAITING BACKTEST)
-- Built on V28.06 proven base ($50,399, PF 1.92, DD 19.40%, 601 trades)
-- 4 bug fixes (unified mapping, IsOurMagicNumber, arrays, reconciliation)
-- NEW Sentinel strategy (EMA21/50 + RSI14, 2:1 R:R, magic 777015)
-- V28.06 strategy logic preserved exactly (no Tuesday gap, no NB relaxation)
-- Target: $55K-$60K
+## Comparison to V28.07 APOCALYPSE:
+- Profit: -$4,589 (from $65,564)
+- PF: +0.24 (from 2.03) ✅
+- DD: -10.94% (from 28.14%) ✅✅✅ MAJOR WIN
+- Trades: +14 (from 540)
+- WR: +0.94% (from 71.8%)
+- Verdict: BETTER RISK-ADJUSTED — PF highest ever, DD 7% under limit
 
-## Version: V28.06 (BEST PROFIT — PROVEN BASE)
-- Net Profit: $50,399
-- Profit Factor: 1.92
-- Max Drawdown: 19.40%
-- Total Trades: 601
-- Win Rate: 75.21%
-- Profit-to-DD Ratio: 2.59x
-
-### Per-Strategy Breakdown
-| Strategy | Trades | Net Profit | Profit Factor |
-|---|---|---|---|
-| SessionMomentum | 2 | $8,588 | 999 |
-| Nexus | 4 | $5,799 | 4.31 |
-| Phantom | 166 | $24,061 | 1.71 |
-| NoiseBreakout | 52 | $7,093 | 1.77 |
-| Reaper Protocol | 376 | $4,462 | 1.45 |
-| Mean Reversion | 1 | $396 | 999 |
+## HEADROOM: DD 17.20% with 24% limit = 6.8% to play with
+## NEXT: Slightly loosen sizing to recapture $3-5K profit
