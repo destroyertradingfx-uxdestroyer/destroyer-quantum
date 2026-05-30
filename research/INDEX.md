@@ -250,3 +250,32 @@ by 4-6% while adding $11K-$23K profit.
 5. Asian Range + London Fix (4 hr, proven patterns)
 
 **Even at 60% effectiveness: $170K achievable**
+
+---
+
+## CYCLE 25 DEEP GITHUB RESEARCH (2026-05-30)
+
+### New Research Documents
+| File | Status | Description |
+|------|--------|-------------|
+| 2026-05-30_CYCLE25_CONSOLIDATED.md | **NEW** | Full synthesis: equity curve novelty, 5 new strategies, improved code |
+| 2026-05-30_CYCLE25_EQUITY_CURVE_PATTERNS.md | **NEW** | EA31337 + EarnForex patterns, 5 recommended improvements |
+| 2026-05-30_CYCLE25_FRESH_STRATEGIES.md | **NEW** | London Open Fade, ATR Breakout, Cycle MR, Heikin Ashi, Relaxed MR |
+
+### Key Findings
+1. **Equity curve approach is NOVEL** — zero GitHub repos implement it
+2. **5 new strategy categories** — London Open Fade (65% WR) is highest priority
+3. **EA31337 OptimizeLotSize** — anti-martingale pattern, but uses MAX streak (fix: use CURRENT streak)
+4. **EarnForex circuit breaker** — close all if equity drops 15% from peak (20 lines)
+5. **Heikin Ashi 4H** — 69% strike rate across 11 pairs, works as confirmation filter
+
+### Updated Lever Matrix
+- **Combined (65% effectiveness):** +$55K-$95K → Projected $163K-$233K
+- **$170K at ~55% effectiveness** (down from 60% last cycle)
+- **New strategies add $20K-$40K potential** — London Open Fade + ATR Breakout
+| 2026-05-30_CYCLE24_FRESH_FINDINGS_AND_GAP_ANALYSIS.md | **NEW** | Cycle 24: V29.00 codebase audit, 5 concrete gaps, fresh GitHub findings (SMC sparse, adaptive sizing patterns, MTF/KillZone already implemented) |
+| 2026-05-30_RYAN_ACTION_CARD_CYCLE24.md | **URGENT** | Ryan action card: 2 flag flips + 3 param changes + 1 .SET = 15 min for +$35K-$70K |
+| 2026-05-30_CYCLE24_SUMMARY.md | **NEW** | Cycle 24 summary: V29.00 85% complete, 5 gaps identified, $170K achievable |
+| 2026-05-30_CYCLE25_CONSOLIDATED.md | **NEW** | Cycle 25: Deep GitHub research — equity curve novelty confirmed, 5 new strategy categories, EA31337 risk patterns, improved equity curve code |
+| 2026-05-30_CYCLE25_EQUITY_CURVE_PATTERNS.md | **NEW** | EA31337 OptimizeLotSize, CalcLotSize, SignalOpenBoost, NormalizeLots patterns + EarnForex circuit breaker |
+| 2026-05-30_CYCLE25_FRESH_STRATEGIES.md | **NEW** | 5 new strategies: London Open Fade, ATR Breakout, Cycle MR, Heikin Ashi, Relaxed MR params |

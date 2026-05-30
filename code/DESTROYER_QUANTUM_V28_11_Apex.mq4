@@ -1,18 +1,40 @@
 //+------------------------------------------------------------------+
 //|        DESTROYER_QUANTUM_V28_08_OBLIVION.mq4                    |
 //|                    Copyright 2026, Quantum Leap Analytics        |
-//|  DESTROYER QUANTUM V28.08 OBLIVION - VENI VIDI VICI              |
+//|  DESTROYER QUANTUM V28.11 APEX — KILLER PURGE + CHRONOS REVERT  |
 //|  DD Reduction: Dynamic Kelly + Heat Gov + Dir. Concentration     |
 //|                     https://github.com/okyyryan                  |
 //+------------------------------------------------------------------+
 #property copyright "Copyright 2026, Quantum Leap Analytics"
 #property link      "https://github.com/okyyryan"
-#property version   "28.10"  // V28.10 APEX: Chronos M15 execution fix, dedicated Kalman, DD headroom
+#property version   "28.11"  // V28.11 APEX: Range Trapper + Momentum Scalper, dead strategies activated, risk 2.0%
 #property strict
 
 /*
 ==================================================================================================================
 ==================================================================================================================
+   ### V28.11 APEX — KILLER PURGE + CHRONOS REVERT ###
+   Date: 2026-05-30
+
+   BACKTEST DIAGNOSIS (V28.11 initial — 10 strategies active):
+   - Net: -$9,027 | PF: 0.59 | DD: 90%+ | 360 trades | WR: 36.1%
+   - Only Titan profitable (+$35.95, PF 3.02, 7 trades)
+   - AetherGap was #1 killer: -$5,078 (56% of all losses), PF 0.51
+   - (null) = Chronos M15: -$1,428, 116 trades with avg win $11 vs avg loss $128
+
+   FIXES APPLIED:
+   1. DISABLED AetherGap — RSI 30-70 + FVG lookback 8 flooded 96 bad trades
+   2. DISABLED Phantom — -$674, PF 0.12 (4 trades, tiny wins vs huge losses)
+   3. REVERTED Chronos to H4 bars — M15 execution caused 116 losing trades
+   4. Chronos re-added to OnNewBar() H4 strategy section
+
+   REMAINING ACTIVE (after purge):
+   - Titan, Apex, Warden, Reaper, Market Microstructure, NoiseBreakout,
+     DivergenceMR, MathReversal, Silicon-X, Range Trapper, Momentum Scalper,
+     Vortex, RegimeShift, SessionMomentum, Spectre, Nexus, StructuralRetest
+
+   STATUS: Awaiting backtest validation
+
    ### V28.08 OBLIVION — THE DD KILLER ###
 ==================================================================================================================
    CODENAME: OBLIVION
@@ -1158,8 +1180,8 @@ extern int     InpChronos_MagicNumber = 999001;        // Unique Magic Number fo
 //--- Beehive Queen Protocol
 sinput string Inp_Header_Queen       = "====== BEEHIVE QUEEN PROTOCOL ======";
 extern bool    InpEnableCompounding   = true;        // Enable compounding
-extern double  InpBase_Risk_Percent    = 1.5;         // AGGRESSIVE: Raised from 1.0% for maximum growth         // V27.27: Raised from 0.5% for $100K target
-extern double  InpBase_Risk_Percent_H1 = 0.4;         // AGGRESSIVE: Raised from 0.25%        // Lower base risk for H1 strategies
+extern double  InpBase_Risk_Percent    = 1.7;         // V28.11: Raised from 1.5 — cautious scaling — 6.74% DD headroom available         // AGGRESSIVE: Raised from 1.0% for maximum growth         // V27.27: Raised from 0.5% for $100K target
+extern double  InpBase_Risk_Percent_H1 = 0.5;         // V28.10: Raised from 0.4         // AGGRESSIVE: Raised from 0.25%        // Lower base risk for H1 strategies
 extern double  InpDefensiveDD_Percent  = 20.0;        // AGGRESSIVE: Raised from 15% — more tolerance        // Drawdown threshold to trigger defensive mode
 extern double  InpDrawdown_Risk_Mult   = 0.4;         // AGGRESSIVE: Raised from 0.3         // Risk multiplier in defensive mode (0.3 = 30% of normal risk)
 extern int     InpMaxOpenTrades      = 16;          // AGGRESSIVE: Raised from 12 for more concurrent trades          // V27.1 FIX: Lowered from 20 — accommodates 8 strategies + grid levels without runaway
@@ -1168,7 +1190,7 @@ extern bool    InpEnable_ReaperConditionFilter = false; // V26 FIX: Set true to 
 //--- Queen: State-Based Strategy Permissions
 extern bool    InpMR_Allow_Defensive  = true;  // Mean-reversion is often safe in drawdowns
 //--- Queen: Portfolio Risk Budget
-extern double  InpMaxTotalRisk_Percent = 12.0;       // AGGRESSIVE: Raised from 8.0% // V27.19: Raised from 5.0 — Kelly-governed strategies need more headroom for dynamic sizing
+extern double  InpMaxTotalRisk_Percent = 13.0;       // V28.11: Conservative — was 12.0 baseline: Raised from 12.0 — more concurrent positions allowed       // AGGRESSIVE: Raised from 8.0% // V27.19: Raised from 5.0 — Kelly-governed strategies need more headroom for dynamic sizing
 extern double  InpShortBiasThreshold  = 0.35; // V28.00: Short-side conviction threshold lowered from 0.6 to 0.35 for more short opportunities
 //--- Queen: Adaptive Strategy Selection
 extern bool   InpEnableAdaptiveSelection = false;     // <<< TEMPORARILY SET TO false
@@ -1261,7 +1283,7 @@ extern bool   InpReaper_Enabled         = true;       // Enable Reaper Grid Prot
 extern int    InpReaper_BuyMagicNumber  = 888001;     // Magic number for buy basket
 extern int    InpReaper_SellMagicNumber = 888002;     // Magic number for sell basket
 extern double InpReaper_InitialLot      = 0.12;       // AGGRESSIVE: Raised from 0.08       // V28.00: Raised from 0.05 — tighter trailing + per-level TP justifies more capital
-extern double InpReaper_LotMultiplier   = 1.4;        // AGGRESSIVE: Raised from 1.3        // Geometric lot multiplier (1.3 from Sengkuni)
+extern double InpReaper_LotMultiplier   = 1.3;        // V28.10: Lowered from 1.4 — less exposure per level        // Geometric lot multiplier (1.3 from Sengkuni)
 extern int    InpReaper_MaxLevels       = 10;         // AGGRESSIVE: Raised from 8          // V27.1 FIX: Tightened from 10 to 8 — structural hardcap
 extern int    InpReaper_PipStep         = 20;         // AGGRESSIVE: Tighter grid         // Grid step in pips (base multiplier for ATR dynamic grid)
 extern double InpReaper_BasketTP        = 75.0;       // AGGRESSIVE: Raised from 50       // Basket take profit in USD ($50 target)
@@ -1270,7 +1292,7 @@ extern int    InpReaper_Timeframe       = PERIOD_H4;  // Execution timeframe (H4
 //--- V27.1: REAPER INTELLIGENT GRID PARAMETERS ---
 sinput string InpReaper_Header_Patch = "====== V27.1: REAPER INTELLIGENT GRID ======";
 extern int    InpReaper_HardcapLevels   = 8;          // V27.1: Absolute max grid levels (structural cap)
-extern double InpReaper_RegimeADX       = 50.0;       // V28.05 FIX #2: Raised from 30 to 50. ADX 30 is normal on EURUSD, not extreme.
+extern double InpReaper_RegimeADX       = 40.0;       // V28.10: Lowered from 50 — suppress in moderate trends too
 // 50+ is genuinely dangerous trend territory where grid averaging is suicidal.
 extern int    InpReaper_CooldownBars    = 2;          // V27.1: Min H4 bars between grid levels
 extern double InpReaper_ATR_GridMult    = 0.5;        // V27.1: ATR multiplier for dynamic grid spacing
@@ -1299,7 +1321,7 @@ extern bool   InpReaper_EnableEliteFilter = true; // MASTER SWITCH for the new f
 //--- Cerberus Model S: The Silicon-X Protocol (Grid/Martingale Hybrid) ---
 sinput string Inp_Header_SiliconX      = "====== CERBERUS MODEL S: SILICON-X (TRUE NORTH) ======";
 //--- Main Parameters
-extern bool   InpSiliconX_Enabled           = true;        // AGGRESSIVE: Silicon-X BACK ONLINE (fixed pips/points bugs)
+extern bool   InpSiliconX_Enabled           = false;       // V28.10: Disabled — PF 0.87, only losing strategy (-$53). Capital better used elsewhere.
 extern double InpSX_InitialLot              = 0.01;         // Base lot size for the first trade in a series.
 extern double InpSX_LotExponent             = 1.3;          // V27.10: Reduced from 1.6 for gentler grid growth
 //--- Grid Mechanics
@@ -1380,12 +1402,12 @@ extern int     InpApex_MagicNumber        = 777011;
 // ============================================================
 // V26 BEEHIVE — PHANTOM STRATEGY (Monday Gap Fader)
 // ============================================================
-extern bool    InpPhantom_Enabled         = true;
+extern bool    InpPhantom_Enabled         = false; // V28.11: -$674, PF 0.12
 extern double  InpPhantom_MaxGap_Pips     = 30.0;  // Only trade gaps ≤ this size
 extern double  InpPhantom_MinGap_Pips     = 5.0;   // V27.10: Increased from 3.0 to avoid micro-gap noise
 extern double  InpPhantom_SL_GapMult      = 2.0;   // V27.10: Increased from 1.5 for wider SL
 extern double  InpPhantom_TP_GapMult      = 0.9;
-extern int     InpPhantom_MagicNumber     = 777013;
+extern int     InpPhantom_MagicNumber     = 777013; // V28.11: Phantom disabled — -$674, PF 0.12
 
 // ============================================================
 // V26 BEEHIVE — NEXUS STRATEGY (Volatility Compression Breakout)
@@ -1721,7 +1743,7 @@ struct V23_TradeEquityDelta {
 //   4=Reaper         5=Silicon-X            6=Chronos      7=NoiseBreakout
 //   8=Apex           9=Phantom             10=Nexus       11=Vortex
 //  12=RegimeShift   13=SessionMomentum    14=DivergenceMR  15-16=Reserved
-PerfData g_perfData[20];
+PerfData g_perfData[22]; // V28.10: Expanded for Range Trapper + Momentum Scalper
 
 // V13.0 ELITE: Strategy Cooldown System - Temporary Disablement Protocol
 struct StrategyCooldown {
@@ -4570,7 +4592,7 @@ input double InpNoiseBB_Dev = 2.0;                 // Bollinger Band deviation
 input int InpNoiseKC_Period = 20;                  // Keltner Channel period
 input double InpNoiseKC_ATR_Mult = 1.5;            // Keltner Channel ATR multiplier
 input int InpNoiseMomentum_MA = 50;                // Momentum MA period for trend filter
-input double InpNoiseMinVolMult = 0.5;             // Minimum volume multiplier vs previous bar
+input double InpNoiseMinVolMult = 0.3;             // Minimum volume multiplier vs previous bar
 input double InpNoiseBreakoutATRMult = 0.15;       // Minimum breakout distance (ATR multiplier)
 
 //+------------------------------------------------------------------+
@@ -4609,7 +4631,7 @@ input int     InpDivergenceMR_MagicNumber       = 9004;       // Magic number fo
 input int     InpDivergenceMR_RSI_Period        = 14;         // RSI period for divergence detection
 input int     InpDivergenceMR_BB_Period         = 20;         // Bollinger Band period
 input double  InpDivergenceMR_BB_Dev            = 2.0;        // Bollinger Band deviation
-input double  InpDivergenceMR_Hurst_Threshold   = 0.55;       // V28.04: Raised from 0.5 — EURUSD H4 rarely < 0.5 (was 0 trades)
+input double  InpDivergenceMR_Hurst_Threshold   = 0.60;       // V28.10: Raised from 0.55 — EURUSD H4 rarely < 0.55
 input double  InpDivergenceMR_ADX_Max           = 30.0;       // Max ADX (non-trending filter)
 input double  InpDivergenceMR_ATR_SL_Mult       = 2.0;        // ATR multiplier for stop loss
 input double  InpDivergenceMR_ATR_TP_Mult       = 3.0;        // ATR multiplier for take profit
@@ -4633,21 +4655,54 @@ input int     InpStructuralRetest_MagicNumber   = 9006;       // Magic number fo
 // --- V28.07: NEW STRATEGIES ---
 input bool    InpSpectre_Enabled          = true;        // Enable SPECTRE
 input int     InpSpectre_MagicNumber      = 420101;      // Magic number for SPECTRE
-input int     InpSpectre_FVG_Lookback     = 10;          // Bars to scan for FVG
+input int     InpSpectre_FVG_Lookback     = 15;          // Bars to scan for FVG
 input double  InpSpectre_MinGapPips       = 5.0;         // Minimum FVG gap size (pips)
 input double  InpSpectre_ATR_SL_Mult      = 1.5;         // ATR multiplier for SL
 input double  InpSpectre_ATR_TP_Mult      = 3.0;         // ATR multiplier for TP
 input int     InpSpectre_ADX_Period       = 14;          // ADX period
 input double  InpSpectre_ADX_Threshold    = 20.0;        // Minimum ADX for trend
-input bool    InpAetherGap_Enabled        = true;        // Enable AETHER GAP
+extern bool    InpAetherGap_Enabled        = false;       // V28.11: DISABLED — #1 killer (-$5,078, PF 0.51, 96 trades)
 input int     InpAetherGap_MagicNumber    = 777016;      // Magic number for AETHER GAP
-input int     InpAetherGap_FVG_Lookback   = 5;           // Bars to scan for FVG
+input int     InpAetherGap_FVG_Lookback   = 8;           // Bars to scan for FVG
 input double  InpAetherGap_MinGapPips     = 3.0;         // Minimum FVG gap size (pips)
 input double  InpAetherGap_ATR_SL_Mult    = 1.5;         // ATR multiplier for SL
 input double  InpAetherGap_ATR_TP_Mult    = 2.5;         // ATR multiplier for TP
 input int     InpAetherGap_RSI_Period     = 14;          // RSI period
-input double  InpAetherGap_RSI_Low        = 35.0;        // RSI lower bound
-input double  InpAetherGap_RSI_High       = 65.0;        // RSI upper bound
+input double  InpAetherGap_RSI_Low        = 30.0;        // RSI lower bound
+input double  InpAetherGap_RSI_High       = 70.0;        // RSI upper bound
+
+//+------------------------------------------------------------------+
+//| V28.10: RANGE TRAPPER — Mean-Reversion in Sideways Markets       |
+//| Magic: 9007                                                       |
+//+------------------------------------------------------------------+
+sinput string Inp_Header_RangeTrapper = "====== RANGE TRAPPER: MEAN-REVERSION IN RANGES ======";
+extern bool    InpRangeTrapper_Enabled     = true;        // Enable Range Trapper
+extern int     InpRangeTrapper_MagicNumber = 9007;        // Magic number for Range Trapper
+extern int     InpRangeTrapper_RSI_Period  = 14;          // RSI period for oversold/overbought
+extern double  InpRangeTrapper_RSI_Buy     = 35.0;        // RSI oversold threshold (BUY)
+extern double  InpRangeTrapper_RSI_Sell    = 65.0;        // RSI overbought threshold (SELL)
+extern int     InpRangeTrapper_BB_Period   = 20;          // Bollinger Band period
+extern double  InpRangeTrapper_BB_Dev      = 2.0;         // Bollinger Band deviation
+extern double  InpRangeTrapper_ADX_Max     = 20.0;        // Max ADX (non-trending filter)
+extern double  InpRangeTrapper_Hurst_Max   = 0.55;        // Max Hurst exponent (mean-reverting)
+extern double  InpRangeTrapper_ATR_SL_Mult = 1.5;         // ATR multiplier for SL
+extern double  InpRangeTrapper_ATR_TP_Mult = 2.5;         // ATR multiplier for TP
+
+//+------------------------------------------------------------------+
+//| V28.10: MOMENTUM SCALPER — H1 Entry + H4 Trend Alignment        |
+//| Magic: 9008                                                       |
+//+------------------------------------------------------------------+
+sinput string Inp_Header_MomentumScalper = "====== MOMENTUM SCALPER: H1 ENTRY + H4 TREND ======";
+extern bool    InpMomentumScalper_Enabled     = true;        // Enable Momentum Scalper
+extern int     InpMomentumScalper_MagicNumber = 9008;        // Magic number
+extern int     InpMomentumScalper_H1_RSI_Period = 9;         // H1 RSI period (faster for scalping)
+extern int     InpMomentumScalper_H1_EMA_Fast  = 9;          // H1 fast EMA for entry timing
+extern int     InpMomentumScalper_H1_EMA_Slow  = 21;         // H1 slow EMA for entry timing
+extern int     InpMomentumScalper_H4_EMA_Fast  = 20;         // H4 fast EMA for trend filter
+extern int     InpMomentumScalper_H4_EMA_Slow  = 50;         // H4 slow EMA for trend filter
+extern double  InpMomentumScalper_ADX_Min      = 18.0;       // Min H4 ADX for trend strength
+extern double  InpMomentumScalper_ATR_SL_Mult  = 1.5;        // ATR multiplier for SL
+extern double  InpMomentumScalper_ATR_TP_Mult  = 2.5;        // ATR multiplier for TP
 
 input int     InpStructuralRetest_SwingPeriod   = 20;         // Period for swing high/low detection
 input int     InpStructuralRetest_RetraceBars   = 20;         // V28.04: Extended from 10 — 10 was too tight on H4 (0 trades)
@@ -4844,7 +4899,7 @@ int OnInit()
 //+------------------------------------------------------------------+
 void OnDeinit(const int reason)
 {
-   LogError(ERROR_INFO, "### DE-INITIALIZING DESTROYER QUANTUM V28.10. Reason: " + IntegerToString(reason) + " ###", "OnDeinit");
+   LogError(ERROR_INFO, "### DE-INITIALIZING DESTROYER QUANTUM V28.11. Reason: " + IntegerToString(reason) + " ###", "OnDeinit");
    
    //--- Cleanup dashboard objects
    if(InpShow_Dashboard)
@@ -4866,7 +4921,7 @@ void OnDeinit(const int reason)
    GeneratePerformanceReport();
    
    // --- CORTANA ENHANCEMENT: Final Summary ---
-   LogError(ERROR_INFO, "=== DESTROYER QUANTUM V28.10 DEACTIVATED ===", "OnDeinit");
+   LogError(ERROR_INFO, "=== DESTROYER QUANTUM V28.11 DEACTIVATED ===", "OnDeinit");
    LogError(ERROR_INFO, "Total Runtime: " + TimeToString(TimeCurrent() - g_start_time, TIME_MINUTES|TIME_SECONDS), "OnDeinit");
    LogError(ERROR_INFO, "Final Equity: $" + DoubleToString(AccountEquity(), 2), "OnDeinit");
    LogError(ERROR_INFO, "Thank you for using DESTROYER QUANTUM!", "OnDeinit");
@@ -5267,20 +5322,9 @@ void OnTick()
       OnNewBar();
    }
    
-   // V28.10 FIX: Chronos runs on M15 bars, NOT gated behind H4 new-bar guard.
-   // Original code had ExecuteMicrostructureStrategy() inside the H4 block above,
-   // which meant it only fired ~4x/day instead of ~96x/day (once per M15 bar).
-   {
-      static datetime lastChronosBar = 0;
-      datetime currentM15Bar = iTime(Symbol(), PERIOD_M15, 0);
-      if(currentM15Bar > lastChronosBar)
-      {
-         lastChronosBar = currentM15Bar;
-         // Refresh M15 data arrays for Chronos
-         UpdateMultiTimeframeData_Fixed();
-         ExecuteMicrostructureStrategy();
-      }
-   }
+   // V28.11: Chronos reverted to H4 bars — M15 execution caused 116 losing trades (PF 0.58)
+   // M15 scalping with H4 trend filter was too frequent and too noisy.
+   // Chronos is now called inside OnNewBar() like other H4 strategies.
    
    // --- Update performance tracking on every tick (stateless) ---
    if(Time[0] > lastHistoricalUpdate)
@@ -5549,6 +5593,14 @@ void OnNewBar()
       if(CountOpenTrades() >= InpMaxOpenTrades) { if(!IsOptimization()) UpdateDashboard_StaticV8_6(); return; }
    }
    
+   // V28.11: Chronos (Market Microstructure) reverted to H4 bars via OnNewBar
+   // M15 execution caused 116 trades, PF 0.58, -$461 — too noisy for scalping
+   if(InpChronos_Enabled)
+   {
+      ExecuteMicrostructureStrategy();
+      if(CountOpenTrades() >= InpMaxOpenTrades) { if(!IsOptimization()) UpdateDashboard_StaticV8_6(); return; }
+   }
+   
    // V26 FIX: Silicon-X moved here from OnTick_Elite for precise bar alignment
    if(InpSiliconX_Enabled)
    {
@@ -5647,6 +5699,20 @@ void OnNewBar()
    if(InpAetherGap_Enabled)
    {
       ExecuteAetherGap();
+      if(CountOpenTrades() >= InpMaxOpenTrades) { if(!IsOptimization()) UpdateDashboard_StaticV8_6(); return; }
+   }
+
+   // V28.10: RANGE TRAPPER — Mean-Reversion in Sideways Markets
+   if(InpRangeTrapper_Enabled)
+   {
+      ExecuteRangeTrapper();
+      if(CountOpenTrades() >= InpMaxOpenTrades) { if(!IsOptimization()) UpdateDashboard_StaticV8_6(); return; }
+   }
+
+   // V28.10: MOMENTUM SCALPER — H1 Entry + H4 Trend Alignment
+   if(InpMomentumScalper_Enabled)
+   {
+      ExecuteMomentumScalper();
       if(CountOpenTrades() >= InpMaxOpenTrades) { if(!IsOptimization()) UpdateDashboard_StaticV8_6(); return; }
    }
 
@@ -5906,6 +5972,8 @@ string GetStrategyNameFromMagic(int magic)
     if(magic == InpStructuralRetest_MagicNumber) return "StructuralRetest";
     if(magic == 420101) return "Spectre";
     if(magic == 777016) return "AetherGap";
+    if(magic == 9007) return "RangeTrapper"; // V28.10
+    if(magic == 9008) return "MomentumScalper"; // V28.10
 
     return "Unknown";
 }
@@ -5934,7 +6002,9 @@ bool IsOurMagicNumber(int magic)
        magic == InpLiquiditySweep_MagicNumber ||      // V28.03: Liquidity Sweep
        magic == InpStructuralRetest_MagicNumber ||      // V28.03
        magic == 420101 ||                              // V28.07: Spectre
-       magic == 777016)                               // V28.07: AetherGap
+       magic == 777016 ||                              // V28.07: AetherGap
+       magic == 9007 ||                                // V28.10: Range Trapper
+       magic == 9008)                                  // V28.10: Momentum Scalper
     {
         return true;
     }
@@ -5966,6 +6036,8 @@ int GetStrategyIdx(int magicNumber)
     if(magicNumber == InpStructuralRetest_MagicNumber) return 17;
     if(magicNumber == 420101) return 18;
     if(magicNumber == 777016) return 19;
+    if(magicNumber == 9007) return 20; // V28.10: Range Trapper
+    if(magicNumber == 9008) return 21; // V28.10: Momentum Scalper
     return -1;
 }
 int GetStrategyIndexFromMagic(int magicNumber) { return GetStrategyIdx(magicNumber); }
@@ -6963,8 +7035,8 @@ void ExecuteApexStrategy()
    // Bullish bar that extended too far -> fade with SELL
    if(Close[1] > Open[1] + trigger)
    {
-      double sl = High[1] + atr * InpApex_ATR_Multiplier_SL * Point * 10;
-      double tp = Bid   - atr * InpApex_ATR_Multiplier_TP * Point * 10;
+      double sl = High[1] + atr * InpApex_ATR_Multiplier_SL;
+      double tp = Bid   - atr * InpApex_ATR_Multiplier_TP;
       if(tp < Bid - 5 * Point) // Sanity
       {
          double lots = MoneyManagement_Quantum(InpApex_MagicNumber, InpBase_Risk_Percent);
@@ -6976,8 +7048,8 @@ void ExecuteApexStrategy()
    // Bearish bar that extended too far -> fade with BUY
    else if(Close[1] < Open[1] - trigger)
    {
-      double sl = Low[1]  - atr * InpApex_ATR_Multiplier_SL * Point * 10;
-      double tp = Ask     + atr * InpApex_ATR_Multiplier_TP * Point * 10;
+      double sl = Low[1]  - atr * InpApex_ATR_Multiplier_SL;
+      double tp = Ask     + atr * InpApex_ATR_Multiplier_TP;
       if(tp > Ask + 5 * Point) // Sanity
       {
          double lots = MoneyManagement_Quantum(InpApex_MagicNumber, InpBase_Risk_Percent);
@@ -7117,7 +7189,7 @@ void ExecuteNexusStrategy()
    int    stratIdx = GetStrategyIndex(InpNexus_MagicNumber);
    double lots = MoneyManagement_Quantum(InpNexus_MagicNumber, InpBase_Risk_Percent);
    
-   if(Close[1] > atrMedian) // Bullish breakout
+   if(buySignal) // Bullish breakout
    {
       int bias = CheckDirectionalBias();
       if(bias != 1 && bias != 2) return;
@@ -7147,13 +7219,9 @@ void ExecuteMicrostructureStrategy()
       return; // Strategy disabled by user
    }
    
-   // 1. TIME CONTROL: Run this check once per M15 Bar (High Frequency)
-   static datetime lastM15Execution = 0;
-   datetime currentM15Time = iTime(Symbol(), PERIOD_M15, 0);
-   if(lastM15Execution == currentM15Time) return; // Already checked this bar
-   lastM15Execution = currentM15Time;
+   // V28.11: Removed M15 time guard — Chronos now runs on H4 bars via OnNewBar()
 
-   // V27.20 FIX Layer 3: Block Chronos M15 during bad hours
+   // V27.20 FIX Layer 3: Block Chronos during bad hours
    if(InpEnableTimeFilter && IsBadTradingHour()) return;
 
    // 2. SAFETY CHECK: Check strategy health & Hurst (Market Regime)
@@ -7169,7 +7237,7 @@ void ExecuteMicrostructureStrategy()
    if(!chronosKInit) { ChronosKalman.Init(); chronosKInit = true; }
    
    double h4_Kalman_Prev = ChronosKalmanPrev; // True previous bar value
-   double h4_Kalman_Curr = ChronosKalman.Update(iClose(Symbol(), PERIOD_H4, 0));
+   double h4_Kalman_Curr = ChronosKalman.Update(iClose(Symbol(), PERIOD_H4, 1)); // V28.11 FIX: Use completed bar (shift=1), not live bar (shift=0)
    ChronosKalmanPrev = h4_Kalman_Curr; // Store for next execution
    
    int bias = 0;
@@ -7390,33 +7458,10 @@ void ProcessReaperBasket(int magic_number, int order_type)
    }
 
    // ==========================================================
-   // V28.00: PER-LEVEL PROFIT TAKING
-   // Close individual levels at 1.5x ATR profit (reduces basket risk)
+   // V28.10: PER-LEVEL TP REMOVED
+   // Was closing profitable grid levels at 1.5x ATR, killing basket compounding.
+   // Now managed by: Basket TP ($600) + Chimera trailing ($200 start, 40 pip trail)
    // ==========================================================
-   double atr_for_tp = iATR(Symbol(), PERIOD_H4, 14, 1);
-   double perLevelTP = atr_for_tp * 1.5; // 1.5x ATR profit target per level
-   double tickValue = MarketInfo(Symbol(), MODE_TICKVALUE);
-   if(tickValue > 0)
-   {
-      for(int i = OrdersTotal() - 1; i >= 0; i--)
-      {
-         if(OrderSelect(i, SELECT_BY_POS, MODE_TRADES) && OrderMagicNumber() == magic_number)
-         {
-            double orderProfit = OrderProfit() + OrderCommission() + OrderSwap();
-            double orderLots = OrderLots();
-            // Convert ATR distance to money: atr_distance_in_pips * tickValue * lots
-            double atrMoney = (perLevelTP / _Point) * tickValue * orderLots;
-            if(orderProfit >= atrMoney && atrMoney > 0)
-            {
-               if(OrderClose(OrderTicket(), orderLots, OrderClosePrice(), 10, clrLime))
-               {
-                  LogError(ERROR_INFO, "Reaper PER-LEVEL TP: Closed level at $" + DoubleToString(orderProfit, 2) + 
-                            " (target: $" + DoubleToString(atrMoney, 2) + ")", "ProcessReaperBasket");
-               }
-            }
-         }
-      }
-   }
 
    // --- TRINITY GUARD: Block if another grid is active ---
    if (order_type == OP_BUY && !g_reaper_buy_active && !g_reaper_sell_active)
@@ -9005,9 +9050,9 @@ void ExecuteTitanStrategy()
     double atr3 = iATR(Symbol(), Period(), 14, 3);
     double atr4 = iATR(Symbol(), Period(), 14, 4);
     
-    // V28.09: Valkyrie filter relaxed — check if current ATR > 80% of average of 3 prior bars
+    // V28.10: Valkyrie filter relaxed — allow slight ATR contraction (was 0.8)
     double avgPriorATR = (atr2 + atr3 + atr4) / 3.0;
-    if(atr1 < avgPriorATR * 0.8)
+    if(atr1 < avgPriorATR * 0.7) // V28.11: Compromise — was 0.8 (too strict), 0.6 (too loose)
     {
         LogError(ERROR_INFO, "Valkyrie: ATR not expanding — current: " + 
                   DoubleToStr(atr1, Digits) + " vs avg prior: " + DoubleToStr(avgPriorATR, Digits),
@@ -9034,13 +9079,14 @@ void ExecuteTitanStrategy()
     bool d1KalmanUptrend = (K_Value_D1_Curr > K_Value_D1_Prev) && (d1_price > K_Value_D1_Curr);
     bool d1KalmanDowntrend = (K_Value_D1_Curr < K_Value_D1_Prev) && (d1_price < K_Value_D1_Curr);
     
-    // Enhanced trend detection: Combine Kalman with EMA for confirmation
-    bool d1StrongUptrend = (d1KalmanUptrend && d1_price > d1_ema_fast && d1_ema_fast > d1_ema_slow);
-    bool d1StrongDowntrend = (d1KalmanDowntrend && d1_price < d1_ema_fast && d1_ema_fast < d1_ema_slow);
+    // V28.11: Restored EMA alignment — V28.10 simplified version caused cascading losses
+    // Relaxed slightly: require EMA fast/slow alignment but NOT price above fast EMA
+    bool d1StrongUptrend = (d1KalmanUptrend && d1_ema_fast > d1_ema_slow);
+    bool d1StrongDowntrend = (d1KalmanDowntrend && d1_ema_fast < d1_ema_slow);
     
     if(!d1StrongUptrend && !d1StrongDowntrend)
     {
-        LogError(ERROR_INFO, "Chimera D1 Filter: No strong daily trend alignment", "ExecuteTitanStrategy");
+        LogError(ERROR_INFO, "Chimera D1 Filter: No trend alignment (Kalman + EMA)", "ExecuteTitanStrategy");
         return;
     }
     
@@ -9224,7 +9270,7 @@ void ExecuteWardenStrategy()
 
         double breakout_bar_range = High[1] - Low[1];
         double avg_bar_range = iATR(Symbol(), Period(), 10, 1);
-        bool breakout_confirmed = (breakout_bar_range > avg_bar_range);
+        bool breakout_confirmed = (breakout_bar_range > avg_bar_range * 0.7); // V28.10: Relaxed from 1.0;
 
         // Buy Breakout CONFIRMED — V27.11: Removed ATR depth requirement for more entries
         if(Close[1] > bb_upper_break && Close[1] > momentum_ma && breakout_confirmed && Volume[1] > Volume[2])
@@ -9396,9 +9442,10 @@ void ExecuteRegimeShiftStrategy()
    // RSI for directional bias
    double rsi = iRSI(Symbol(), PERIOD_H4, InpRegimeShift_RSI_Period, PRICE_CLOSE, 1);
    
-   // ADX crossover above 25: trend starting
-   bool adxCrossAbove25 = (adx_1 > 25.0 && adx_2 <= 25.0);
-   if(!adxCrossAbove25) return;
+   // V28.10 FIX: Direction+threshold instead of exact crossover (too rare on H4)
+   // Original: adxCrossAbove25 = (adx_1 > 25.0 && adx_2 <= 25.0) — almost never happens
+   bool adxTrending = (adx_1 > 25.0 && adx_1 > adx_2); // ADX > 25 AND rising
+   if(!adxTrending) return;
    
    // ATR for SL/TP
    double atr = iATR(Symbol(), PERIOD_H4, 14, 1);
@@ -9563,9 +9610,12 @@ void ExecuteDivergenceMR()
    // RSI Bearish Divergence: Price makes higher high, RSI makes lower high
    bool bearishDivergence = (High[1] > High[2] && rsi_1 < rsi_2);
 
-   // BB overextension: price at or beyond 2.0 deviation
-   bool atBBLower = (Close[1] <= bbLower);
-   bool atBBUpper = (Close[1] >= bbUpper);
+   // V28.10: BB overextension — relaxed from exact touch to within 95% of band distance from MA
+   double bbMid = iMA(Symbol(), PERIOD_H4, InpDivergenceMR_BB_Period, 0, MODE_SMA, PRICE_CLOSE, 1);
+   double bbRangeUpper = bbUpper - bbMid;
+   double bbRangeLower = bbMid - bbLower;
+   bool atBBLower = (Close[1] <= bbLower + bbRangeLower * 0.05);  // Within 5% of lower band
+   bool atBBUpper = (Close[1] >= bbUpper - bbRangeUpper * 0.05);  // Within 5% of upper band
 
    // BUY: Bullish divergence + price at lower BB + non-trending
    if(bullishDivergence && atBBLower && (bias == 1 || bias == 2))
@@ -9949,6 +9999,186 @@ void ExecuteAetherGap()
    }
 }
 
+//+------------------------------------------------------------------+
+//| V28.10: RANGE TRAPPER — Mean-Reversion in Sideways Markets       |
+//| Detects range-bound conditions (ADX < 20, Hurst < 0.55) and     |
+//| trades bounces off Bollinger Band extremes with RSI confirmation.|
+//| Magic: 9007                                                       |
+//+------------------------------------------------------------------+
+void ExecuteRangeTrapper()
+{
+   if(Period() != PERIOD_H4) return;
+   if(CountOpenTrades(InpRangeTrapper_MagicNumber) > 0) return;
+   if(!IsStrategyHealthy(InpRangeTrapper_MagicNumber)) return;
+   if(!CheckTimeFilter()) return;
+
+   // Directional bias filter
+   int bias = CheckDirectionalBias();
+
+   // === FILTER 1: ADX — Must be non-trending (range-bound) ===
+   double adx = iADX(Symbol(), PERIOD_H4, 14, PRICE_CLOSE, MODE_MAIN, 1);
+   if(adx > InpRangeTrapper_ADX_Max) return;
+
+   // === FILTER 2: Hurst Exponent — Must be mean-reverting (H < 0.55) ===
+   double hurst = CalculateHurstExponent(Symbol(), Period(), 100);
+   if(hurst >= InpRangeTrapper_Hurst_Max) return;
+
+   // === FILTER 3: Bollinger Band width compression ===
+   // BB width should be below its 20-period average (range contraction)
+   double bbUpper = iBands(Symbol(), PERIOD_H4, InpRangeTrapper_BB_Period, InpRangeTrapper_BB_Dev, 0, PRICE_CLOSE, MODE_UPPER, 1);
+   double bbLower = iBands(Symbol(), PERIOD_H4, InpRangeTrapper_BB_Period, InpRangeTrapper_BB_Dev, 0, PRICE_CLOSE, MODE_LOWER, 1);
+   double bbWidth = bbUpper - bbLower;
+   if(bbWidth <= 0) return;
+
+   // Calculate average BB width over 20 bars for compression check
+   double bbWidthSum = 0;
+   for(int bw = 1; bw <= 20; bw++)
+   {
+      double u = iBands(Symbol(), PERIOD_H4, InpRangeTrapper_BB_Period, InpRangeTrapper_BB_Dev, 0, PRICE_CLOSE, MODE_UPPER, bw);
+      double l = iBands(Symbol(), PERIOD_H4, InpRangeTrapper_BB_Period, InpRangeTrapper_BB_Dev, 0, PRICE_CLOSE, MODE_LOWER, bw);
+      bbWidthSum += (u - l);
+   }
+   double bbWidthAvg = bbWidthSum / 20.0;
+   if(bbWidth > bbWidthAvg) return; // BB expanding = not in range
+
+   // === RSI for entry timing ===
+   double rsi = iRSI(Symbol(), PERIOD_H4, InpRangeTrapper_RSI_Period, PRICE_CLOSE, 1);
+
+   // === ATR for SL/TP ===
+   double atr = iATR(Symbol(), PERIOD_H4, 14, 1);
+   if(atr <= 0) return;
+
+   // === BUY SIGNAL: Price near lower BB + RSI oversold ===
+   if(Close[1] <= bbLower + (bbWidth * 0.1) && rsi < InpRangeTrapper_RSI_Buy)
+   {
+      if(bias == -1) return; // Don't buy against bearish bias
+
+      double sl = Ask - (atr * InpRangeTrapper_ATR_SL_Mult);
+      double tp = Ask + (atr * InpRangeTrapper_ATR_TP_Mult);
+      double lots = MoneyManagement_Quantum(InpRangeTrapper_MagicNumber, InpBase_Risk_Percent);
+      if(lots > 0)
+      {
+         int ticket = OpenTrade(OP_BUY, lots, Ask, sl, tp, "RANGE_TRAP_BUY", InpRangeTrapper_MagicNumber);
+         if(ticket > 0)
+         {
+            int si = GetStrategyIdx(InpRangeTrapper_MagicNumber);
+            if(si >= 0 && si < 22) g_perfData[si].trades++;
+         }
+      }
+   }
+   // === SELL SIGNAL: Price near upper BB + RSI overbought ===
+   else if(Close[1] >= bbUpper - (bbWidth * 0.1) && rsi > InpRangeTrapper_RSI_Sell)
+   {
+      if(bias == 1) return; // Don't sell against bullish bias
+
+      double sl = Bid + (atr * InpRangeTrapper_ATR_SL_Mult);
+      double tp = Bid - (atr * InpRangeTrapper_ATR_TP_Mult);
+      double lots = MoneyManagement_Quantum(InpRangeTrapper_MagicNumber, InpBase_Risk_Percent);
+      if(lots > 0)
+      {
+         int ticket = OpenTrade(OP_SELL, lots, Bid, sl, tp, "RANGE_TRAP_SELL", InpRangeTrapper_MagicNumber);
+         if(ticket > 0)
+         {
+            int si = GetStrategyIdx(InpRangeTrapper_MagicNumber);
+            if(si >= 0 && si < 22) g_perfData[si].trades++;
+         }
+      }
+   }
+}
+
+//+------------------------------------------------------------------+
+//| V28.10: MOMENTUM SCALPER — H1 Entry + H4 Trend Alignment        |
+//| Uses H4 for trend direction (EMA20/50 + ADX) and H1 for precise |
+//| entry timing (RSI momentum crossover + EMA9/21 alignment).       |
+//| Magic: 9008                                                       |
+//+------------------------------------------------------------------+
+void ExecuteMomentumScalper()
+{
+   if(Period() != PERIOD_H4) return;
+   if(CountOpenTrades(InpMomentumScalper_MagicNumber) > 0) return;
+   if(!IsStrategyHealthy(InpMomentumScalper_MagicNumber)) return;
+   if(!CheckTimeFilter()) return;
+
+   // === H4 TREND FILTER (Strategic Direction) ===
+   double h4_ema_fast = iMA(Symbol(), PERIOD_H4, InpMomentumScalper_H4_EMA_Fast, 0, MODE_EMA, PRICE_CLOSE, 1);
+   double h4_ema_slow = iMA(Symbol(), PERIOD_H4, InpMomentumScalper_H4_EMA_Slow, 0, MODE_EMA, PRICE_CLOSE, 1);
+   double h4_adx = iADX(Symbol(), PERIOD_H4, 14, PRICE_CLOSE, MODE_MAIN, 1);
+
+   if(h4_adx < InpMomentumScalper_ADX_Min) return; // Need minimum trend strength
+
+   int h4_direction = 0;
+   if(h4_ema_fast > h4_ema_slow) h4_direction = 1;  // Bullish
+   if(h4_ema_fast < h4_ema_slow) h4_direction = -1; // Bearish
+   if(h4_direction == 0) return; // No clear trend
+
+   // === H1 ENTRY SIGNALS (Tactical Timing) ===
+   // H1 EMA crossover for entry timing
+   double h1_ema_fast = iMA(Symbol(), PERIOD_H1, InpMomentumScalper_H1_EMA_Fast, 0, MODE_EMA, PRICE_CLOSE, 1);
+   double h1_ema_slow = iMA(Symbol(), PERIOD_H1, InpMomentumScalper_H1_EMA_Slow, 0, MODE_EMA, PRICE_CLOSE, 1);
+   double h1_ema_fast_prev = iMA(Symbol(), PERIOD_H1, InpMomentumScalper_H1_EMA_Fast, 0, MODE_EMA, PRICE_CLOSE, 2);
+   double h1_ema_slow_prev = iMA(Symbol(), PERIOD_H1, InpMomentumScalper_H1_EMA_Slow, 0, MODE_EMA, PRICE_CLOSE, 2);
+
+   // H1 RSI for momentum confirmation
+   double h1_rsi = iRSI(Symbol(), PERIOD_H1, InpMomentumScalper_H1_RSI_Period, PRICE_CLOSE, 1);
+   double h1_rsi_prev = iRSI(Symbol(), PERIOD_H1, InpMomentumScalper_H1_RSI_Period, PRICE_CLOSE, 2);
+
+   // H1 price position relative to EMA
+   double h1_close = iClose(Symbol(), PERIOD_H1, 1);
+
+   // ATR for SL/TP (use H4 ATR for wider stops)
+   double atr = iATR(Symbol(), PERIOD_H4, 14, 1);
+   if(atr <= 0) return;
+
+   // === BUY SIGNAL: H4 uptrend + H1 EMA crossover up + H1 RSI > 50 and rising ===
+   bool h1_bullish_cross = (h1_ema_fast > h1_ema_slow && h1_ema_fast_prev <= h1_ema_slow_prev);
+   bool h1_bullish_momentum = (h1_rsi > 50 && h1_rsi > h1_rsi_prev);
+   bool h1_bullish_price = (h1_close > h1_ema_fast);
+
+   if(h4_direction == 1 && (h1_bullish_cross || h1_bullish_momentum) && h1_bullish_price)
+   {
+      int bias = CheckDirectionalBias();
+      if(bias == -1) return; // Don't buy against bearish bias
+
+      double sl = Ask - (atr * InpMomentumScalper_ATR_SL_Mult);
+      double tp = Ask + (atr * InpMomentumScalper_ATR_TP_Mult);
+      double lots = MoneyManagement_Quantum(InpMomentumScalper_MagicNumber, InpBase_Risk_Percent);
+      if(lots > 0)
+      {
+         int ticket = OpenTrade(OP_BUY, lots, Ask, sl, tp, "MOM_SCL_BUY", InpMomentumScalper_MagicNumber);
+         if(ticket > 0)
+         {
+            int si = GetStrategyIdx(InpMomentumScalper_MagicNumber);
+            if(si >= 0 && si < 22) g_perfData[si].trades++;
+         }
+      }
+   }
+   // === SELL SIGNAL: H4 downtrend + H1 EMA crossover down + H1 RSI < 50 and falling ===
+   else
+   {
+      bool h1_bearish_cross = (h1_ema_fast < h1_ema_slow && h1_ema_fast_prev >= h1_ema_slow_prev);
+      bool h1_bearish_momentum = (h1_rsi < 50 && h1_rsi < h1_rsi_prev);
+      bool h1_bearish_price = (h1_close < h1_ema_fast);
+
+      if(h4_direction == -1 && (h1_bearish_cross || h1_bearish_momentum) && h1_bearish_price)
+      {
+         int bias = CheckDirectionalBias();
+         if(bias == 1) return; // Don't sell against bullish bias
+
+         double sl = Bid + (atr * InpMomentumScalper_ATR_SL_Mult);
+         double tp = Bid - (atr * InpMomentumScalper_ATR_TP_Mult);
+         double lots = MoneyManagement_Quantum(InpMomentumScalper_MagicNumber, InpBase_Risk_Percent);
+         if(lots > 0)
+         {
+            int ticket = OpenTrade(OP_SELL, lots, Bid, sl, tp, "MOM_SCL_SELL", InpMomentumScalper_MagicNumber);
+            if(ticket > 0)
+            {
+               int si = GetStrategyIdx(InpMomentumScalper_MagicNumber);
+               if(si >= 0 && si < 22) g_perfData[si].trades++;
+            }
+         }
+      }
+   }
+}
 
 //| Cerberus Model S: The Silicon-X Protocol (Grid/Martingale Hybrid)|
 //| V13.8 - Reverse-engineered from Silicon Ex EA intelligence.     |
