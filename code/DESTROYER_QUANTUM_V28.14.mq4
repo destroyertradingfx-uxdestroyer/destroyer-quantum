@@ -5533,11 +5533,8 @@ void OnNewBar()
    }
    
    // STRATEGY: Reaper (Grid/Range Specialist) -- PROVEN: $1.9K profit in V28.06
-   if(InpReaper_Enabled)
-   {
-      ExecuteReaperProtocol();
-      if(CountOpenTrades() >= InpMaxOpenTrades) { if(!IsOptimization()) UpdateDashboard_StaticV8_6(); return; }
-   }
+   // V28.14: Moved to OnTick_Reaper() with new-bar guard to prevent duplicate dispatch
+   // if(InpReaper_Enabled) { ExecuteReaperProtocol(); ... }
    
    // V27 NOISE BREAKOUT STRATEGY: BB Squeeze + Breakout -- PROVEN: $1.3K profit, PF 1.17
    if(InpNoiseBreakout_Enabled)
@@ -5556,11 +5553,8 @@ void OnNewBar()
    // ===== TIER 2: ESTABLISHED STRATEGIES =====
    
    // V26 FIX: Silicon-X moved here from OnTick_Elite for precise bar alignment
-   if(InpSiliconX_Enabled)
-   {
-      ExecuteSiliconCore();
-      if(CountOpenTrades() >= InpMaxOpenTrades) { if(!IsOptimization()) UpdateDashboard_StaticV8_6(); return; }
-   }
+   // V28.14: Moved to OnTick_SiliconX() with new-bar guard to prevent duplicate dispatch
+   // if(InpSiliconX_Enabled) { ExecuteSiliconCore(); ... }
    
    // V26 BEEHIVE: Silicon-X sub-cap -- block new workers if grid is near max levels
    bool sxRoomAvailable = (CountOpenTrades(InpSX_MagicNumber) <= InpSX_MaxLevels - 2);
@@ -6087,7 +6081,7 @@ void ReconcileFinalPerformance()
    
    // Create temporary performance structs to hold the reconciled data.
    PerfData reconciledData[24]; // V28.08: Extended to 22 strategies
-   for(int i=0; i<22; i++) // V28.00: Extended to 17 strategies
+   for(int i=0; i<24; i++) // V28.14: Extended to 24 strategies
    {
       reconciledData[i].name = g_perfData[i].name; // Copy names over
       reconciledData[i].trades = 0;
@@ -6124,7 +6118,7 @@ void ReconcileFinalPerformance()
    }
    
    // Now, overwrite the potentially inaccurate global stats with the reconciled data.
-   for(int i=0; i<22; i++) // V28.00: Extended to 17 strategies
+   for(int i=0; i<24; i++) // V28.14: Extended to 24 strategies
    {
       g_perfData[i].trades = reconciledData[i].trades;
       g_perfData[i].grossProfit = reconciledData[i].grossProfit;
@@ -6144,7 +6138,7 @@ void GeneratePerformanceReport()
    double totalNetProfit = 0, totalGrossProfit = 0, totalGrossLoss = 0;
    int totalTrades = 0;
 
-   for (int i=0; i<22; i++) // V28.00: Extended to 17 strategies
+   for (int i=0; i<24; i++) // V28.14: Extended to 24 strategies
    {
       if (g_perfData[i].trades == 0) continue;
 
@@ -10614,11 +10608,13 @@ void OnTick_SiliconX()
     ManageSiliconXBasket();
     ManageSiliconX_HubbleTrail();
     
-    // However, it can only INITIATE a new sequence if Orion gives permission.
-    // if(g_orion_permission == PERMIT_SILICON_X) // LEVIATHAN: Always allow new Silicon-X sequences
+    // V28.14 FIX: Only execute entries on new bars to prevent duplicate dispatch
+    // (TIER 2 dispatch already calls ExecuteSiliconCore on new bars)
+    static datetime lastSiliconBar = 0;
+    if(Time[0] > lastSiliconBar)
     {
-       // ExecuteTrueNorthProtocol contains the logic for placing initial traps.
        ExecuteSiliconCore();
+       lastSiliconBar = Time[0];
     }
 }
 
@@ -10636,7 +10632,14 @@ void OnTick_Reaper()
     // This is now handled by the unified manager, which will be called next.
     
     // 3. ENTRY LOGIC: Reaper protocol entry management
-    ExecuteReaperProtocol();
+    // V28.14 FIX: Only execute entries on new bars to prevent duplicate dispatch
+    // (TIER 1 dispatch already calls ExecuteReaperProtocol on new bars)
+    static datetime lastReaperBar = 0;
+    if(Time[0] > lastReaperBar)
+    {
+       ExecuteReaperProtocol();
+       lastReaperBar = Time[0];
+    }
 }
 
 //+------------------------------------------------------------------+

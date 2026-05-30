@@ -1,0 +1,367 @@
+================================================================================
+        DESTROYER QUANTUM — STRATEGY HUNTING PROMPT
+        Version: 1.0 | Date: 2026-05-28
+================================================================================
+
+You are an expert quantitative forex trader and MQL4 developer. Your task is to
+design ONE high-quality trading strategy for the DESTROYER QUANTUM multi-strategy
+Expert Advisor trading EURUSD on the H4 timeframe.
+
+Read everything below carefully. Your strategy must fit into this system like a
+puzzle piece — not fight it.
+
+================================================================================
+SECTION 1: THE SYSTEM — DESTROYER QUANTUM
+================================================================================
+
+Platform: MetaTrader 4 (MQL4)
+Pair: EURUSD
+Timeframe: H4 (4-hour candles)
+Initial Capital: $10,000
+Backtest Period: January 2020 — May 2026 (6.3 years)
+
+DESTROYER QUANTUM is a multi-strategy EA that runs 6-8 strategies simultaneously
+on the same chart. Each strategy has:
+  - A unique magic number (integer ID for order tracking)
+  - Its own entry/exit logic
+  - Shared money management via the Queen Bee system
+  - Per-strategy adaptive risk sizing
+
+The system uses a centralized money management engine called MoneyManagement_Quantum()
+that handles:
+  - Kelly Criterion position sizing (rolling 60-trade window)
+  - Per-strategy adaptive risk unwind (+10% on win, -20% on loss)
+  - Per-strategy lockout after 3 consecutive losses
+  - Equity curve multiplier (scales lots up when equity is near HWM, down in DD)
+  - ATR-based volatility regime detection
+  - Queen Bee 5% DD kill switch (closes all at 5% drawdown)
+  - Event Shield (blackout 1h before and 30min after high-impact news: FOMC, ECB, NFP, CPI)
+  - ATR Spike Circuit Breaker (1.8x ATR blocks new entries)
+
+The system does NOT use:
+  - Daily loss caps (per-strategy sizing is surgical, daily caps are amputation)
+  - Correlation trading as an edge source (confirmed not viable for EURUSD/GBPUSD)
+  - Non-ASCII characters in code (MQL4 compiler rejects them)
+
+================================================================================
+SECTION 2: CURRENT STRATEGY ROSTER (What Works)
+================================================================================
+
+STRATEGY 1: PHANTOM (Trend Following)
+  - Magic: 777002
+  - Trades: 166 over 6.3 years
+  - Net Profit: $24,061
+  - Profit Factor: 1.71
+  - Win Rate: ~72%
+  - Logic: EMA crossover trend following with momentum confirmation
+  - Role: BACKBONE — 48% of total profit
+  - Note: Trades all sessions. Could benefit from London/NY filter.
+
+STRATEGY 2: SESSION MOMENTUM (Breakout)
+  - Magic: 777003
+  - Trades: 2 over 6.3 years (EXTREMELY selective)
+  - Net Profit: $8,588
+  - Profit Factor: 999 (2/2 wins)
+  - Logic: London session range breakout
+  - Role: ELITE SNIPER — rare but devastating accuracy
+  - Note: Only trades when conditions are perfect. DO NOT loosen parameters.
+
+STRATEGY 3: NOISE BREAKOUT (Volatility Expansion)
+  - Magic: 777004
+  - Trades: 52 over 6.3 years
+  - Net Profit: $7,093
+  - Profit Factor: 1.77
+  - Win Rate: ~70%
+  - Logic: Trades volatility expansion after quiet consolidation
+  - Role: CONSISTENT — steady contributor
+
+STRATEGY 4: NEXUS (Compression Breakout)
+  - Magic: 777006
+  - Trades: 4 over 6.3 years (EXTREMELY selective)
+  - Net Profit: $5,799
+  - Profit Factor: 4.31
+  - Logic: Compression ratio detection + breakout
+  - Role: ELITE SNIPER — 4 trades at PF 4.31
+  - Note: Edge depends on extreme selectivity. NEVER loosen parameters.
+
+STRATEGY 5: REAPER PROTOCOL (Grid/Mean-Reversion)
+  - Magic: 888001 (buy), 888002 (sell)
+  - Trades: 376 over 6.3 years (62% of all trades)
+  - Net Profit: $4,462
+  - Profit Factor: 1.45
+  - Logic: Grid-based mean reversion with ATR-adaptive spacing
+  - Role: WORKHORSE — highest volume, lowest per-trade profit ($11.87 avg)
+  - Note: Has hardcap levels, regime ADX filter, Chimera trailing, Phoenix basket TP
+
+STRATEGY 6: MEAN REVERSION (Hurst-Based)
+  - Magic: 777001
+  - Trades: 1 over 6.3 years
+  - Net Profit: $396
+  - Profit Factor: 999
+  - Logic: Hurst exponent regime detection + RSI/Bollinger mean reversion
+  - Role: Too few trades to evaluate. Awaiting more data.
+
+STRATEGY 7: THE TITAN (MTF Momentum) [V28.06 TITAN variant]
+  - Magic: 777008
+  - Logic: Multi-timeframe momentum (D1 EMA50 + H4 EMA34 trend alignment)
+  - Role: Captures strong trends with higher timeframe confirmation
+
+STRATEGY 8: THE WARDEN (Volatility Squeeze) [V28.06 TITAN variant]
+  - Magic: 777009
+  - Logic: Bollinger Band / Keltner Channel squeeze detection + momentum breakout
+  - Role: Trades volatility expansion from compression zones
+
+STRATEGIES THAT WERE CUT (Do NOT suggest similar):
+  - Silicon-X (Magic 984651): PF 0.77, -$195 net loss — PERMANENTLY DISABLED
+  - LiquiditySweep: PF 0.84 — PERMANENTLY DISABLED
+  - Various other strategies added and removed through V27-V28 iterations
+
+================================================================================
+SECTION 3: BACKTEST RESULTS
+================================================================================
+
+--- V28.06 (Proven Base) ---
+  Net Profit:    $50,399
+  Profit Factor: 1.92
+  Max Drawdown:  19.40%
+  Total Trades:  601
+  Win Rate:      75.21%
+  Profit/DD:     2.59x
+
+--- V28.06 VENDETTA (Latest Variant) ---
+  Net Profit:    $64,379
+  Profit Factor: 1.83
+  Max Drawdown:  26.41%
+  Total Trades:  539
+  Win Rate:      71.61%
+  Profit/DD:     2.44x
+
+  Per-Strategy (by lot size grouping):
+    8.00 lots (87 trades):  $46,669 profit, PF 2.50, WR 80.5%  <-- DOMINANT
+    3.50 lots (68 trades):  $10,994 profit, PF 2.12, WR 80.9%  <-- STRONG
+    0.12 lots (124 trades):    $773 profit, PF 1.23, WR 69.4%  <-- MARGINAL
+    0.17 lots (77 trades):    -$774 profit, PF 0.79, WR 66.2%  <-- NEGATIVE EV
+    6.00 lots (2 trades):   -$6,641 profit                      <-- BLOWUP
+
+--- V28.09 (Catastrophe — DO NOT REPEAT) ---
+  Net Profit:    -$5,775
+  Profit Factor: 0.81
+  Max Drawdown:  94.48%
+  Final Equity:  $4,224 (account blown)
+  Cause: Triple GetStrategyIndex conflict, wrong magic mapping, array overflow
+
+================================================================================
+SECTION 4: WHAT WE'RE LOOKING FOR IN A NEW STRATEGY
+================================================================================
+
+The new strategy must satisfy ALL of these criteria:
+
+1. UNIQUE EDGE
+   It must capture a different market inefficiency than what we already have:
+   - Phantom captures: trend continuation via EMA crossovers
+   - SessionMomentum captures: session range breakouts
+   - NoiseBreakout captures: volatility expansion from consolidation
+   - Nexus captures: compression ratio breakouts
+   - Reaper captures: grid-based mean reversion
+   - Titan captures: multi-timeframe momentum alignment
+   - Warden captures: Bollinger/Keltner squeeze breakouts
+
+   We do NOT need another trend follower or another mean-reversion grid.
+   We need something DIFFERENT.
+
+2. HIGH SELECTIVITY (Quality Over Quantity)
+   Our best strategies trade rarely but with high accuracy:
+   - Nexus: 4 trades in 6 years, PF 4.31
+   - SessionMomentum: 2 trades in 6 years, PF 999
+   - We prefer 10-50 trades over 6 years with PF > 2.0
+     over 500 trades with PF 1.3
+
+3. EURUSD H4 SPECIFIC
+   The strategy must be designed for EURUSD on H4 specifically.
+   - EURUSD characteristics: tight spreads, strong trends during London/NY,
+     mean-reverting during Asian session, sensitive to ECB/FOMC policy divergence
+   - H4 characteristics: 6 candles per day, captures intraday moves without noise,
+     good signal-to-noise ratio for swing trades
+
+4. MQL4 COMPATIBLE
+   - Pure MQL4 code (no DLLs, no external indicators, no MT5 syntax)
+   - No non-ASCII characters (no emoji, no Unicode arrows, no special symbols)
+   - Must use standard MT4 indicators: iMA, iRSI, iATR, iBollinger, iCCI, iADX, etc.
+   - Must integrate with the magic number system (unique magic number)
+   - Must work with the Queen Bee money management (lot sizing is handled externally)
+
+5. RISK-DEFINED
+   - Every trade must have a stop loss (no unlimited risk)
+   - SL should be ATR-based (adaptive to volatility), not fixed pips
+   - Target R:R of at least 1.5:1 (preferably 2:1 or better)
+   - Strategy must have a maximum concurrent position limit
+
+6. SESSION-AWARE
+   - Must define which trading sessions it operates in (London, NY, Asian, overlap)
+   - Must NOT trade during high-impact news events (system handles this via Event Shield)
+   - Best if it has a clear "when to trade" and "when NOT to trade" logic
+
+================================================================================
+SECTION 5: STRATEGY CATEGORIES WE'RE INTERESTED IN
+================================================================================
+
+Choose ONE of these categories (or propose a novel one with justification):
+
+A) INSTITUTIONAL ORDER FLOW
+   - Fair Value Gap (FVG) detection and fill trading
+   - Order block identification (supply/demand zones from institutional orders)
+   - Liquidity sweep detection (stop hunts before reversals)
+   - Break of Structure (BOS) / Change of Character (CHoCH) patterns
+
+B) STATISTICAL / QUANTITATIVE
+   - Mean reversion with z-score extremes (beyond simple RSI)
+   - Volatility regime detection (Hurst exponent, variance ratio)
+   - Autocorrelation-based trend/mean-reversion classification
+   - Seasonal/time-of-day patterns specific to EURUSD
+
+C) MULTI-TIMEFRAME CONFLUENCE
+   - D1 bias + H4 entry + H1 confirmation (3-timeframe alignment)
+   - Weekly support/resistance levels for H4 entries
+   - Higher timeframe structure with lower timeframe timing
+
+D) SMART MONEY CONCEPTS (SMC)
+   - Inducement detection (trapping retail traders)
+   - Optimal Trade Entry (OTE) using Fibonacci within order blocks
+   - Premium/Discount zones for entry timing
+   - Judas Swing (fake London open move before real NY direction)
+
+E) VOLATILITY-BASED
+   - ATR expansion/contraction cycles
+   - Bollinger Band width as regime filter
+   - Implied vs realized volatility spread (if derivable from price)
+   - Volatility term structure approximation
+
+F) MOMENTUM / MOMENTUM DIVERGENCE
+   - Real momentum divergence (price makes new high, RSI/MACD does not)
+   - Rate of change (ROC) divergence across timeframes
+   - Momentum exhaustion patterns (deceleration before reversal)
+   - NOTE: Our previous "DivergenceMR" was FAKE — just RSI < 35. We need REAL
+     divergence with actual swing-to-swing comparison of price vs indicator.
+
+================================================================================
+SECTION 6: OUTPUT FORMAT (STRICT — FOLLOW EXACTLY)
+================================================================================
+
+Your response must be in the following format. Do not deviate.
+
+---
+
+## STRATEGY NAME: [Creative, memorable name — not generic]
+
+## CATEGORY: [A/B/C/D/E/F or "Novel: [description]"]
+
+## ELEVATOR PITCH (2 sentences max):
+[Why this strategy makes money that the others don't]
+
+## MARKET INEFFICIENCY:
+[What market behavior does this exploit? Why does this inefficiency exist?
+Why hasn't it been arbitraged away?]
+
+## ENTRY RULES (BUY):
+1. [Condition 1 — be specific: indicator, period, threshold]
+2. [Condition 2]
+3. [Condition 3]
+[Minimum 3 conditions, maximum 7. Each must be objectively testable.]
+
+## ENTRY RULES (SELL):
+1. [Mirror of buy rules for short side]
+
+## EXIT RULES:
+- Stop Loss: [ATR-based formula with specific multiplier]
+- Take Profit: [R:R ratio or specific logic]
+- Trailing Stop: [If applicable — formula]
+- Time-based exit: [If applicable — close after N bars]
+
+## SESSION FILTER:
+- Active sessions: [London / NY / Asian / Overlap / Specific hours]
+- Inactive: [When does it NOT trade?]
+- Day filter: [Any days to skip?]
+
+## POSITION SIZING:
+- Base lot: [Fixed or % of equity — the Queen Bee system will override this,
+  but give a default]
+- Max concurrent positions: [Number]
+
+## EXPECTED PERFORMANCE:
+- Trades per year: [Estimate]
+- Win rate: [Estimate]
+- Profit factor: [Estimate]
+- Average R:R: [Estimate]
+- Max drawdown: [Estimate]
+- Reasoning: [Why do you expect these numbers?]
+
+## MAGIC NUMBER: [Suggest a unique 6-digit number not in use: 777001-777009, 888001-888002, 9004-9007, 984651, 999001 are taken]
+
+## MQL4 CODE:
+[Complete, compilable MQL4 code for the strategy entry/exit logic.
+Must include:
+  - OnInit() with indicator handles
+  - OnTick() with entry logic on new H4 bar
+  - IsNewH4Bar() helper function
+  - All indicator calls using iMA(), iRSI(), iATR(), etc.
+  - OrderSend() with magic number, SL, TP
+  - Proper error handling
+  - No non-ASCII characters
+  - Comments explaining each section
+Code should be 100-400 lines. Not a skeleton — a COMPLETE implementation.]
+
+## INTEGRATION NOTES:
+[How does this plug into DESTROYER QUANTUM? What changes are needed in:
+  - IsOurMagicNumber()
+  - g_stratProfits array size
+  - MoneyManagement_Quantum() if any special sizing needed
+  - OnTick() call order]
+
+## WHY THIS STRATEGY (Not another):
+[In 2-3 sentences, why is this better than adding another EMA crossover or RSI
+mean-reversion strategy? What makes this fundamentally different?]
+
+---
+
+================================================================================
+SECTION 7: CONSTRAINTS — WHAT NOT TO SUGGEST
+================================================================================
+
+DO NOT suggest:
+  - Simple EMA crossovers (Phantom already does this)
+  - Grid/martingale systems (Reaper already does this)
+  - RSI oversold/overbought as sole entry (too simple, proven to underperform)
+  - Strategies that need more than H4 data (we only have H4 candles)
+  - Strategies that trade more than 200 times per year (we want quality)
+  - Strategies with PF < 1.5 projected (not worth the integration effort)
+  - Strategies that require external data feeds (news APIs, sentiment data, etc.)
+  - Correlation strategies (confirmed not viable for our setup)
+  - Scalping strategies (we're on H4, not M1/M5)
+  - Strategies with > 35% max drawdown projection (risk budget is limited)
+
+================================================================================
+SECTION 8: CONTEXT FOR YOUR THINKING
+================================================================================
+
+The goal of DESTROYER QUANTUM is to turn $10,000 into $300,000+ through
+compounding. The system currently projects $50K-$64K over 6.3 years.
+
+To reach $300K, we need either:
+  A) Higher profit factor (more edge per trade)
+  B) More trades (more opportunities to compound)
+  C) Better money management (more aggressive compounding)
+  D) All of the above
+
+The ideal new strategy adds a genuinely different edge that:
+  - Captures a market inefficiency the other 8 strategies miss
+  - Trades 10-80 times over 6 years (selective but not dead)
+  - Achieves PF > 2.0 (strong edge)
+  - Has DD < 10% contribution (doesn't blow up the system)
+  - Can be coded in MQL4 in under 400 lines
+
+Think deeply. Research-backed strategies with real market logic beat
+indicator spaghetti every time.
+
+================================================================================
+VENI VIDI VICI — DESTROYER QUANTUM
+================================================================================

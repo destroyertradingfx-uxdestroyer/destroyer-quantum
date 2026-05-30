@@ -1247,7 +1247,7 @@ extern bool   InpReaper_Enabled         = true;       // Enable Reaper Grid Prot
 extern int    InpReaper_BuyMagicNumber  = 888001;     // Magic number for buy basket
 extern int    InpReaper_SellMagicNumber = 888002;     // Magic number for sell basket
 extern double InpReaper_InitialLot      = 0.12;       // AGGRESSIVE: Raised from 0.08       // V28.00: Raised from 0.05 -- tighter trailing + per-level TP justifies more capital
-extern double InpReaper_LotMultiplier   = 1.4;        // AGGRESSIVE: Raised from 1.3        // Geometric lot multiplier (1.3 from Sengkuni)
+extern double InpReaper_LotMultiplier   = 1.2;        // V28.16: Reduced from 1.4 to limit grid blowup risk  // Geometric lot multiplier (1.3 from Sengkuni)
 extern int    InpReaper_MaxLevels       = 10;         // AGGRESSIVE: Raised from 8          // V27.1 FIX: Tightened from 10 to 8 -- structural hardcap
 extern int    InpReaper_PipStep         = 20;         // AGGRESSIVE: Tighter grid         // Grid step in pips (base multiplier for ATR dynamic grid)
 extern double InpReaper_BasketTP        = 75.0;       // AGGRESSIVE: Raised from 50       // Basket take profit in USD ($50 target)
@@ -1255,7 +1255,7 @@ extern int    InpReaper_Timeframe       = PERIOD_H4;  // Execution timeframe (H4
 
 //--- V27.1: REAPER INTELLIGENT GRID PARAMETERS ---
 sinput string InpReaper_Header_Patch = "====== V27.1: REAPER INTELLIGENT GRID ======";
-extern int    InpReaper_HardcapLevels   = 8;          // V27.1: Absolute max grid levels (structural cap)
+extern int    InpReaper_HardcapLevels   = 5;          // V28.16: Reduced from 8 to limit max drawdown exposure
 extern double InpReaper_RegimeADX       = 50.0;       // V28.05 FIX #2: Raised from 30 to 50. ADX 30 is normal on EURUSD, not extreme.
 // 50+ is genuinely dangerous trend territory where grid averaging is suicidal.
 extern int    InpReaper_CooldownBars    = 2;          // V27.1: Min H4 bars between grid levels
@@ -14890,17 +14890,17 @@ void ExecuteLondonBreakoutStrategy()
    double buffer = InpLondonBreakout_Buffer * Point;
    double atr = iATR(NULL, PERIOD_H4, 14, 1);
    double buyEntry  = asianHigh + buffer;
-   double buySL     = asianHigh - atr * 0.15 - buffer;
+   double buySL = asianHigh - atr * 0.20 - buffer;
    double buySLdist = buyEntry - buySL;
    double sellEntry  = asianLow - buffer;
-   double sellSL     = asianLow + atr * 0.15 + buffer;
+   double sellSL = asianLow + atr * 0.20 + buffer;
    double sellSLdist = sellSL - sellEntry;
 
    double lots = MoneyManagement_Quantum(InpLondonBreakout_Magic, InpBase_Risk_Percent, buySLdist / Point);
    if(lots < MarketInfo(Symbol(), MODE_MINLOT)) return;
 
    // RULE 5: TP at 1:2.0 risk/reward (reduced from 2.5 -- more reachable before trailing)
-   double rrAdj = 2.0;
+   double rrAdj = 2.5;
    double buyTP  = buyEntry + (buySLdist * rrAdj);
    double sellTP = sellEntry - (sellSLdist * rrAdj);
 
@@ -15107,7 +15107,7 @@ void ExecutePO3(double lotSize, double rrRatio)
    double rsi = iRSI(NULL, PERIOD_H4, 14, PRICE_CLOSE, 1);
 
    double adx = iADX(NULL, PERIOD_H4, 14, PRICE_CLOSE, MODE_MAIN, 1);
-   if(adx < 20.0) { StratLog("PO3", "SKIP", "ADX " + DoubleToString(adx,1) + " < 20 -- ranging market"); return; }
+   // V28.17: Removed ADX filter -- was too aggressive, blocking valid setups
 
    double c1 = Close[1], o1 = Open[1];
    double h1 = High[1],  l1 = Low[1];
@@ -15137,7 +15137,7 @@ void ExecutePO3(double lotSize, double rrRatio)
       if(bullClose && topClose)
       {
          // V28.15: Tightened SL from 0.50 to 0.25 ATR -- payoff was 0.61 (needed >1.0)
-         double sl   = l1 - atr * 0.25 - 10 * Point;
+         double sl = l1 - atr * 0.50 - 10 * Point;
          double dist = Ask - sl;
          if(dist <= 0 || dist > atr * 2.0) return;
          double tp   = Ask + dist * rrRatio;
@@ -15160,7 +15160,7 @@ void ExecutePO3(double lotSize, double rrRatio)
       if(bearClose && bottomClose)
       {
          // V28.15: Tightened SL from 0.50 to 0.25 ATR -- payoff was 0.61
-         double sl   = h1 + atr * 0.25 + 10 * Point;
+         double sl = h1 + atr * 0.50 + 10 * Point;
          double dist = sl - Bid;
          if(dist <= 0 || dist > atr * 2.0) return;
          double tp   = Bid - dist * rrRatio;
@@ -15242,16 +15242,14 @@ void ExecuteFractalModel(double lotSize, double rrRatio)
    double c1 = Close[1], o1 = Open[1];
    double c2 = Close[2], o2 = Open[2];
 
-   // BUY: bullish trend + price near significant fractal low + BOUNCE CONFIRMATION
-   // FIX: Require a bullish close candle (bounce), not just price proximity
+   // BUY: bullish trend + price near significant fractal low
    if(ema50 > ema200 && bestFractalLow > 0 && rsi1 > 30 && rsi1 < 55)
    {
       bool nearFractal  = MathAbs(Ask - bestFractalLow) <= atr * 0.80;
       bool aboveFractal = Ask > bestFractalLow;
-      bool bounceBar    = (c1 > o1);  // FIX: Must be a bullish close (bounce confirmed)
       bool rsiTurningUp = (rsi1 > rsi2);  // FIX: RSI slope on CLOSED bars only
 
-      if(nearFractal && aboveFractal && bounceBar && rsiTurningUp)
+      if(nearFractal && aboveFractal && rsiTurningUp)
       {
          // V28.15: Tightened SL from 0.80 to 0.40 ATR -- payoff was 0.70, too wide
          double sl   = bestFractalLow - atr * 0.40 - 10 * Point;
@@ -15268,15 +15266,14 @@ void ExecuteFractalModel(double lotSize, double rrRatio)
       }
    }
 
-   // SELL: bearish trend + price near significant fractal high + bounce confirmation
+   // SELL: bearish trend + price near significant fractal high
    if(ema50 < ema200 && bestFractalHigh > 0 && rsi1 > 45 && rsi1 < 70)
    {
       bool nearFractal  = MathAbs(Bid - bestFractalHigh) <= atr * 0.80;
       bool belowFractal = Bid < bestFractalHigh;
-      bool bounceBar    = (c1 < o1);  // Bearish close = bounce confirmed
       bool rsiTurningDn = (rsi1 < rsi2);
 
-      if(nearFractal && belowFractal && bounceBar && rsiTurningDn)
+      if(nearFractal && belowFractal && rsiTurningDn)
       {
          // V28.15: Tightened SL from 0.80 to 0.40 ATR -- payoff was 0.70
          double sl   = bestFractalHigh + atr * 0.40 + 10 * Point;
@@ -15334,7 +15331,7 @@ void ExecuteAPlusFVG(double lotSize, double rrRatio)
             if(!driverBullish) continue;
 
             // V28.15: Tightened SL from 0.30 to 0.10 ATR -- payoff was 0.49, FVG zone is the SL
-            double sl   = fvgLow - atr * 0.10 - 10 * Point;
+            double sl   = fvgLow - atr * 0.30 - 10 * Point;
             double dist = Ask - sl;
             if(dist <= 0) continue;
             double tp   = Ask + dist * rrRatio;
@@ -15366,7 +15363,7 @@ void ExecuteAPlusFVG(double lotSize, double rrRatio)
             if(!driverBearish) continue;
 
             // V28.15: Tightened SL from 0.30 to 0.10 ATR -- payoff was 0.49
-            double sl   = fvgHigh + atr * 0.10 + 10 * Point;
+            double sl   = fvgHigh + atr * 0.30 + 10 * Point;
             double dist = sl - Bid;
             if(dist <= 0) continue;
             double tp   = Bid - dist * rrRatio;
@@ -15413,6 +15410,8 @@ void ExecuteCRT(double lotSize, double rrRatio)
 
    double atr = iATR(NULL, PERIOD_H4, 14, 1);
    if(atr <= 0) return;
+
+   // V28.17: Removed ADX filter -- was not improving WR
 
    // FIX: Asian range uses bars [2], [3], [4] -- NOT bar[1]
    // CRITICAL BUG FIX: bar[1] was included in range AND required to break it

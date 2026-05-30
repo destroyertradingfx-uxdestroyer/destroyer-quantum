@@ -1,14 +1,15 @@
 //+------------------------------------------------------------------+
 //|        DESTROYER_QUANTUM.mq4                                      |
 //|                    Copyright 2026, Quantum Leap Analytics        |
-//|  DESTROYER QUANTUM V28.14 - VENI VIDI VICI                      |
+//|  DESTROYER QUANTUM V28.16 - VENI VIDI VICI                      |
 //|  Multi-Strategy EURUSD H4 Expert Advisor                         |
-//|  V28.14: Deep code analysis, all 5 A-Tier fixed, diagnostic log |
+//|  CODENAME: LondonBreakout surgical fix                           |
+//|  V28.16: LondonBreakout SL/RR/ADX fix, first loser fixed        |
 //|                     https://github.com/okyyryan                  |
 //+------------------------------------------------------------------+
 #property copyright "Copyright 2026, Quantum Leap Analytics"
 #property link      "https://github.com/okyyryan"
-#property version   "28.14"
+#property version   "28.16"
 #property strict
 
 /*

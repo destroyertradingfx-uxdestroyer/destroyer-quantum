@@ -1247,7 +1247,7 @@ extern bool   InpReaper_Enabled         = true;       // Enable Reaper Grid Prot
 extern int    InpReaper_BuyMagicNumber  = 888001;     // Magic number for buy basket
 extern int    InpReaper_SellMagicNumber = 888002;     // Magic number for sell basket
 extern double InpReaper_InitialLot      = 0.12;       // AGGRESSIVE: Raised from 0.08       // V28.00: Raised from 0.05 -- tighter trailing + per-level TP justifies more capital
-extern double InpReaper_LotMultiplier   = 1.4;        // AGGRESSIVE: Raised from 1.3        // Geometric lot multiplier (1.3 from Sengkuni)
+extern double InpReaper_LotMultiplier   = 1.2;        // V28.16: Reduced from 1.4 to limit grid blowup risk  // Geometric lot multiplier (1.3 from Sengkuni)
 extern int    InpReaper_MaxLevels       = 10;         // AGGRESSIVE: Raised from 8          // V27.1 FIX: Tightened from 10 to 8 -- structural hardcap
 extern int    InpReaper_PipStep         = 20;         // AGGRESSIVE: Tighter grid         // Grid step in pips (base multiplier for ATR dynamic grid)
 extern double InpReaper_BasketTP        = 75.0;       // AGGRESSIVE: Raised from 50       // Basket take profit in USD ($50 target)
@@ -1255,7 +1255,7 @@ extern int    InpReaper_Timeframe       = PERIOD_H4;  // Execution timeframe (H4
 
 //--- V27.1: REAPER INTELLIGENT GRID PARAMETERS ---
 sinput string InpReaper_Header_Patch = "====== V27.1: REAPER INTELLIGENT GRID ======";
-extern int    InpReaper_HardcapLevels   = 8;          // V27.1: Absolute max grid levels (structural cap)
+extern int    InpReaper_HardcapLevels   = 5;          // V28.16: Reduced from 8 to limit max drawdown exposure
 extern double InpReaper_RegimeADX       = 50.0;       // V28.05 FIX #2: Raised from 30 to 50. ADX 30 is normal on EURUSD, not extreme.
 // 50+ is genuinely dangerous trend territory where grid averaging is suicidal.
 extern int    InpReaper_CooldownBars    = 2;          // V27.1: Min H4 bars between grid levels
@@ -15413,6 +15413,10 @@ void ExecuteCRT(double lotSize, double rrRatio)
 
    double atr = iATR(NULL, PERIOD_H4, 14, 1);
    if(atr <= 0) return;
+
+   // V28.16 FIX: ADX filter -- block entries in ranging markets (CRT WR was 36%)
+   double adx = iADX(NULL, PERIOD_H4, 14, PRICE_CLOSE, MODE_MAIN, 1);
+   if(adx < 18.0) { StratLog("CRT", "SKIP", "ADX " + DoubleToString(adx,1) + " < 18 -- ranging market"); return; }
 
    // FIX: Asian range uses bars [2], [3], [4] -- NOT bar[1]
    // CRITICAL BUG FIX: bar[1] was included in range AND required to break it

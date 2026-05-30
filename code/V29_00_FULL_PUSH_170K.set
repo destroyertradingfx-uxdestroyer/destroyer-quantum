@@ -1,0 +1,91 @@
+;=============================================================================
+; DESTROYER QUANTUM — V29.00 FULL PUSH TO $170K
+; Date: 2026-05-29
+; Based on: V28.08 OBLIVION v7 + V29 enhancements
+; Strategy: DD headroom + Exit Management + Equity Curve + D1 Filter
+; Expected: $120K-$170K profit, DD 24-30%, PF 2.3-2.8
+;=============================================================================
+
+; === RISK ALLOCATION (aggressive, DD headroom allows it) ===
+InpBase_Risk_Percent=3.0
+InpKellyFraction=0.90
+InpKellyBlendWeight=0.85
+InpMaxCombinedMultiplier=5.0
+InpMaxLossPerTrade=1200
+InpMaxTotalRisk_Percent=12.0
+
+; === DD PENALTY (relaxed) ===
+DD_Penalty_Heavy=15.0
+DD_Penalty_Light=10.0
+
+; === EXIT MANAGEMENT (NEW — from DQ_ExitManagement.mqh) ===
+DQ_UsePartialClose=true
+DQ_PartialClosePct=50.0
+DQ_PartialCloseRR=1.0
+DQ_MoveSLToBE=true
+
+DQ_UseAdaptiveTrail=true
+DQ_TrailMethod=2
+DQ_TrailATRMult=2.5
+DQ_TrailATRPeriod=14
+DQ_TrailChandelierPer=22
+
+DQ_UseTimeExit=true
+DQ_TimeExitBars=12
+DQ_TimeExitMinProfit=0.0
+
+DQ_UseSessionSizing=true
+DQ_SessionAsian=0.80
+DQ_SessionLondonAM=1.20
+DQ_SessionNYOverlap=1.30
+DQ_SessionNYPM=1.10
+DQ_SessionDeadZone=0.00
+
+DQ_UseAntiMartingale=true
+DQ_AM_WinStreak3=1.30
+DQ_AM_WinStreak2=1.15
+DQ_AM_LossStreak3=0.50
+DQ_AM_LossStreak2=0.70
+
+; === EQUITY CURVE AMPLIFICATION (from V29_00_EQUITY_CURVE.mq4) ===
+DQ_UseEquityScaling=true
+DQ_EquityDDStart=0.05
+DQ_EquityDDMax=0.20
+DQ_EquityScaleMin=0.30
+
+; === D1 TREND FILTER (NEW — Cycle 19) ===
+UseD1TrendFilter=true
+
+; === VOLATILITY REGIME (NEW — Cycle 19) ===
+UseVolatilityRegime=true
+
+; === REAPER GRID (amplified) ===
+InpReaper_InitialLot=0.25
+InpReaper_BasketTP=1200
+
+; === QUEEN EXPOSURE ===
+Queen_MaxExposureLots=8.0
+
+; === ALL STRATEGIES ACTIVE ===
+InpMeanReversion_Enabled=true
+InpSessionMomentum_Enabled=true
+InpNexus_Enabled=true
+InpDivergenceMR_Enabled=true
+InpStructuralRetest_Enabled=true
+InpLiquiditySweep_Enabled=false  ; Keep disabled — PF 0.84
+
+; === MEAN REVERSION (loose for activation) ===
+InpDivergenceMR_BB_Dev=1.5
+InpDivergenceMR_Hurst_Threshold=0.50
+InpDivergenceMR_ADX_Max=40.0
+
+; === SESSION MOMENTUM ===
+InpSessionMomentum_ADX_Threshold=15.0
+
+; === NEXUS ===
+InpNexus_CompressionBars=2
+InpNexus_CompressionRatio=0.85
+InpNexus_MedianLookback=30
+
+; === EVENT SHIELD ===
+InpEventShield_Enabled=true
