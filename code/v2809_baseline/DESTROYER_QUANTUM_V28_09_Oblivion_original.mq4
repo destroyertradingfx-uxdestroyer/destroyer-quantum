@@ -7,7 +7,7 @@
 //+------------------------------------------------------------------+
 #property copyright "Copyright 2026, Quantum Leap Analytics"
 #property link      "https://github.com/okyyryan"
-#property version   "28.09"  // V28.09 OBLIVION: Bug purge — duplicate dispatch, pending orders, array bounds, Titan/Warden re-enabled
+#property version   "28.08"  // V28.08 OBLIVION: 4-Factor DD Reduction System
 #property strict
 
 /*
@@ -1538,19 +1538,19 @@ double   g_strategyMultiplier[20];                 // Dynamic risk multipliers [
 //--- V27.19: DYNAMIC PERFORMANCE-BASED LOT SIZING ---
 // Rolling trade history per strategy for Kelly calculation
 #define STRATEGY_HISTORY_SIZE 60                   // Rolling window of last N trades
-double   g_stratProfits[20][60];                   // Profit/loss of last 60 trades per strategy
-int      g_stratProfitIdx[20];                     // Current circular buffer index per strategy
-int      g_stratTotalTrades[20];                   // Total trades completed per strategy
-double   g_stratRollingWinRate[20];                // Rolling win rate (EWMA)
-double   g_stratRollingAvgWin[20];                 // Rolling average winning trade $
-double   g_stratRollingAvgLoss[20];                // Rolling average losing trade $
-double   g_stratRollingPF[20];                     // Rolling profit factor
-double   g_stratKellyFraction[20];                 // Kelly-optimal fraction per strategy
-double   g_stratSharpeProxy[20];                   // Rolling Sharpe proxy (return/volatility)
-double   g_stratHeatScore[20];                     // 0.0-1.0: How much "heat" (capital) to allocate
-datetime g_stratLastCalcTime[20];                  // Last time Kelly was recalculated
+double   g_stratProfits[15][60];                   // Profit/loss of last 60 trades per strategy
+int      g_stratProfitIdx[15];                     // Current circular buffer index per strategy
+int      g_stratTotalTrades[17];                   // Total trades completed per strategy
+double   g_stratRollingWinRate[15];                // Rolling win rate (EWMA)
+double   g_stratRollingAvgWin[15];                 // Rolling average winning trade $
+double   g_stratRollingAvgLoss[15];                // Rolling average losing trade $
+double   g_stratRollingPF[15];                     // Rolling profit factor
+double   g_stratKellyFraction[17];                 // Kelly-optimal fraction per strategy
+double   g_stratSharpeProxy[15];                   // Rolling Sharpe proxy (return/volatility)
+double   g_stratHeatScore[17];                     // 0.0-1.0: How much "heat" (capital) to allocate
+datetime g_stratLastCalcTime[15];                  // Last time Kelly was recalculated
 // Dynamic tier caps — replace hardcoded per-strategy caps
-double   g_stratDynamicMaxMult[20];                // Dynamically computed max multiplier per strategy
+double   g_stratDynamicMaxMult[17];                // Dynamically computed max multiplier per strategy
 
 // V27.21: Drawdown protection flag
 bool     g_ddProtectionActive = false;             // Set by ManageDrawdownExposure_V2 when DD > 10% (V28.00: tightened from 12%)
@@ -1727,7 +1727,7 @@ struct StrategyCooldown {
    datetime disabledTime;
    int disabledBars;
 };
-StrategyCooldown g_strategyCooldown[20]; // V28.00: Extended to 17 strategies
+StrategyCooldown g_strategyCooldown[17]; // V28.00: Extended to 17 strategies
 // ---
 
 //--- Dashboard Objects
@@ -4257,7 +4257,7 @@ void UpdatePerformanceMetrics()
         double avg_return = total_profit / total_trades;
         double variance = 0;
         
-        for(int i = 0; i < 20 && i < ArraySize(g_perfData); i++) // V28.09: Extended to 20
+        for(int i = 0; i < 17 && i < ArraySize(g_perfData); i++) // V28.00: Extended to 17
         {
             if(g_perfData[i].trades > 0)
             {
@@ -4710,7 +4710,7 @@ int OnInit()
    }
    
    // --- GENEVA V4.1: Extended Performance Accumulator ---
-   for(int i=0; i<20; i++) // V28.09: Extended to 20 strategy slots
+   for(int i=0; i<17; i++) // V28.00: Extended to 17 strategy slots
    {
        g_perfData[i].trades = 0;
        g_perfData[i].grossProfit = 0.0;
@@ -4738,7 +4738,7 @@ int OnInit()
    // ---
    
    // V13.0 ELITE: Initialize Strategy Cooldown System
-   for(int i = 0; i < 20; i++)  // V28.09: Extended to 20 strategies
+   for(int i = 0; i < 17; i++)  // V28.00: Extended to 17 strategies
    {
        g_strategyCooldown[i].disabled = false;
        g_strategyCooldown[i].disabledTime = 0;
@@ -5517,12 +5517,13 @@ void OnNewBar()
    // OnTick_SiliconX() will now need its own internal check. We will add a global permission flag.
    // Note: Orion decides permission on a NEW BAR, OnTick can check this state.
    
-// V28.09: RE-ENABLED Titan — was disabled in V28.05 for low trade count
-   if(InpTitan_Enabled)
-   {
-      ExecuteTitanStrategy();
-      if(CountOpenTrades() >= InpMaxOpenTrades) { if(!IsOptimization()) UpdateDashboard_StaticV8_6(); return; }
-   }
+// V28.05 FIX #4: DISABLED Titan — 7 trades in 6 years, $21 profit. Dead weight.
+// 8+ independent filters create a 0.4% pass rate. Needs redesign before re-enabling.
+// if(InpTitan_Enabled)
+// {
+//    ExecuteTitanStrategy();
+//    if(CountOpenTrades() >= InpMaxOpenTrades) { if(!IsOptimization()) UpdateDashboard_StaticV8_6(); return; }
+// }
    
    // STRATEGY: Mean Reversion (Low Priority Scalper)
    if(InpMeanReversion_Enabled)
@@ -5531,12 +5532,13 @@ void OnNewBar()
       if(CountOpenTrades() >= InpMaxOpenTrades) { if(!IsOptimization()) UpdateDashboard_StaticV8_6(); return; }
    }
    
-// V28.09: RE-ENABLED Warden — was disabled in V28.05 for low trade count
-   if(InpWarden_Enabled)
-   {
-      ExecuteWardenStrategy();
-      if(CountOpenTrades() >= InpMaxOpenTrades) { if(!IsOptimization()) UpdateDashboard_StaticV8_6(); return; }
-   }
+// V28.05 FIX #5: DISABLED Warden — 8 trades in 6 years, $690 profit. Dead weight.
+// VSA Injection gate (vol>1.5x AND range>1.5x on H4) is extremely rare. 0.3x risk multiplier.
+// if(InpWarden_Enabled)
+// {
+//    ExecuteWardenStrategy();
+//    if(CountOpenTrades() >= InpMaxOpenTrades) { if(!IsOptimization()) UpdateDashboard_StaticV8_6(); return; }
+// }
    
    // V26 FIX: Silicon-X moved here from OnTick_Elite for precise bar alignment
    if(InpSiliconX_Enabled)
@@ -5622,6 +5624,20 @@ void OnNewBar()
    if(InpStructuralRetest_Enabled)
    {
       ExecuteStructuralRetest();
+      if(CountOpenTrades() >= InpMaxOpenTrades) { if(!IsOptimization()) UpdateDashboard_StaticV8_6(); return; }
+   }
+
+   // V28.07: SPECTRE
+   if(InpSpectre_Enabled)
+   {
+      ExecuteSpectre();
+      if(CountOpenTrades() >= InpMaxOpenTrades) { if(!IsOptimization()) UpdateDashboard_StaticV8_6(); return; }
+   }
+
+   // V28.07: AETHER GAP
+   if(InpAetherGap_Enabled)
+   {
+      ExecuteAetherGap();
       if(CountOpenTrades() >= InpMaxOpenTrades) { if(!IsOptimization()) UpdateDashboard_StaticV8_6(); return; }
    }
 
@@ -9834,26 +9850,26 @@ void ExecuteSpectre()
       
       if(trendBias == 1 && Close[1] > gapMid)
       {
-         // Bullish FVG — market buy (V28.09 FIX: pending orders don't backtest)
+         // Bullish FVG — place buy limit at gap zone
          double sl = gapLow - atr * InpSpectre_ATR_SL_Mult;
          double tp = Close[1] + atr * InpSpectre_ATR_TP_Mult;
          double lots = MoneyManagement_Quantum(InpSpectre_MagicNumber, InpBase_Risk_Percent);
          if(lots > 0)
          {
-            int ticket = OpenTrade(OP_BUY, lots, Ask, sl, tp, "SPECTRE_FVG_BUY", InpSpectre_MagicNumber);
+            int ticket = OpenTrade(OP_BUYLIMIT, lots, gapMid, sl, tp, "SPECTRE_FVG_BUY", InpSpectre_MagicNumber);
             if(ticket > 0) { int si = GetStrategyIdx(InpSpectre_MagicNumber); if(si >= 0 && si < 20) g_perfData[si].trades++; }
          }
          break;
       }
       else if(trendBias == -1 && Close[1] < gapMid)
       {
-         // Bearish FVG — market sell (V28.09 FIX: pending orders don't backtest)
+         // Bearish FVG — place sell limit at gap zone
          double sl = gapHigh + atr * InpSpectre_ATR_SL_Mult;
          double tp = Close[1] - atr * InpSpectre_ATR_TP_Mult;
          double lots = MoneyManagement_Quantum(InpSpectre_MagicNumber, InpBase_Risk_Percent);
          if(lots > 0)
          {
-            int ticket = OpenTrade(OP_SELL, lots, Bid, sl, tp, "SPECTRE_FVG_SELL", InpSpectre_MagicNumber);
+            int ticket = OpenTrade(OP_SELLLIMIT, lots, gapMid, sl, tp, "SPECTRE_FVG_SELL", InpSpectre_MagicNumber);
             if(ticket > 0) { int si = GetStrategyIdx(InpSpectre_MagicNumber); if(si >= 0 && si < 20) g_perfData[si].trades++; }
          }
          break;
@@ -9907,7 +9923,7 @@ void ExecuteAetherGap()
          double lots = MoneyManagement_Quantum(InpAetherGap_MagicNumber, InpBase_Risk_Percent);
          if(lots > 0)
          {
-            int ticket = OpenTrade(OP_BUY, lots, Ask, sl, tp, "AETHER_FVG_BUY", InpAetherGap_MagicNumber);
+            int ticket = OpenTrade(OP_BUYLIMIT, lots, gapMid, sl, tp, "AETHER_FVG_BUY", InpAetherGap_MagicNumber);
             if(ticket > 0) { int si = GetStrategyIdx(InpAetherGap_MagicNumber); if(si >= 0 && si < 20) g_perfData[si].trades++; }
          }
          break;
@@ -9919,7 +9935,7 @@ void ExecuteAetherGap()
          double lots = MoneyManagement_Quantum(InpAetherGap_MagicNumber, InpBase_Risk_Percent);
          if(lots > 0)
          {
-            int ticket = OpenTrade(OP_SELL, lots, Bid, sl, tp, "AETHER_FVG_SELL", InpAetherGap_MagicNumber);
+            int ticket = OpenTrade(OP_SELLLIMIT, lots, gapMid, sl, tp, "AETHER_FVG_SELL", InpAetherGap_MagicNumber);
             if(ticket > 0) { int si = GetStrategyIdx(InpAetherGap_MagicNumber); if(si >= 0 && si < 20) g_perfData[si].trades++; }
          }
          break;
@@ -13139,7 +13155,7 @@ double GetDynamicKellyFraction(double baseKelly = 0.35)
 double GetPortfolioHeatMultiplier()
 {
    int stratsInDD = 0, stratsActive = 0;
-   for(int i = 0; i < 20; i++)
+   for(int i = 0; i < 17; i++)
    {
       if(g_stratTotalTrades[i] >= 10)
       {
